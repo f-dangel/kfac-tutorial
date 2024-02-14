@@ -1,0 +1,96 @@
+% ===================================================================
+% WRITING
+% ===================================================================
+\usepackage{paracol}
+\usepackage{blindtext}
+
+% ===================================================================
+% COLORS
+% ===================================================================
+% VECTOR PRIMARY COLORS
+\definecolor{VectorBlack}{RGB}{34, 34, 34}
+\definecolor{VectorGray}{RGB}{239, 238, 237}
+
+% VECTOR SECONDARY COLORS
+\definecolor{VectorBlue}{RGB}{59, 69, 227}
+\definecolor{VectorPink}{RGB}{253, 8, 238}
+\definecolor{VectorOrange}{RGB}{250, 173, 26}
+\definecolor{VectorTeal}{RGB}{82, 199, 222}
+
+% ===================================================================
+% REFERENCES
+% ===================================================================
+\hypersetup{%
+  colorlinks,
+  citecolor = VectorBlue,%
+  linkcolor = VectorBlue,%
+  urlcolor = VectorPink,%
+}%
+% tell cleveref how to name a listing environment
+\crefname{listing}{snippet}{snippets}
+% Rename Listing into Snippet
+\renewcommand{\lstlistingname}{Snippet}
+
+% ===================================================================
+% CODE BLOCKS
+% ===================================================================
+% define style for listings using the Vector color scheme
+\lstdefinestyle{vector_institute}{
+  backgroundcolor=\color{VectorGray!50},
+  commentstyle=\bfseries\color{VectorBlue},
+  keywordstyle=\bfseries\color{VectorBlack},
+  numberstyle=\tiny\color{VectorBlack!50},
+  stringstyle=\bfseries\color{VectorPink},
+  basicstyle=\ttfamily\scriptsize,
+  xleftmargin=3.2ex,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=t,
+  keepspaces=true,
+  numbers=left,
+  numbersep=7pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2,
+  % interpret anything between @...@ in a .py file as LaTeX code
+  escapechar=@,
+  escapebegin={\bfseries\color{blue}},
+  % increase block width to reduce number of lines
+  linewidth=1.25\linewidth,
+}
+% use the above style as default
+\lstset{style=vector_institute}
+
+\usepackage{caption}
+% modify captions of code blocks
+\captionsetup[lstlisting]{%
+  font={scriptsize},%
+  justification=raggedright,%
+  singlelinecheck=false,%
+}
+
+\newcommand{\repourl}{https://github.com/f-dangel/kfac-from-scratch}
+% Command to include code blocks and their output.
+% First argument is the filename inside the kfac_tutorial directory.
+% The listing can be referenced with that filename, too.
+\newcommand{\codeblockWithOutput}[1]{
+  % convert _ into \_ for LaTeX
+  \def\filename{\detokenize{#1}}
+  \lstinputlisting[%
+  language=python,%
+  caption=\href{\repourl/kfs/#1.py}{\texttt{kfs/\filename.py}},%
+  label=#1,%
+  ]{../kfs/#1.py}
+  \vspace{-1.25\baselineskip}
+  \lstinputlisting[%
+  language=python,%
+  numbers=none,%
+  basicstyle=\bfseries\ttfamily\scriptsize,%
+  title=\href{\repourl/tex/output/#1.txt}{Output:}\hfill,%
+  ]{output/#1.txt}
+}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

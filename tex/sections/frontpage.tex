@@ -1,0 +1,29 @@
+\begin{abstract}
+  Kronecker-factored approximate curvature (KFAC) is arguably one of the most prominent curvature approximation in deep learning.
+  Its applications range from optimization to Bayesian deep learning, influence functions, and model compression or merging.
+  KFAC's intuition is easy to understand; but its implementation is tedious: It comes in many flavours, has common pitfalls when translating the math to code, and is challenging to test, which complicates ensuring a properly functioning implementation.
+  Some of the authors themselves have experienced these struggles and discomfort of not being able to fully test their code.
+  Thanks to recent improvements in the understanding of KFAC, we are now able to provide test cases and a recipe for a reliable KFAC implementation.
+  This tutorial is meant as a ground-up introduction to KFAC.
+  In contrast to other works, our focus lies on explaining both math and code side-by-side, while gathering the latest insights onto KFAC which are scattered throughout the literature.
+  We hope that this allows beginners to gain a deeper understanding of this curvature approximation, and lowers the barrier to its implementation, extension, and usage in practise.
+\end{abstract}
+
+\vfill
+
+\paragraph{Version:} \today\,(v0.0.0)
+
+\paragraph{How to read this document:}
+This document has a somewhat unusual structure in that it uses a parallel column format.
+The left column contains the main text with explanations and mathematical descriptions.
+The right column accompanies the left one with code snippets to make the ideas precise in code.
+It can safely be skipped if you are in a rush.
+
+\paragraph{Code:} The project's \LaTeX\,\& Python source are available at \href{\repourl}{\texttt{github.com/f-dangel/kfac-from-scratch}}. If you want to run the code as you read, simply follow the installation instructions in the repository's README. If you find typos, confusing explanations, or have stylistic suggestions, please feel free to open issues and set up pull requests.
+
+\paragraph{Contributors:} Could list non-author contributors here to give them credit for suggesting improvements to the manuscript.
+\vspace{\baselineskip}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

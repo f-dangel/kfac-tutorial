@@ -1,0 +1,40 @@
+This is an attempt to bundle scattered knowledge about KFAC into a single document, explain all the technicalities and pitfalls, and present tests to ensure bug-free implementations.
+
+Should answer the following questions:
+\begin{itemize}
+\item Why do we need this tutorial?
+\item Why is this not a Jupyter notebook?
+\item What do we gain by explaining KFAC bottom-up?
+\item What ML framework do we use and why?
+\item What are we \emph{not} doing (e.g.\,building an optimizer)?
+\end{itemize}
+
+We use PyTorch~\cite{paszke2019pytorch} and implement everything using \texttt{torch.nn} rather than a functional formulation as we feel that many deep learning practitioners are more familiar with this style.
+There could be a JAX or functorch version, too.
+
+\begin{itemize}
+\item KFAC approximates the Fisher, which is an outer product of gradients. The gradients involve the output-parameter Jacobian of a weight, which has Kronecker structure,
+  \begin{align}
+    \jac_{\mW}(\mW \vx) = \vx^{\top} \otimes \mI\,.
+  \end{align}
+  This implies that the Fisher contains terms of the following form, where $\bullet$ is a placeholder for some matrix,
+  \begin{align}
+    \left(
+    \vx^{\top}\otimes \mI
+    \right)^{\top}
+    \bullet
+    \left(
+    \vx^{\top}\otimes \mI
+    \right)\,.
+  \end{align}
+
+\item The goal is to build up to an abstract general formulation of KFAC.
+  Given a compute graph which uses the operations $\vx, \mW \mapsto \mW x$, potentially in multiple places, define a Kronecker approximation of the Fisher.
+  Also to show the different degrees of freedom: treating weights \& biases jointly/separately, using reduce versus expand approximation, and treating weight tying, i.e.
+  multi-usage of $\mW$.
+
+\end{itemize}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
