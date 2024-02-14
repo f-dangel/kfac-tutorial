@@ -2,6 +2,7 @@
 
 Output files are stored in the same file tree as the `.py` files.
 """
+
 from glob import glob
 from os import makedirs, path, remove
 from subprocess import run
