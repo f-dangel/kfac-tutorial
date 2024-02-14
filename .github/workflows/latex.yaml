@@ -1,0 +1,22 @@
+name: Build LaTeX files
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository and submodules
+        uses: actions/checkout@v2
+      - name: paper
+        uses: xu-cheng/latex-action@2.8.0
+        with:
+          working_directory: tex
+          root_file: main.tex
+          latexmk_shell_escape: true
