@@ -14,15 +14,22 @@ OUTDIR = path.join(HEREDIR, "output")
 
 # remove all existing output files
 makedirs(OUTDIR, exist_ok=True)
-for out_file in glob(path.join(OUTDIR, "**", "*.txt"), recursive=True):
+for out_file in glob(
+    path.join(OUTDIR, "**", "*.txt"), recursive=True
+):
     print(f"Removing {out_file!r}")
     remove(out_file)
 
 # find all python files in the code directory
-py_files = glob(path.join(CODEDIR, "**", "*.py"), recursive=True)
+py_files = glob(
+    path.join(CODEDIR, "**", "*.py"), recursive=True
+)
 # generate names of output files
 out_files = [
-    f"{path.splitext(py_file)[0]}.txt".replace(CODEDIR, OUTDIR) for py_file in py_files
+    f"{path.splitext(py_file)[0]}.txt".replace(
+        CODEDIR, OUTDIR
+    )
+    for py_file in py_files
 ]
 # generate folders
 for out_file in out_files:
@@ -31,6 +38,11 @@ for out_file in out_files:
 # execute them and write their output to a file
 for py_file, out_file in zip(py_files, out_files):
     print(f"Executing {py_file!r}")
-    job = run(["python", py_file], capture_output=True, text=True, check=True)
+    job = run(
+        ["python", py_file],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
     with open(out_file, "w") as f:
         f.write(job.stdout)

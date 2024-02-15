@@ -54,10 +54,10 @@
   showtabs=false,
   tabsize=2,
   % interpret anything between @...@ in a .py file as LaTeX code
-  escapechar=@,
+  escapeinside={(@}{@)},
   escapebegin={\bfseries\color{blue}},
   % increase block width to reduce number of lines
-  linewidth=1.25\linewidth,
+  linewidth=\linewidth,
 }
 % use the above style as default
 \lstset{style=vector_institute}
@@ -90,6 +90,14 @@
   title=\href{\repourl/tex/output/#1.txt}{Output:}\hfill,%
   ]{output/#1.txt}
 }
+
+% ===================================================================
+% MATH
+% ===================================================================
+\theoremstyle{definition}
+\newtheorem{caveat}[theorem]{Caveat}
+\DeclareMathOperator{\rvec}{rvec}
+\DeclareMathOperator{\cvec}{cvec}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
