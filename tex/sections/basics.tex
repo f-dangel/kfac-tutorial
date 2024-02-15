@@ -43,167 +43,161 @@
   There are two popular flattening conventions: last-varies-fastest and first-varies-fastest.
 
   \begin{example}
-    For matrix
-    \(
-    \mA = \begin{pmatrix}
-            1 & 2 \\
-            3 & 4
-          \end{pmatrix}
-          \), we have
-          \begin{equation*}
-            \rvec(\mA)
-            =
-            \begin{pmatrix}
-              1 \\ 2 \\ 3 \\ 4
-            \end{pmatrix}\,,
-            \qquad
-            \cvec(\mA)
-            =
-            \begin{pmatrix}
-              1 \\ 3 \\ 2 \\ 4
-            \end{pmatrix}\,,
-          \end{equation*}
-          see \Cref{flattening}.
-        \end{example}
+    For matrix $\mA = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} $, we have
+    \begin{equation*}
+      \rvec(\mA)
+      =
+      \begin{pmatrix}
+        1 \\ 2 \\ 3 \\ 4
+      \end{pmatrix}\,,
+      \qquad
+      \cvec(\mA)
+      =
+      \begin{pmatrix}
+        1 \\ 3 \\ 2 \\ 4
+      \end{pmatrix}\,,
+    \end{equation*}
+    see \Cref{flattening}.
+  \end{example}
 
-        \switchcolumn[1]
-        \codeblockWithOutput{flattening}
+  \switchcolumn[1]
+  \codeblockWithOutput{flattening}
 
-        \switchcolumn[0]*
-        \subsubsection{Jacobians, JVP, VJPs}
+  \switchcolumn[0]*
+  \subsubsection{Jacobians, JVP, VJPs}
 
-        \begin{definition}[Jacobian]
-          Consider a vector-to-vector function $f: \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$.
-          Its Jacobian $\jac_{\va}\vb \in \sR^{\mB \times \mA}$ collects the first-order partial derivatives into a matrix such that
-          \begin{align*}
-            [\jac_{\va} \vb]_{i,j} = \frac{\partial [f(\va)]_i}{\partial [\va]_j}\,.
-          \end{align*}
-        \end{definition}
+  \begin{definition}[Jacobian]
+    Consider a vector-to-vector function $f: \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$.
+    Its Jacobian $\jac_{\va}\vb \in \sR^{\mB \times \mA}$ collects the first-order partial derivatives into a matrix such that
+    \begin{align*}
+      [\jac_{\va} \vb]_{i,j} = \frac{\partial [f(\va)]_i}{\partial [\va]_j}\,.
+    \end{align*}
+  \end{definition}
 
-        \begin{definition}[General Jacobian]
-          TODO
-        \end{definition}
+  \begin{definition}[General Jacobian]
+    TODO
+  \end{definition}
 
-        \begin{definition}[Vector-Jacobian products]
-          TODO
-        \end{definition}
+  \begin{definition}[Vector-Jacobian products]
+    TODO
+  \end{definition}
 
-        \begin{definition}[$\cvec$-Jacobian]
-          Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$. Its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_N \cdots A_1 \times B_M \cdots B_1}$ results from flattening input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
-          \begin{align*}
-            [\jac^{\cvec}_{\tA}\tB]_{i,j}
-            =
-            \frac{\partial [\cvec(f(\tA))]_i}{\partial [\cvec(\tA)]_j}\,.
-          \end{align*}
-        \end{definition}
+  \begin{definition}[$\cvec$-Jacobian]
+    Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$. Its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_N \cdots A_1 \times B_M \cdots B_1}$ results from flattening input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
+    \begin{align*}
+      [\jac^{\cvec}_{\tA}\tB]_{i,j}
+      =
+      \frac{\partial [\cvec(f(\tA))]_i}{\partial [\cvec(\tA)]_j}\,.
+    \end{align*}
+  \end{definition}
 
-        \begin{definition}[$\rvec$-Jacobian]
-          Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$. Its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_1 \cdots A_N \times B_1 \cdots B_M}$ results from flattening input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
-          \begin{align*}
-            [\jac^{\cvec}_{\tA}\tB]_{i,j}
-            =
-            \frac{\partial [\cvec(f(\tA))]_i}{\partial [\cvec(\tA)]_j}\,.
-          \end{align*}
-        \end{definition}
+  \begin{definition}[$\rvec$-Jacobian]
+    Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$. Its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_1 \cdots A_N \times B_1 \cdots B_M}$ results from flattening input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
+    \begin{align*}
+      [\jac^{\cvec}_{\tA}\tB]_{i,j}
+      =
+      \frac{\partial [\cvec(f(\tA))]_i}{\partial [\cvec(\tA)]_j}\,.
+    \end{align*}
+  \end{definition}
 
-        \switchcolumn[1]
-        \codeblockWithOutput{jacobians}
+  \switchcolumn[1]
+  \codeblockWithOutput{jacobians}
 
 
-        \switchcolumn[1]*
-        \codeblockWithOutput{jacobians_linear_layer}
-        \switchcolumn[0]
+  \switchcolumn[1]*
+  \codeblockWithOutput{jacobians_linear_layer}
+  \switchcolumn[0]
 
-        \begin{example}[$\cvec$- and $\rvec$-weight Jacobians of a linear layer]
-          Consider an affine map with weight matrix $\mW \in \sR^{D_{\text{out}} \times D_{\text{in}}}$, bias vector $\vb \in \sR^{D_{\text{out}}}$, input vector $\vx \in \sR^{D_{\text{in}}}$ and output vector $\vz \in \sR^{D_{\text{out}}}$ with
-          \begin{align*}
-            \vz
-            \coloneqq
-            \mW \vx + \vb
-            =
-            \begin{pmatrix}
-              \mW & \vb
-            \end{pmatrix}
-            \begin{pmatrix}
-              \vx \\ 1
-            \end{pmatrix}
-            \coloneqq
-            \tilde{\mW}
-            \tilde{\vx}\,.
-          \end{align*}
-          To express this operation as matrix-vector multiplication, we combined weight and bias into a single matrix $\tilde{\mW}$ and augment the input with a one, yielding $\tilde{\vx}$, to account for the bias contribution.
+  \begin{example}[$\cvec$- and $\rvec$-weight Jacobians of a linear layer]
+    Consider an affine map with weight matrix $\mW \in \sR^{D_{\text{out}} \times D_{\text{in}}}$, bias vector $\vb \in \sR^{D_{\text{out}}}$, input vector $\vx \in \sR^{D_{\text{in}}}$ and output vector $\vz \in \sR^{D_{\text{out}}}$ with
+    \begin{align*}
+      \vz
+      \coloneqq
+      \mW \vx + \vb
+      =
+      \begin{pmatrix}
+        \mW & \vb
+      \end{pmatrix}
+      \begin{pmatrix}
+        \vx \\ 1
+      \end{pmatrix}
+      \coloneqq
+      \tilde{\mW}
+      \tilde{\vx}\,.
+    \end{align*}
+    To express this operation as matrix-vector multiplication, we combined weight and bias into a single matrix $\tilde{\mW}$ and augment the input with a one, yielding $\tilde{\vx}$, to account for the bias contribution.
 
-          The $\cvec$-Jacobian w.r.t.\,the combined weight is
-          \begin{align*}
-            \jac^{\cvec}_{\tilde{\mW}}\vz
-            =
-            \tilde{\vx}^{\top}
-            \otimes
-            \mI_{D_{\text{out}}}\,.
-          \end{align*}
-          In contrast, the $\rvec$-Jacobian is
-          \begin{align*}
-            \jac^{\cvec}_{\tilde{\mW}}\vz
-            =
-            \mI_{D_{\text{out}}}
-            \otimes
-            \tilde{\vx}^{top}\,,
-          \end{align*}
-          see \Cref{jacobians_linear_layer}.
-          Note that the order of Kronecker factors is \emph{reversed}, depending on the flattening scheme.
-        \end{example}
+    The $\cvec$-Jacobian w.r.t.\,the combined weight is
+    \begin{align*}
+      \jac^{\cvec}_{\tilde{\mW}}\vz
+      =
+      \tilde{\vx}^{\top}
+      \otimes
+      \mI_{D_{\text{out}}}\,.
+    \end{align*}
+    In contrast, the $\rvec$-Jacobian is
+    \begin{align*}
+      \jac^{\cvec}_{\tilde{\mW}}\vz
+      =
+      \mI_{D_{\text{out}}}
+      \otimes
+      \tilde{\vx}^{top}\,,
+    \end{align*}
+    see \Cref{jacobians_linear_layer}.
+    Note that the order of Kronecker factors is \emph{reversed}, depending on the flattening scheme.
+  \end{example}
 
-        \begin{example}[$\cvec$- and $\rvec$-weight Jacobians of a linear layer with weight sharing]
-          Consider the same affine map from above, but now processing multiple input vectors $\mX = \begin{pmatrix}\vx_1 & \dots & \vx_S\end{pmatrix} \in \sR^{D_{\text{in}}\times S}$, yielding a sequence $\mZ = \begin{pmatrix} \vz_1 & \dots & \vz_S\end{pmatrix} \in \sR^{D_{\text{out}}\times S}$ where each $\vz_s$ is produced like above.
-          The parameters are \emph{shared} over all vectors in the input sequence.
-          In matrix notation,
-          \begin{align*}
-            \mZ
-            \coloneqq
-            \mW \mX + \vb \vone^{\top}_S
-            =
-            \begin{pmatrix}
-              \mW & \vb
-            \end{pmatrix}
-            \begin{pmatrix}
-              \mX \\ \vone^{\top}_S
-            \end{pmatrix}
-            \coloneqq
-            \tilde{\mW}
-            \tilde{\mX}\,.
-          \end{align*}
-          The $\cvec$-Jacobian w.r.t.\,the combined weight is
-          \begin{align*}
-            \jac^{\cvec}_{\tilde{\mW}}\mZ
-            =
-            \tilde{\mX}
-            \otimes
-            \mI_{D_{\text{out}}}\,.
-          \end{align*}
-          In contrast, the $\rvec$-Jacobian is
-          \begin{align*}
-            \jac^{\cvec}_{\tilde{\mW}}\mZ
-            =
-            \mI_{D_{\text{out}}}
-            \otimes
-            \tilde{\mX}\,,
-          \end{align*}
-          see \Cref{jacobians_shared_linear_layer}.
-        \end{example}
+  \begin{example}[$\cvec$- and $\rvec$-weight Jacobians of a linear layer with weight sharing]
+    Consider the same affine map from above, but now processing multiple input vectors $\mX = \begin{pmatrix}\vx_1 & \dots & \vx_S\end{pmatrix} \in \sR^{D_{\text{in}}\times S}$, yielding a sequence $\mZ = \begin{pmatrix} \vz_1 & \dots & \vz_S\end{pmatrix} \in \sR^{D_{\text{out}}\times S}$ where each $\vz_s$ is produced like above.
+    The parameters are \emph{shared} over all vectors in the input sequence.
+    In matrix notation,
+    \begin{align*}
+      \mZ
+      \coloneqq
+      \mW \mX + \vb \vone^{\top}_S
+      =
+      \begin{pmatrix}
+        \mW & \vb
+      \end{pmatrix}
+      \begin{pmatrix}
+        \mX \\ \vone^{\top}_S
+      \end{pmatrix}
+      \coloneqq
+      \tilde{\mW}
+      \tilde{\mX}\,.
+    \end{align*}
+    The $\cvec$-Jacobian w.r.t.\,the combined weight is
+    \begin{align*}
+      \jac^{\cvec}_{\tilde{\mW}}\mZ
+      =
+      \tilde{\mX}
+      \otimes
+      \mI_{D_{\text{out}}}\,.
+    \end{align*}
+    In contrast, the $\rvec$-Jacobian is
+    \begin{align*}
+      \jac^{\cvec}_{\tilde{\mW}}\mZ
+      =
+      \mI_{D_{\text{out}}}
+      \otimes
+      \tilde{\mX}\,,
+    \end{align*}
+    see \Cref{jacobians_shared_linear_layer}.
+  \end{example}
 
-        \switchcolumn[1]
-        \codeblockWithOutput{jacobians_shared_linear_layer}
+  \switchcolumn[1]
+  \codeblockWithOutput{jacobians_shared_linear_layer}
 
-      \end{paracol}
-      \subsubsection{Hessians, HVPs}
+\end{paracol}
+\subsubsection{Hessians, HVPs}
 
-      \subsection{Curvature Matrices}
-      \subsubsection{The Generalized Gauss-Newton (GGN)}
-      \subsubsection{The Fisher}
-      \subsubsection{The Connection between GGN \& Fisher}
-      \subsubsection{The Empirical Fisher (EF)}
+\subsection{Curvature Matrices}
+\subsubsection{The Generalized Gauss-Newton (GGN)}
+\subsubsection{The Fisher}
+\subsubsection{The Connection between GGN \& Fisher}
+\subsubsection{The Empirical Fisher (EF)}
 
-      %%% Local Variables:
-      %%% mode: latex
-      %%% TeX-master: "../main"
-      %%% End:
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
