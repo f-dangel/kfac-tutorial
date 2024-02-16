@@ -11,7 +11,7 @@ def vjp(
     create_graph: bool = False,
     detach=True,
 ) -> Tensor:
-    """Multiply the transpose Jacobian of f w.r.t. x onto v.
+    r"""Multiply the transpose Jacobian of f w.r.t. x onto v.
 
     See $\text{\Cref{def:vjp}}$.
 
@@ -41,7 +41,7 @@ def jvp(
     create_graph: bool = False,
     detach=True,
 ) -> Tensor:
-    """Multiply the Jacobian of f w.r.t. x onto v.
+    r"""Multiply the Jacobian of f w.r.t. x onto v.
 
     See $\text{\Cref{def:jvp}}$.
 

@@ -7,14 +7,13 @@ from torch import (
     zeros,
     zeros_like,
 )
-from torch.autograd import grad
 
 from kfs.flattening import cvec, rvec
 from kfs.jacobian_products import vjp
 
 
 def jac(f: Tensor, x: Tensor) -> Tensor:
-    """Compute the general Jacobian tensor of f w.r.t. x.
+    r"""Compute the general Jacobian tensor of f w.r.t. x.
 
     See $\text{\Cref{def:general_jacobian}}$.
 
@@ -32,13 +31,15 @@ def jac(f: Tensor, x: Tensor) -> Tensor:
         d_unraveled = unravel_index(d, f.shape)
         one_hot_d = zeros_like(f)
         one_hot_d[d_unraveled] = 1.0
-        J[d_unraveled] = vjp(f, x, one_hot_d, create_graph=True)
+        J[d_unraveled] = vjp(
+            f, x, one_hot_d, create_graph=True
+        )
 
     return J
 
 
 def cvec_jac(f: Tensor, x: Tensor) -> Tensor:
-    """Compute the Jacobian in column-flattening convention.
+    r"""Compute the Jacobian in column-flattening convention.
 
     See $\text{\Cref{def:cvec_jacobian}}$.
 
@@ -58,7 +59,7 @@ def cvec_jac(f: Tensor, x: Tensor) -> Tensor:
 
 
 def rvec_jac(f: Tensor, x: Tensor) -> Tensor:
-    """Compute the Jacobian in row-flattening convention.
+    r"""Compute the Jacobian in row-flattening convention.
 
     See $\text{\Cref{def:rvec_jacobian}}$.
 

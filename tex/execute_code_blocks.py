@@ -1,6 +1,7 @@
-"""Run all `.py` files in `kfs` as main and save their output to `output`.
+"""Run all `.py` files in `kfs` and save their output.
 
-Output files are stored in the same file tree as the `.py` files.
+Output files are stored in the same file tree as the
+`.py` files.
 """
 
 from glob import glob
@@ -21,10 +22,14 @@ for out_file in glob(
     remove(out_file)
 
 # find all python files in the code directory
-py_files = glob(path.join(CODEDIR, "**", "*.py"), recursive=True)
+py_files = glob(
+    path.join(CODEDIR, "**", "*.py"), recursive=True
+)
 # generate names of output files
 out_files = [
-    f"{path.splitext(py_file)[0]}.txt".replace(CODEDIR, OUTDIR)
+    f"{path.splitext(py_file)[0]}.txt".replace(
+        CODEDIR, OUTDIR
+    )
     for py_file in py_files
 ]
 # generate folders
