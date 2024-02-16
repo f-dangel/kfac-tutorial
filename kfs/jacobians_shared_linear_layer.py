@@ -1,4 +1,4 @@
-"""Output-weight Jacobian of a linear layer with weight sharing."""
+"""Output-weight Jacobian of a weight sharing linear layer."""
 
 from torch import allclose, eye, kron, manual_seed, rand
 

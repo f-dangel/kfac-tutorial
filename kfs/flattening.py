@@ -9,11 +9,15 @@ def rvec(
 ) -> Tensor:
     """Flatten a tensor in last-varies-fastest fashion.
 
+    See $\text{\Cref{def:rvec}}$.
     For a matrix, this corresponds to row-stacking.
     This is the common flattening scheme in code.
 
     Args:
         t: A tensor.
+        start_dim: At which dimension to start flattening.
+            Default is 0.
+        end_dim: The last dimension to flatten. Default is -1.
 
     Returns:
         The flattened tensor.
@@ -26,11 +30,15 @@ def cvec(
 ) -> Tensor:
     """Flatten a tensor in first-varies-fastest fashion.
 
+    See $\text{\Cref{def:cvec}}$.
     For a matrix, this corresponds to column-stacking.
     This is the common flattening scheme in literature.
 
     Args:
         t: A tensor.
+        start_dim: At which dimension to start flattening.
+            Default is 0.
+        end_dim: The last dimension to flatten. Default is -1.
 
     Returns:
         The flattened tensor.
@@ -38,9 +46,7 @@ def cvec(
     end_dim = end_dim if end_dim >= 0 else end_dim + t.ndim
     # flip index order, then flatten last-varies-fastest
     before = [f"s{i}" for i in range(start_dim)]
-    active = [
-        f"a{i}" for i in range(start_dim, end_dim + 1)
-    ]
+    active = [f"a{i}" for i in range(start_dim, end_dim + 1)]
     after = [f"s{i}" for i in range(end_dim + 1, t.ndim)]
     flipped = active[::-1]
 

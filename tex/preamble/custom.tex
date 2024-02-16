@@ -53,10 +53,9 @@
   showstringspaces=false,
   showtabs=false,
   tabsize=2,
-  % interpret anything between (@ ... @) in a .py file as LaTeX code
-  escapeinside={(@}{@)},
-  escapebegin={\bfseries\color{blue}},
+  escapebegin={\color{blue}},
   linewidth=\linewidth,
+  mathescape=true,
 }
 % use the above style as default
 \lstset{style=vector_institute}
@@ -73,7 +72,7 @@
 % Command to include code blocks and their output.
 % First argument is the filename inside the kfac_tutorial directory.
 % The listing can be referenced with that filename, too.
-\newcommand{\codeblockWithOutput}[1]{
+\newcommand{\codeblock}[1]{
   % convert _ into \_ for LaTeX
   \def\filename{\detokenize{#1}}
   \lstinputlisting[%
@@ -81,22 +80,45 @@
   caption=\href{\repourl/kfs/#1.py}{\texttt{kfs/\filename.py}},%
   label=#1,%
   ]{../kfs/#1.py}
-  \vspace{-1.25\baselineskip}
-  \lstinputlisting[%
-  language=python,%
-  numbers=none,%
-  basicstyle=\bfseries\ttfamily\scriptsize,%
-  title=\href{\repourl/tex/output/#1.txt}{Output:}\hfill,%
-  ]{output/#1.txt}
+  % \vspace{-1.25\baselineskip}
+  % \lstinputlisting[%
+  % language=python,%
+  % numbers=none,%
+  % basicstyle=\bfseries\ttfamily\scriptsize,%
+  % title=\href{\repourl/tex/output/#1.txt}{Output:}\hfill,%
+  % ]{output/#1.txt}
 }
 
 % ===================================================================
 % MATH
 % ===================================================================
-\theoremstyle{definition}
-\newtheorem{caveat}[theorem]{Caveat}
 \DeclareMathOperator{\rvec}{rvec}
 \DeclareMathOperator{\cvec}{cvec}
+
+\usepackage{mdframed}
+\mdfdefinestyle{custom}{%
+  linecolor=black,%
+  topline=false,%
+  bottomline=false,%
+  rightline=false,%
+  linewidth=1.25pt,%
+  backgroundcolor=VectorGray!50,%
+  innerleftmargin=5pt,%
+  % innertopmargin=8pt,%
+}
+\theoremstyle{definition}
+\newmdtheoremenv[style=custom]{definition}{Definition}[section]
+\newmdtheoremenv[style=custom]{example}{Example}[section]
+\newmdtheoremenv[%
+style=custom,%
+linecolor=VectorOrange,%
+backgroundcolor=VectorOrange!10,%
+]{caveat}{Caveat}[section]
+\newmdtheoremenv[%
+style=custom,%
+linecolor=VectorTeal,%
+backgroundcolor=VectorTeal!10,%
+]{test}{Test}[section]
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

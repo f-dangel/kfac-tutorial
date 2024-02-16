@@ -21,15 +21,20 @@
 \clearpage
 
 \columnratio{0.42}
+\begin{paracol}{2}
+  \section{Basics}
+  \input{sections/basics.tex}
 
-\section{Basics}
-\input{sections/basics.tex}
+  \switchcolumn[0]*
+  \section{KFAC on a Single Data Point}
+  \begin{test}[KFAC]
+    Describe setting in which KFAC becomes exact.
+  \end{test}
 
-\section{KFAC on a Single Data Point}
+  \section{Multiple Data \& Weight Sharing (expand and reduce)}
 
-\section{Multiple Data \& Weight Sharing (expand and reduce)}
-
-\section{Multiple Children}
+  \section{Multiple Children}
+\end{paracol}
 
 \clearpage
 \input{sections/references.tex}
