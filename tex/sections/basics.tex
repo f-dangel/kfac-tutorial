@@ -1,37 +1,42 @@
 \subsection{Empirical risk minimization \& Maximum Likelihood Estimation}
 
-\columnratio{0.45}
-\begin{paracol}{2}
 
-  \begin{align}
-    \gL(\vtheta) &= \sum_{n=1}^N \ell(\vtheta, \vx_n, \vy_n)
-    \\
-                 &=
-                   \sum_{n=1}^N c(f(\vtheta, \vx_n), \vy_n)
-  \end{align}
+\begin{align}
+  \gL(\vtheta) &= \sum_{n=1}^N \ell(\vtheta, \vx_n, \vy_n)
+  \\
+               &=
+                 \sum_{n=1}^N c(f(\vtheta, \vx_n), \vy_n)
+\end{align}
 
-  \switchcolumn[0]
+\switchcolumn[0]
 
-  \blindtext
+\blindtext
 
-  \switchcolumn[1]
+\switchcolumn[1]
 
-  \switchcolumn[0]* % sync
+\switchcolumn[0]* % sync
 
-  \blindtext
-
-  \switchcolumn[1]
-
-  \codeblockWithOutput{hello_world}
-
-  \switchcolumn[0]
-
-  \Cref{hello_world} says hello world.
-
-\end{paracol}
+\blindtext
 
 \subsection{Derivatives}
+
+\begin{caveat}
+  In deep learning, we often work with matrices, or higher-dimensional tensors.
+  We want to use matrix linear algebra expressions to avoid using heavy index notation.
+  This can be achieved by flattening all tensors back into vectors and re-using definitions derivatives from the vector case.
+  However, we must be careful when translating the results back to the tensor format, as the translation process depends on the flattening convention.
+  Classically, the mathematical derivations prefer a \emph{different} flattening scheme than the one used in deep learning libraries.
+\end{caveat}
+
+\switchcolumn[0]*
+\subsubsection{Flattening}
+\input{sections/basics_flattening.tex}
+
+\switchcolumn[0]*
 \subsubsection{Jacobians, JVP, VJPs}
+\input{sections/basics_jacobians.tex}
+
+\switchcolumn[0]*
 \subsubsection{Hessians, HVPs}
 
 \subsection{Curvature Matrices}
