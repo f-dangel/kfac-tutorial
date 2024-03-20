@@ -10,9 +10,11 @@ For arbitrary tensors, we can generalize the matrix flattenings by ordering entr
 \codeblock{flattening}
 \switchcolumn[0]
 
+\begin{setup}\label{setup:flattening}
+  Let $\tA \in \sR^{N_1 \times \dots \times N_A}$ be a tensor of rank $A$ whose entries are indexed through a tuple $(n_1, \dots, n_A)$ where $n_a \in \{1, \dots, N_a\}$.
+\end{setup}
 \begin{definition}[$\cvec$, \Cref{flattening}]\label{def:cvec}
-  Let $\tA \in \sR^{N_1 \times \dots \times N_A}$ be a tensor of rank $A$ whose entries can be indexed through a tuple $(n_1, \dots, n_A)$ where $n_a \in \{1, \dots, N_a\}$.
-  The first-varies-fastest flattening of $\tA$ is given by
+  The first-varies-fastest flattening of $\tA$ from \Cref{setup:flattening} is
   \begin{align*}
     \cvec(\tA) =
     \begin{pmatrix}
@@ -31,8 +33,7 @@ For arbitrary tensors, we can generalize the matrix flattenings by ordering entr
 \end{definition}
 
 \begin{definition}[$\rvec$, \Cref{flattening}]\label{def:rvec}
-  Let $\tA \in \sR^{N_1 \times \dots \times N_A}$ be a tensor of rank $A$ whose entries can be indexed through a tuple $(n_1, \dots, n_A)$ where $n_a \in \{1, \dots, N_a\}$.
-  The last-varies-fastest flattening of $\tA$ is given by
+  The last-varies-fastest flattening of $\tA$ from \Cref{setup:flattening} is
   \begin{align*}
     \rvec(\tA) =
     \begin{pmatrix}
