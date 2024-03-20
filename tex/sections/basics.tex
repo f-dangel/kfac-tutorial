@@ -1,5 +1,9 @@
 \subsection{Empirical risk minimization \& Maximum Likelihood Estimation}
 
+\subsubsection{Deep neural networks}
+
+\subsubsection{Probabilistic interpretation}
+
 
 \begin{align}
   \gL(\vtheta) &= \sum_{n=1}^N \ell(\vtheta, \vx_n, \vy_n)
@@ -18,7 +22,7 @@
 
 \blindtext
 
-\subsection{Derivatives}
+\subsection{Derivatives \& Automatic Differentiation}
 
 \begin{caveat}
   In deep learning, we often work with matrices, or higher-dimensional tensors.
@@ -41,9 +45,15 @@
 \input{sections/basics_hessians.tex}
 
 \switchcolumn[0]*
-\subsection{Curvature Matrices}
+\subsection{Curvature Matrices in Deep Learning}
+\subsubsection{The Hessian}
+
 \subsubsection{The Generalized Gauss-Newton (GGN)}
+Linearization
 \subsubsection{The Fisher}
+Probabilistic perspective
+
+Explain type-1 versus type-2
 \subsubsection{The Connection between GGN \& Fisher}
 \subsubsection{The Empirical Fisher (EF)}
 

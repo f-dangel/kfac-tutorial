@@ -1,27 +1,116 @@
-\begin{definition}[Hessian of a vector-to-scalar function]
-  TODO
+Now that we have covered first-order derivatives, we will move on to second-order derivatives and develop the necessary concepts to understand KFAC, as well as their implementation.
+Second-order derivatives are collected into an object called \emph{the Hessian}.
+For our purposes, it will be sufficient to consider the Hessian of functions producing a scalar-valued output.
+Let's start with the definition of the Hessian of a vector-to-scalar function.
+
+\begin{definition}[Hessian of a vector-to-scalar function]\label{def:vector_hessian}
+  Let $\vf: \sR^A \to \sR, \va \mapsto b = f(\va)$ be a vector-to-scalar function.
+  Its Hessian $\hess_{\va}b \in \sR^{A \times A}$ collects the second-order partial derivatives into a matrix such that
+  \begin{align*}
+    [\hess_{\va}b]_{i,j}
+    &=
+      \frac{\partial^2 b}{\partial [\va]_i \partial [\va]_j}\,.
+  \end{align*}
+\end{definition}
+This definition is limited to functions with vector-valued arguments. The extension to tensor-to-scalar-functions is straightforward; however, it yields a tensor which is less convenient to work with in terms of notation:
+
+\begin{setup}\label{setup:hessians}
+  Consider a tensor-to-scalar function $f: \sR^{A_1 \times \dots \times A_N} \to \sR, \tA \mapsto b = f(\tA)$ from a rank-$N$ tensor $\tA$ into a scalar $b$.
+\end{setup}
+
+\begin{definition}[General Hessian of a tensor-to-scalar function, \Cref{hessians}]\label{def:general_hessian}
+  The general Hessian of $f$ from \Cref{setup:hessians}, $\tH_{\tA}b \in \sR^{A_1 \times \dots \times A_N \times A_1 \times \dots \times A_N}$, collects the second-order partial derivatives of $f$ into a tensor with
+  \begin{align*}
+    &[\tH_{\tA}b]_{i_1, \dots, i_N, j_1, \dots, j_N}
+      \\
+    &=
+      \frac{\partial^2 b}{\partial [\tA]_{i_1, \dots, i_N} \partial [\tA]_{j_1, \dots, j_N}}\,.
+  \end{align*}
+\end{definition}
+Just like for Jacobians, the Hessian tensor is usually too large to be stored in memory.
+Hence, one usually works with it implicitly through matrix-vector products, which can be done without computing the Hessian:
+
+\switchcolumn[1]*
+\codeblock{hessian_product}
+\switchcolumn[0]
+
+\begin{definition}[Hessian-vector products (HVPs), \Cref{hessian_product}]\label{def:hvp}
+  Given a tensor-to-scalar function $f$ from \Cref{setup:hessians} and a tensor $\tV \in \sR^{A_1 \times \dots \times A_N}$ in the input domain, the Hessian-vector product (HVP) $\tU$ of $\tV$ with $\hess$ is the result of the contraction with one of the Hessian's input indices,
+  \begin{align*}
+    &[\tU]_{i_1, \dots, i_N}
+    \\
+    &=
+      \sum_{j_1, \dots, j_N}
+      [\tH_{\tA}b]_{i_1, \dots, i_N, j_1, \dots, j_N} [\tV]_{j_1, \dots, j_N}\,.
+  \end{align*}
+\end{definition}
+For the vector case $N=1$, we have $\tV, \tA, \tH_{\tA}b \to \vv, \va, \hess_{\va}b$ and $\tU \to \vu = \hess_{\va} b$ as suggested by the name.
+
+One way to multiply by the Hessian uses the so-called Pearlmutter trick~\cite{pearlmutter1994fast}.
+It relies on the fact that multiplication with higher-order derivatives can be done by nested first-order differentiation.
+Hence, multiplication with the Hessian can be done with two VJPs.
+
+\switchcolumn[1]*
+\codeblock{hessians}
+\switchcolumn[0]
+
+\paragraph{Matricization:} For notational convenience, we will also define matricized versions of the general Hessian from \Cref{def:general_hessian}; the $\cvec$-, and $\rvec$-Hessian. Just like for the Jacobians, it does not matter whether we first flatten the function's input space then compute the Hessian, or compute the general Hessian then matricize it:
+
+\begin{figure}[!h]
+  \centering
+  \begin{tikzpicture}[%
+    font=\scriptsize,%
+    thick,
+    box/.style = {rectangle, draw=black, rounded corners, fill=VectorGray!50},%%
+    ]
+    \node[box] (A) at (0,0) {$f: \tA \mapsto b = f(\tA)$};
+    \node[box] (B) at (4,0) {$\tJ_{\tA}b$};
+    \node[box, align=center] (C) at (0,-2.5) {%
+      $f^{\vec} = f \circ \vec^{-1}$\\%
+      $\vec(\tA) \coloneq \va \mapsto b$%
+    };
+    \node[box, align=center] (D) at (4,-2.5) {%
+      $\hess_{\va} b$\\%
+      $=$\\%
+      $\mat(\tH_{\tA}b)$\\%
+      $\coloneq$\\%
+      $\hess^{\vec}_{\tA}b$%
+    };
+    \draw[-Stealth] (A.east) -- node[fill=white] {$\tJ$} (B.west);
+    \draw[-Stealth] (A.south) -- node[fill=white] {flatten $f$} (C.north);
+    \draw[-Stealth] (C.east) -- node[fill=white] {$\jac$} (D.west);
+    \draw[-Stealth] (B.south) -- node[fill=white] {matricize $\tH_{\tA}b$} (D.north);
+  \end{tikzpicture}
+  \caption{Flattening and taking the Hessian commute and lead to the same matricized Hessian.
+    $\vec$ denotes one of the flattening conventions from \Cref{def:cvec,def:rvec}.
+    $\mat$ denotes matricization and involves two flattenings for the row and column dimensions, respectively.}
+\end{figure}
+
+
+\begin{definition}[$\cvec$-Hessian]\label{def:cvec_hessian}
+  For a tensor-to-scalar function $f$ from \Cref{setup:hessians}, the $\cvec$-Hessian $\hess_{\tA}^{\cvec}b \in \sR^{A_N \cdots A_1 \times A_N \cdots A_1}$ results from flattening the input tensor with $\cvec$ and applying the Hessian from \Cref{def:vector_hessian},
+  \begin{align*}
+    [\hess^{\cvec}_{\tA}b]_{i, j}
+    &=
+      \frac{\partial^2 b}{\partial [\cvec(\tA)]_{i} \partial [\cvec(\tA)]_{j}}\,.
+  \end{align*}
 \end{definition}
 
-\begin{definition}[General Hessian of a tensor-to-scalar function]
-
+\begin{definition}[$\rvec$-Hessian]\label{def:rvec_hessian}
+  For a tensor-to-scalar function $f$ from \Cref{setup:hessians}, the $\rvec$-Hessian $\hess_{\tA}^{\rvec}b \in \sR^{A_1 \cdots A_N \times A_1 \cdots A_N}$ results from flattening the input tensor with $\rvec$ and applying the Hessian from \Cref{def:vector_hessian},
+  \begin{align*}
+    [\hess^{\rvec}_{\tA}b]_{i, j}
+    &=
+      \frac{\partial^2 b}{\partial [\rvec(\tA)]_{i} \partial [\rvec(\tA)]_{j}}\,.
+  \end{align*}
 \end{definition}
 
-\begin{definition}[Hessian-vector products]
-
-\end{definition}
-
-\begin{definition}[$\cvec$-Hessian]
-
-\end{definition}
-
-\begin{definition}[$\rvec$-Hessian]
-
-\end{definition}
+Whenever we consider vector-to-scalar functions, both Hessians are identical and we thus suppress the flattening scheme and write $\hess_{\va}b$. Let's look at some important examples of Hessians that we will come back to later in the text.
 
 \switchcolumn[1]*
 \codeblock{hessian_ce_loss}
-
 \switchcolumn[0]
+
 \begin{example}[Softmax cross-entropy loss Hessian, \Cref{hessian_ce_loss}]
   Consider the softmax cross-entropy loss function between the vector-valued logits $\vx \in \sR^C$ and a class label $y \in \{1, \dots, C\}$:
   \begin{align*}
@@ -36,6 +125,7 @@
     =
     \diag(p(\vx)) - p(\vx) p(\vx)^\top\,.
   \end{align*}
+  See for instance~\cite{dangel2020modular} for a derivation.
 \end{example}
 
 \switchcolumn[1]*
@@ -47,10 +137,12 @@
   \begin{align*}
     \ell(\vx, \vy)
     &=
-      \frac{1}{2}
       \left\lVert
       \vx - \vy
-      \right\rVert^2\,.
+      \right\rVert^2
+      \\
+      &=
+      (\vx - \vy)^{\top} \mI (\vx - \vy)\,.
   \end{align*}
   Its Hessian w.r.t.\,$\vx$ is proportional to the identity,
   \begin{align*}
@@ -59,6 +151,8 @@
     2 \mI_C\,.
   \end{align*}
 \end{example}
+
+We list more important loss function Hessians in \Cref{app:loss_function_hessians}.
 
 %%% Local Variables:
 %%% mode: latex

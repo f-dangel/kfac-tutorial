@@ -12,23 +12,18 @@ from torch.nn import MSELoss
 from kfs.hessians import cvec_hess, hess, rvec_hess
 
 if __name__ == "__main__":
-    C = 3
     manual_seed(0)
+
+    C = 3  # create random input data
     x = rand(C, requires_grad=True)
     y = rand_like(x)
-
     l = MSELoss(reduction="sum")(x, y)
 
+    H_manual = 2 * eye(C)
     H = hess(l, x)
-    assert allclose(H, 2 * eye(C))
+    H_cvec = cvec_hess(l, x)
+    H_rvec = rvec_hess(l, x)
 
-    S = 4
-    X = rand(C, S, requires_grad=True)
-    Y = rand_like(X)
-
-    l = MSELoss(reduction="sum")(X, Y)
-    H = cvec_hess(l, X)
-    assert allclose(H, 2 * eye(C * S))
-
-    H = rvec_hess(l, X)
-    assert allclose(H, 2 * eye(C * S))
+    assert allclose(H, H_manual)
+    assert allclose(H_cvec, H_manual)
+    assert allclose(H_rvec, H_manual)

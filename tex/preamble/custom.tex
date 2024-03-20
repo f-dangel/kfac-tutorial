@@ -68,6 +68,9 @@
   singlelinecheck=false,%
 }
 
+% \usepackage{minted}
+% \usemintedstyle{emacs}
+
 \newcommand{\repourl}{https://github.com/f-dangel/kfac-from-scratch}
 % Command to include code blocks and their output.
 % First argument is the filename inside the kfac_tutorial directory.
@@ -75,6 +78,13 @@
 \newcommand{\codeblock}[1]{
   % convert _ into \_ for LaTeX
   \def\filename{\detokenize{#1}}
+  % \inputminted[%
+  % fontsize=\scriptsize,%
+  % % obeytabs,%
+  % tabsize=0,%
+  % bgcolor=VectorGray!50,%
+  % texcomments=true,%
+  % ]{python}{../kfs/#1.py}
   \lstinputlisting[%
   language=python,%
   caption=\href{\repourl/kfs/#1.py}{\texttt{kfs/\filename.py}},%
@@ -94,6 +104,9 @@
 % ===================================================================
 \DeclareMathOperator{\rvec}{rvec}
 \DeclareMathOperator{\cvec}{cvec}
+\let\vec\relax % delete the existing \vec command
+\DeclareMathOperator{\vec}{vec}
+\DeclareMathOperator{\mat}{mat}
 
 \usepackage{mdframed}
 \mdfdefinestyle{custom}{%
@@ -108,7 +121,7 @@
 }
 \theoremstyle{definition}
 \newmdtheoremenv[style=custom]{definition}{Definition}[section]
-\newmdtheoremenv[style=custom]{example}{Example}[section]
+\newmdtheoremenv[style=custom]{setup}{Setup}[section]
 \newmdtheoremenv[%
 style=custom,%
 linecolor=VectorOrange,%
@@ -119,6 +132,18 @@ style=custom,%
 linecolor=VectorTeal,%
 backgroundcolor=VectorTeal!10,%
 ]{test}{Test}[section]
+\newmdtheoremenv[%
+style=custom,%
+linecolor=VectorTeal,%
+backgroundcolor=VectorTeal!10,%
+]{example}{Example}[section]
+
+% ===================================================================
+% FIGURES
+% ===================================================================
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

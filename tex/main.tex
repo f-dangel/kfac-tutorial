@@ -26,14 +26,23 @@
   \input{sections/basics.tex}
 
   \switchcolumn[0]*
-  \section{KFAC on a Single Data Point}
+  \section{KFAC for Linear Layers}
+  The goal of this section should be to describe the KFAC approximation from~\cite{martens2015optimizing}
   \begin{test}[KFAC]
     Describe setting in which KFAC becomes exact.
   \end{test}
 
-  \section{Multiple Data \& Weight Sharing (expand and reduce)}
+  \section{KFAC for Convolution Layers}
+  The goal of this section should be to describe the KFAC approximation from~\cite{grosse2016kroneckerfactored}
 
-  \section{Multiple Children}
+  \section{KFAC for Linear Layers with Weight Sharing (expand and reduce)}
+  The goal of this section should be to describe the unification from~\cite{eschenhagen2023kroneckerfactored}
+
+  \section{Other aspects}
+  \subsection{Weight tying, RNNs, PINNs}
+  \subsection{Unnormalized densities}
+  \subsection{KFAC for diffusion models}
+
 \end{paracol}
 
 \clearpage
@@ -41,4 +50,12 @@
 
 \appendix
 
+\section{Important Loss Function Hessians and Their Symmetric Factorization}\label{app:loss_function_hessians}
+\input{appendix/loss_function_hessians.tex}
+
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

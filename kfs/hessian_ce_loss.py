@@ -9,17 +9,23 @@ from torch import (
 )
 from torch.nn import CrossEntropyLoss
 
-from kfs.hessians import hess
+from kfs.hessians import cvec_hess, hess, rvec_hess
 
 if __name__ == "__main__":
-    C = 3
     manual_seed(0)
+
+    C = 3  # generate random input data
     x = rand(C, requires_grad=True)
     y = randint(0, C, ())
+    l = CrossEntropyLoss()(x, y)
 
-    l = CrossEntropyLoss(reduction="sum")(x, y)
+    p = x.softmax(0)  # manual computation
+    H_manual = p.diag() - outer(p, p)
 
-    H = hess(l, x)
+    H = hess(l, x)  # autodiff computation
+    H_cvec = cvec_hess(l, x)
+    H_rvec = rvec_hess(l, x)
 
-    p = x.softmax(0)
-    assert allclose(H, p.diag() - outer(p, p))
+    assert allclose(H, H_manual)  # comparison
+    assert allclose(H_cvec, H_manual)
+    assert allclose(H_rvec, H_manual)
