@@ -31,7 +31,9 @@ def hess(f: Tensor, x: Tensor) -> Tensor:
         d_unraveled = unravel_index(d, x.shape)
         one_hot_d = zeros_like(x)
         one_hot_d[d_unraveled] = 1.0
-        H[d_unraveled] = hvp(f, x, one_hot_d)
+        H[d_unraveled] = hvp(
+            f, x, one_hot_d, retain_graph=True
+        )
 
     return H
 

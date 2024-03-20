@@ -6,7 +6,7 @@ Output files are stored in the same file tree as the
 
 from glob import glob
 from os import makedirs, path, remove
-from subprocess import run
+from subprocess import CalledProcessError, run
 
 HEREDIR = path.dirname(path.abspath(__file__))
 REPODIR = path.dirname(HEREDIR)
@@ -38,12 +38,18 @@ for out_file in out_files:
 
 # execute them and write their output to a file
 for py_file, out_file in zip(py_files, out_files):
-    print(f"Executing {py_file!r}")
-    job = run(
-        ["python", py_file],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    with open(out_file, "w") as f:
-        f.write(job.stdout)
+    cmd = ["python", py_file]
+
+    try:
+        print(f"Running command: {' '.join(cmd)}")
+        job = run(
+            cmd, capture_output=True, text=True, check=True
+        )
+        print(f"STDOUT:\n{job.stdout}")
+        print(f"STDERR:\n{job.stderr}")
+        with open(out_file, "w") as f:
+            f.write(job.stdout)
+    except CalledProcessError as e:
+        print(f"STDOUT:\n{e.stdout}")
+        print(f"STDERR:\n{e.stderr}")
+        raise e

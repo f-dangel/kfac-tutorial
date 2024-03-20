@@ -17,14 +17,14 @@ if __name__ == "__main__":
     C = 3  # generate random input data
     x = rand(C, requires_grad=True)
     y = randint(0, C, ())
-    l = CrossEntropyLoss()(x, y)
+    loss = CrossEntropyLoss()(x, y)
 
     p = x.softmax(0)  # manual computation
     H_manual = p.diag() - outer(p, p)
 
-    H = hess(l, x)  # autodiff computation
-    H_cvec = cvec_hess(l, x)
-    H_rvec = rvec_hess(l, x)
+    H = hess(loss, x)  # autodiff computation
+    H_cvec = cvec_hess(loss, x)
+    H_rvec = rvec_hess(loss, x)
 
     assert allclose(H, H_manual)  # comparison
     assert allclose(H_cvec, H_manual)

@@ -17,12 +17,12 @@ if __name__ == "__main__":
     C = 3  # create random input data
     x = rand(C, requires_grad=True)
     y = rand_like(x)
-    l = MSELoss(reduction="sum")(x, y)
+    loss = MSELoss(reduction="sum")(x, y)
 
     H_manual = 2 * eye(C)
-    H = hess(l, x)
-    H_cvec = cvec_hess(l, x)
-    H_rvec = rvec_hess(l, x)
+    H = hess(loss, x)
+    H_cvec = cvec_hess(loss, x)
+    H_rvec = rvec_hess(loss, x)
 
     assert allclose(H, H_manual)
     assert allclose(H_cvec, H_manual)
