@@ -1,22 +1,12 @@
-"""Visualize the Rosenbrock function and is partially linearized version."""
+"""Visualize Rosenbrock function w/o partial linearization."""
 
 from os import path
 
 import matplotlib.pyplot as plt
-from torch import (
-    Tensor,
-    cat,
-    linspace,
-    log10,
-    meshgrid,
-    sqrt,
-    zeros,
-)
+from torch import Tensor, cat, linspace, meshgrid, zeros
 from tueplots import bundles
 
 from kfs.ggn_rosenbrock import (
-    g,
-    l,
     rosenbrock,
     rosenbrock_partially_linearized,
 )

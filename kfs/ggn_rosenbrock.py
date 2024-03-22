@@ -1,51 +1,111 @@
 """Compute the Rosenbrock function's GGN."""
 
+from functools import partial
 from math import sqrt
+from typing import Callable, Tuple, Union
 
-from torch import (
-    Tensor,
-    allclose,
-    arange,
-    cat,
-    manual_seed,
-    rand,
-    randn,
-    zeros,
-    zeros_like,
-)
+from einops import einsum
+from torch import Tensor, allclose, cat, manual_seed, rand
 
-from kfs.flattening import rvec
 from kfs.ggn_product import ggn
 from kfs.hessians import hess
 from kfs.jacobians import jac
 
 
-def g(x, alpha):
+def rosenbrock_first(x: Tensor, alpha: float):
+    """Evaluate first sub-function of the Rosenbrock function.
+
+    Args:
+        x: A two-dimensional vector.
+        alpha: The Rosenbrock function'ss parameter.
+
+    Returns:
+        A two-dimensional vector containing the evaluation.
+    """
+    assert x.ndim == 1 and x.numel() == 2
     g0, g1 = 1 - x[[0]], sqrt(alpha) * (
         x[[1]] - x[[0]] ** 2
     )
     return cat([g0, g1])
 
 
-def l(g):
+def rosenbrock_last(g: Tensor) -> Tensor:
+    """Evaluate the last sub-function of the Rosenbrock function.
+
+    Args:
+        g: A two-dimensional vector containing the evaluation
+            of the first sub-function.
+
+    Returns:
+        The evaluation of the last sub-function (a scalar).
+    """
+    assert g.ndim == 1 and g.numel() == 2
     return (g**2).sum()
 
 
-def rosenbrock(x, alpha):
+def rosenbrock(
+    x: Tensor, alpha: float, return_first: bool = False
+) -> Union[Tensor, Tuple[Tensor, Tensor]]:
+    """Evaluate the Rosenbrock function.
+
+    Args:
+        x: A two-dimensional vector.
+        alpha: The Rosenbrock function's parameter.
+        return_first: Whether to return the evaluation of the
+            first sub-function as well. Defaults to False.
+
+    Returns:
+        The evaluation of the Rosenbrock function.
+        If return_first is True, a tuple containing the
+        evaluation of the last sub-function and the first
+        sub-function is returned.
+    """
     assert x.ndim == 1 and x.numel() == 2
-    g_value = g(x, alpha)
-    return l(g_value), g_value
+    first = rosenbrock_first(x, alpha)
+    last = rosenbrock_last(first)
+    return last, first if return_first else last
 
 
-def rosenbrock_partially_linearized(x, x_prime, alpha):
+def linearize(
+    f: Callable[[Tensor], Tensor], x0: Tensor
+) -> Callable[[Tensor], Tensor]:
+    """Linearize a function at a given point.
+
+    Args:
+        f: The function to linearize.
+        x0: The point at which to linearize.
+
+    Returns:
+        The linearized function.
+    """
+    g0 = f(x0)
+    J0 = jac(g0, x0)
+    g0, J0 = g0.detach(), J0.detach()
+    dims = " ".join([f"d{i}" for i in range(x0.ndim)])
+    equation = f"... {dims}, {dims} -> ..."
+    return lambda x: g0 + einsum(J0, x - x0, equation)
+
+
+def rosenbrock_partially_linearized(
+    x: Tensor, x_prime: Tensor, alpha: float
+) -> Tensor:
+    """Evaluate the partially linearized Rosenbrock function.
+
+    Args:
+        x: A two-dimensional vector.
+        x_prime: Anchor point of the linearization.
+        alpha: The Rosenbrock function's parameter.
+
+    Returns:
+        The evaluation of the linearized Rosenbrock function.
+    """
     assert x_prime.ndim == 1 and x_prime.numel() == 2
 
-    g_prime = g(x_prime, alpha)
-    J_prime = jac(g_prime, x_prime)
-
-    g_linearized = g_prime + J_prime @ (x - x_prime)
-
-    return l(g_linearized), g_linearized
+    rosenbrock_first_linearized = linearize(
+        partial(rosenbrock_first, alpha=alpha), x_prime
+    )
+    g_linearized = rosenbrock_first_linearized(x)
+    return rosenbrock_last(g_linearized)
 
 
 if __name__ == "__main__":
@@ -53,7 +113,7 @@ if __name__ == "__main__":
     x = rand(2, requires_grad=True)
     alpha = 1.0
 
-    value, linearize = rosenbrock(x, alpha)
+    value, lin = rosenbrock(x, alpha, return_first=True)
 
     # compute Hessian
     H = hess(value, x)
@@ -72,7 +132,7 @@ if __name__ == "__main__":
     assert allclose(H, H_manual)
 
     # compute GGN
-    G = ggn(value, x, linearize)
+    G = ggn(value, x, lin)
 
     G_manual = 2 * Tensor(
         [

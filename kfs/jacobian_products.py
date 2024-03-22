@@ -50,8 +50,8 @@ def jvp(
         x: Tensor w.r.t. which f is differentiated.
         v: Tensor to be multiplied with the Jacobian.
             Has same shape as x.
-        create_graph: If True, keep the computation graph for
-            higher-order differentiation. Default: False.
+        retain_graph: If True, keep the computation graph of
+            f for future differentiation. Default: False.
         detach: If True, detach the result from the
             computation graph. Default: True.
 
