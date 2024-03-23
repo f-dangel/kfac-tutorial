@@ -45,79 +45,15 @@
 \input{sections/basics_hessians.tex}
 
 \switchcolumn[0]*
+\subsubsection{Partial Linearization, Generalized Gauss-Newtons, GGNVPs}
+\input{sections/partial_linearization.tex}
+
+\switchcolumn[0]*
 \subsection{Curvature Matrices in Deep Learning}
 \subsubsection{The Hessian}
 
 \subsubsection{The Generalized Gauss-Newton (GGN)}
 Linearization
-
-\switchcolumn[1]*
-\codeblock{ggn_rosenbrock}
-\switchcolumn[0]
-
-\begin{example}[GGN for the Rosenbrock function, \Cref{ggn_rosenbrock}]
-  Consider the 2d Rosenbrock function $f_{\alpha}: \sR^2 \to \sR$ with
-  \begin{align*}
-    f_{\alpha}(\vx)
-    =
-    (1 - x_1)^2 + \alpha (x_2 - x_1^2)^2\,.
-  \end{align*}
-  with some $\alpha > 0$.
-  We can express $f_{\alpha} = \ell \circ g_{\alpha}$,
-  \begin{align*}
-    g_{\alpha}(\vx) = \begin{pmatrix}
-                        x_1 \\
-                        \sqrt{\alpha} (x_2 - x_1^2)
-                      \end{pmatrix}
-    \shortintertext{and convex}
-    \ell(\vg) = \vg^\top \vg\,,
-  \end{align*}
-  namely square loss.
-
-  Linearizing $g_{\alpha}$ w.r.t. $\vx$ around $\vx'$ gives
-  \begin{align*}
-    g^{\text{lin}}_{\alpha}(\vx) = g_{\alpha}(\vx') + (\jac_{\vx'}g_{\alpha}(\vx')) (\vx - \vx')\,.
-  \end{align*}
-  with
-  \begin{align*}
-    \jac_{\vx}g_{\alpha}(\vx)
-    =
-    \begin{pmatrix}
-      1 & 0 \\
-      -2 \sqrt{\alpha} x_1 & \sqrt{\alpha}
-    \end{pmatrix}\,.
-  \end{align*}
-  The first way to form the Hessian is to take the Hessian of $f_{\alpha}' = \ell \circ g_{\alpha}^{\text{lin}}$, and evaluate it at $\vx' = \vx$,
-  \begin{align*}
-    (\hess_{\vx} f_{\alpha}'(\vx))|_{x=x'}
-    \\
-    =
-    2 (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}^{\top}
-    (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}
-    \\
-    =
-    2
-    \begin{pmatrix}
-      1 + 4\alpha x_1^2& -2 \sqrt{\alpha} x_1\\
-      -2 \sqrt{\alpha} x_1 & \alpha
-    \end{pmatrix}
-  \end{align*}
-  This matrix is PSD because it is an outer product of two matrices.
-  It is also different from the Hessian matrix
-  \begin{align*}
-    \hess_{\vx} f_{\alpha}(\vx)
-    =
-    \begin{pmatrix}
-      2 + 12 \alpha x_1^2 - 4 \alpha x_2 & -4 \alpha x_1 \\
-      -4 \alpha x_1 & 2 \alpha
-    \end{pmatrix}
-  \end{align*}
-  \begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{../kfs/plots/linearized_rosenbrock.pdf}
-    \caption{The 2d Rosenbrock function $f_{\alpha=10}$ (solid contour lines) with and its approximation $f'_{\alpha=10, \vx'} = \ell \circ g^{\text{lin}}_{\alpha=10, \vx'}$ (dashed contour lines) when partially linearizing it around an anchor $\vx'$ (star).}
-  \end{figure}
-\end{example}
 
 \subsubsection{The Fisher}
 Probabilistic perspective

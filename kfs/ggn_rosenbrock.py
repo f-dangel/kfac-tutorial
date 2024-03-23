@@ -66,26 +66,6 @@ def rosenbrock(
     return last, first if return_first else last
 
 
-def linearize(
-    f: Callable[[Tensor], Tensor], x0: Tensor
-) -> Callable[[Tensor], Tensor]:
-    """Linearize a function at a given point.
-
-    Args:
-        f: The function to linearize.
-        x0: The point at which to linearize.
-
-    Returns:
-        The linearized function.
-    """
-    g0 = f(x0)
-    J0 = jac(g0, x0)
-    g0, J0 = g0.detach(), J0.detach()
-    dims = " ".join([f"d{i}" for i in range(x0.ndim)])
-    equation = f"... {dims}, {dims} -> ..."
-    return lambda x: g0 + einsum(J0, x - x0, equation)
-
-
 def rosenbrock_partially_linearized(
     x: Tensor, x_prime: Tensor, alpha: float
 ) -> Tensor:
@@ -93,7 +73,7 @@ def rosenbrock_partially_linearized(
 
     Args:
         x: A two-dimensional vector.
-        x_prime: Anchor point of the linearization.
+        x_prime: Point at which to linearize the first sub-function.
         alpha: The Rosenbrock function's parameter.
 
     Returns:
