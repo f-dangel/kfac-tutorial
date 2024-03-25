@@ -2,26 +2,20 @@
 
 from torch import (
     Tensor,
-    allclose,
     arange,
-    eye,
-    kron,
-    manual_seed,
-    outer,
-    rand,
     unravel_index,
     zeros,
     zeros_like,
 )
-from torch.nn import Linear, MSELoss
 
+from kfs.flattening import cvec, rvec
 from kfs.ggn_product import ggnvp
 
 
 def ggn(f: Tensor, x: Tensor, g: Tensor) -> Tensor:
     r"""Compute the GGN of f linearized at g w.r.t. x .
 
-    See $\text{\Cref{sec:ggn}}$.
+    See $\text{\Cref{def:vector_ggn}}$.
 
     Args:
         f: The function whose GGN is multiplied with.
@@ -46,25 +40,28 @@ def ggn(f: Tensor, x: Tensor, g: Tensor) -> Tensor:
     return G
 
 
-if __name__ == "__main__":
-    manual_seed(0)
-    x = rand(3)
-    y = rand(2)
-    model = Linear(3, 2, bias=False)
-    loss_func = MSELoss(reduction="sum")
+def vec_ggn(
+    f: Tensor, x: Tensor, g: Tensor, vec: str
+) -> Tensor:
+    r"""Compute the GGN matrix of f linearized at g w.r.t. x.
 
-    f = model(x)
-    w = model.weight
-    loss = loss_func(f, y)
+    See $\text{\Cref{def:rvec_ggn,def:cvec_ggn}}$.
 
-    # v = rand_like(w)
-    # Gv = ggnvp(loss, w, f, v)
-    # print(Gv)
-    G = ggn(loss, w, f)
-    print(G)
-    G = G.reshape(w.numel(), w.numel())
-    # print(G)
+    Args:
+        f: The function whose GGN is multiplied with.
+        x: The input of the function.
+        g: The output of the sub-function at which
+            the dependency on x is linearized.
+        vec: Name of the flattening scheme.
+            Must be either 'rvec' or 'cvec'.
 
-    G_manual = kron(2 * eye(2), outer(x, x))
-    print(G_manual)
-    print(allclose(G, G_manual))
+    Returns:
+        The rvec- or cvec-GGN matrix of f linearized at g
+        w.r.t. x. Has shape (x.numel(), x.numel()).
+    """
+    vec = {"cvec": cvec, "rvec": rvec}[vec]
+    G = ggn(f, x, g)
+    # flatten row indices
+    H = vec(G, end_dim=x.ndim - 1)
+    # flatten column indices
+    return vec(H, start_dim=1)

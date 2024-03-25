@@ -18,7 +18,7 @@ def ggnvp(
     The GGN corresponds to the Hessian of a function that
     uses a linearization at linearize w.r.t. x.
 
-    See $\text{\Cref{}}}$.
+    See $\text{\Cref{def:ggnvp}}$.
 
     Args:
         f: The function whose GGN is multiplied with.
@@ -36,5 +36,5 @@ def ggnvp(
     """
     Jv = jvp(g, x, v, retain_graph=retain_graph)
     HJ_v = hvp(f, g, Jv, retain_graph=retain_graph)
-    JHJT_v = vjp(g, x, HJ_v, retain_graph=retain_graph)
-    return JHJT_v
+    JTHJ_v = vjp(g, x, HJ_v, retain_graph=retain_graph)
+    return JTHJ_v

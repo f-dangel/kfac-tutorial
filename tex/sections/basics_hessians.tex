@@ -3,9 +3,12 @@ Second-order derivatives are collected into an object called \emph{the Hessian}.
 For our purposes, it will be sufficient to consider the Hessian of functions producing a scalar-valued output.
 Let's start with the definition of the Hessian of a vector-to-scalar function.
 
-\begin{definition}[Hessian of a vector-to-scalar function]\label{def:vector_hessian}
+\begin{setup}[Vector-to-scalar function]\label{setup:vector_to_scalar_function}
   Let $\vf: \sR^A \to \sR, \va \mapsto b = f(\va)$ be a vector-to-scalar function.
-  Its Hessian $\hess_{\va}b \in \sR^{A \times A}$ collects the second-order partial derivatives into a matrix such that
+\end{setup}
+
+\begin{definition}[Hessian of a vector-to-scalar function]\label{def:vector_hessian}
+  The Hessian of a vector-to-scalar function $f$ from \Cref{setup:vector_to_scalar_function} is a matrix $\hess_{\va}b \in \sR^{A \times A}$ collecting the second-order partial derivatives of $f$ into a matrix with
   \begin{align*}
     [\hess_{\va}b]_{i,j}
     &=
@@ -14,7 +17,7 @@ Let's start with the definition of the Hessian of a vector-to-scalar function.
 \end{definition}
 This definition is limited to functions with vector-valued arguments. The extension to tensor-to-scalar-functions is straightforward; however, it yields a tensor which is less convenient to work with in terms of notation:
 
-\begin{setup}\label{setup:hessians}
+\begin{setup}[Tensor-to-scalar function]\label{setup:hessians}
   Consider a tensor-to-scalar function $f: \sR^{A_1 \times \dots \times A_N} \to \sR, \tA \mapsto b = f(\tA)$ from a rank-$N$ tensor $\tA$ into a scalar $b$.
 \end{setup}
 
@@ -132,7 +135,7 @@ Whenever we consider vector-to-scalar functions, both Hessians are identical and
 \codeblock{hessian_mse_loss}
 
 \switchcolumn[0]
-\begin{example}[Square loss Hessian, \Cref{hessian_mse_loss}]
+\begin{example}[Square loss Hessian, \Cref{hessian_mse_loss}]\label{ex:square_loss_hessian}
   Consider the square loss function between a vector-valued input $\vx \in \sR^C$ and its associated target $\vy \in \sR^C$:
   \begin{align*}
     \ell(\vx, \vy)

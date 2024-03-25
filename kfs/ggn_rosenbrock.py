@@ -2,14 +2,13 @@
 
 from functools import partial
 from math import sqrt
-from typing import Callable, Tuple, Union
+from typing import Tuple, Union
 
-from einops import einsum
 from torch import Tensor, allclose, cat, manual_seed, rand
 
 from kfs.ggn_product import ggn
 from kfs.hessians import hess
-from kfs.jacobians import jac
+from kfs.linearization import linearize
 
 
 def rosenbrock_first(x: Tensor, alpha: float):
@@ -73,14 +72,14 @@ def rosenbrock_partially_linearized(
 
     Args:
         x: A two-dimensional vector.
-        x_prime: Point at which to linearize the first sub-function.
+        x_prime: Point at which to linearize the first
+            composite.
         alpha: The Rosenbrock function's parameter.
 
     Returns:
         The evaluation of the linearized Rosenbrock function.
     """
     assert x_prime.ndim == 1 and x_prime.numel() == 2
-
     rosenbrock_first_linearized = linearize(
         partial(rosenbrock_first, alpha=alpha), x_prime
     )

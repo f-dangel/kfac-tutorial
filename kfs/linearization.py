@@ -8,10 +8,10 @@ from torch import Tensor, allclose, cos, manual_seed, rand
 from kfs.jacobians import jac
 
 
-def lin(
+def linearize(
     f: Callable[[Tensor], Tensor], x0: Tensor
 ) -> Callable[[Tensor], Tensor]:
-    """Linearize a tensor-to-tensor function.
+    r"""Linearize a tensor-to-tensor function.
 
     See $\text{\Cref{def:tensor_linearization}}$.
 
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     x0 = x.clone().detach().requires_grad_(True)
 
     f = cos
-    f_lin = lin(f, x0)
+    f_lin = linearize(f, x0)
 
     assert allclose(f(x), f_lin(x0))
     assert allclose(jac(f(x), x), jac(f_lin(x), x))
