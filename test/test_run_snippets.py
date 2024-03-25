@@ -31,6 +31,9 @@ def test_run_snippets(snippet: str):
         CalledProcessError: If the snippet fails to run.
     """
     cmd = ["python", snippet]
+    if snippet.endswith("linearized_rosenbrock.py"):
+        cmd.append("--disable_tex")
+
     try:
         print(f"Running command: {' '.join(cmd)}")
         job = run(

@@ -1,5 +1,6 @@
 """Visualize Rosenbrock function w/o partial linearization."""
 
+from argparse import ArgumentParser
 from os import path
 
 import matplotlib.pyplot as plt
@@ -13,6 +14,15 @@ from kfs.ggn_rosenbrock import (
 from kfs.plots import SAVEDIR
 
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--disable_tex",
+        action="store_true",
+        default=False,
+        help="Disable TeX rendering in matplotlib.",
+    )
+    args = parser.parse_args()
+
     x0_min, x0_max = -1.25, 1.25
     x1_min, x1_max = -0.75, 1.75
     x0_resolution, x1_resolution = 128, 128
@@ -39,7 +49,9 @@ if __name__ == "__main__":
                 )
             )
 
-    with plt.rc_context(bundles.icml2024()):
+    with plt.rc_context(
+        bundles.icml2024(usetex=not args.disable_tex)
+    ):
         fig, ax = plt.subplots()
         ax.contour(x0, x1, grid.pow(1 / 2.5), levels=15)
         ax.contour(
