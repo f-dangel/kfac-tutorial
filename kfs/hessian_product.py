@@ -9,6 +9,7 @@ def hvp(
     x: Tensor,
     v: Tensor,
     retain_graph: bool = False,
+    detach: bool = True,
 ) -> Tensor:
     r"""Multiply v with the Hessian of f w.r.t. x.
 
@@ -21,6 +22,8 @@ def hvp(
             Must have the same shape as x.
         retain_graph: Whether to retain the graph which will
             allow future differentiations of f. Default: False.
+        detach: Whether to detach the result from the graph.
+            Default: True.
 
     Returns:
         The Hessian-vector product (H_x f) @ v of same shape
@@ -32,4 +35,4 @@ def hvp(
     (result,) = grad(
         v_dot_grad_f, x, retain_graph=retain_graph
     )
-    return result
+    return result.detach() if detach else result

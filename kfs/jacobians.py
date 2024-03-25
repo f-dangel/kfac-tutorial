@@ -32,7 +32,7 @@ def jac(f: Tensor, x: Tensor) -> Tensor:
         one_hot_d = zeros_like(f)
         one_hot_d[d_unraveled] = 1.0
         J[d_unraveled] = vjp(
-            f, x, one_hot_d, create_graph=True
+            f, x, one_hot_d, retain_graph=True
         )
 
     return J

@@ -10,9 +10,12 @@ These Jacobians exhibit Kronecker structure, which is the foundation for the `K'
 We also verify this structure numerically.
 Crucially, the Kronecker structure changes depending on the flattening convention.
 
+\begin{setup}[Vector-to-vector function]\label{setup:vector_to_vector_function}
+  Let function $f: \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$ denote a vector-to-vector function.
+\end{setup}
+
 \begin{definition}[Jacobian of a vector-to-vector function]\label{def:vector_jacobian}
-  Consider a vector-to-vector function $f: \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$.
-  Its Jacobian $\jac_{\va}\vb \in \sR^{B \times A}$ collects the first-order partial derivatives into a matrix such that
+  The Jacobian of a vector-to-vector function $f$ from \Cref{setup:vector_to_vector_function}, $\jac_{\va}\vb \in \sR^{B \times A}$, collects the first-order partial derivatives into a matrix such that
   \begin{align*}
     [\jac_{\va} \vb]_{i,j} = \frac{\partial [f(\va)]_i}{\partial [\va]_j}\,.
   \end{align*}
@@ -20,7 +23,7 @@ Crucially, the Kronecker structure changes depending on the flattening conventio
 \Cref{def:vector_jacobian} is limited to vector-to-vector functions.
 The more general Jacobian of a tensor-to-tensor function can be indexed with combined indices from the input and output domain:
 
-\begin{setup}\label{setup:jacobians}
+\begin{setup}[Tensor-to-tensor function]\label{setup:jacobians}
   Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$ from a rank-$N$ tensor $\tA$ into a rank-$M$ tensor $\tB$.
 \end{setup}
 

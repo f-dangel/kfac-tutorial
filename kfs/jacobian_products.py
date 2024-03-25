@@ -8,7 +8,7 @@ def vjp(
     f: Tensor,
     x: Tensor,
     v: Tensor,
-    create_graph: bool = False,
+    retain_graph: bool = False,
     detach=True,
 ) -> Tensor:
     r"""Multiply the transpose Jacobian of f w.r.t. x onto v.
@@ -20,8 +20,8 @@ def vjp(
         x: Tensor w.r.t. which f is differentiated.
         v: Tensor to be multiplied with the Jacobian.
             Has same shape as f(x).
-        create_graph: If True, keep the computation graph for
-            higher-order differentiation. Default: False.
+        retain_graph: If True, keep the computation graph of
+            f for future differentiation. Default: False.
         detach: If True, detach the result from the
             computation graph. Default: True.
 
@@ -29,7 +29,7 @@ def vjp(
         Vector-Jacobian product v @ (J_x f).T with shape of x.
     """
     (result,) = grad(
-        f, x, grad_outputs=v, create_graph=create_graph
+        f, x, grad_outputs=v, retain_graph=retain_graph
     )
     return result.detach() if detach else result
 
@@ -38,7 +38,7 @@ def jvp(
     f: Tensor,
     x: Tensor,
     v: Tensor,
-    create_graph: bool = False,
+    retain_graph: bool = False,
     detach=True,
 ) -> Tensor:
     r"""Multiply the Jacobian of f w.r.t. x onto v.
@@ -50,8 +50,8 @@ def jvp(
         x: Tensor w.r.t. which f is differentiated.
         v: Tensor to be multiplied with the Jacobian.
             Has same shape as x.
-        create_graph: If True, keep the computation graph for
-            higher-order differentiation. Default: False.
+        retain_graph: If True, keep the computation graph of
+            f for future differentiation. Default: False.
         detach: If True, detach the result from the
             computation graph. Default: True.
 
@@ -61,6 +61,6 @@ def jvp(
     u = zeros_like(f, requires_grad=True)
     (ujp,) = grad(f, x, grad_outputs=u, create_graph=True)
     (result,) = grad(
-        ujp, x, grad_outputs=v, create_graph=create_graph
+        ujp, u, grad_outputs=v, retain_graph=retain_graph
     )
     return result.detach() if detach else result
