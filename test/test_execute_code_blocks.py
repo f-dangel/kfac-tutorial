@@ -1,13 +1,44 @@
 """Execute all files in `kfs`, creating their stdout."""
 
+from glob import glob
 from os import path
-from subprocess import run
+from subprocess import CalledProcessError, run
+
+from pytest import mark
 
 HEREDIR = path.dirname(path.abspath(__file__))
 REPODIR = path.dirname(HEREDIR)
-SCRIPT = path.join(REPODIR, "tex", "execute_code_blocks.py")
+CODEDIR = path.join(REPODIR, "kfs")
+
+# find all python files in the code directory
+py_files = glob(
+    path.join(CODEDIR, "**", "*.py"), recursive=True
+)
 
 
-def test_execute_code_blocks():
-    """Dummy test."""
-    run(["python", SCRIPT], capture_output=True, check=True)
+@mark.parametrize(
+    "snippet",
+    py_files,
+    ids=[path.basename(f) for f in py_files],
+)
+def test_run_snippets(snippet: str):
+    """Execute a snippet.
+
+    Args:
+        snippet: Path to the snippet.
+
+    Raises:
+        CalledProcessError: If the snippet fails to run.
+    """
+    cmd = ["python", snippet]
+    try:
+        print(f"Running command: {' '.join(cmd)}")
+        job = run(
+            cmd, capture_output=True, text=True, check=True
+        )
+        print(f"STDOUT:\n{job.stdout}")
+        print(f"STDERR:\n{job.stderr}")
+    except CalledProcessError as e:
+        print(f"STDOUT:\n{e.stdout}")
+        print(f"STDERR:\n{e.stderr}")
+        raise e

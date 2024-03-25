@@ -6,7 +6,7 @@ from typing import Tuple, Union
 
 from torch import Tensor, allclose, cat, manual_seed, rand
 
-from kfs.ggn_product import ggn
+from kfs.ggns import ggn
 from kfs.hessians import hess
 from kfs.linearization import linearize
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     # compute GGN via Hessian of linearized function
     x_prime = x.clone().detach().requires_grad_(True)
-    value, _ = rosenbrock_partially_linearized(
+    value = rosenbrock_partially_linearized(
         x, x_prime, alpha
     )
     H_lin = hess(value, x)
