@@ -50,7 +50,54 @@
 
 \switchcolumn[0]*
 \subsection{Curvature Matrices in Deep Learning}
-\subsubsection{The Hessian}
+
+The previous section introduced Jacobians, Hessians, partial linearizations and the resulting generalized Gauss-Newton (GGN) objects in the language of automatic differentiation for arbitrary functions.
+Here, we will switch gears and quickly walk through how these matrices look like in the context of deep learning.
+
+\paragraph{Parameter list/tuple format:} One new aspect we have to deal with is that ML libraries like PyTorch represent parameters as lists/tuples of variables.
+We consider a neural network $f(\vtheta, x): \Theta \times \gX \to \gF$ with parameters in list/tuple-format,
+\begin{align*}
+  \vtheta = (\vtheta^{(1)}, \vtheta^{(2)}, \ldots, \vtheta^{(L)}),
+\end{align*}
+where each $\vtheta^{(i)}$ is an arbitrary tensor. To be able to use matrix expressions, we will often consider the concatenation of flattened vectors,
+\begin{align*}
+  \vec(\vtheta)
+  =
+  \begin{pmatrix}
+    \vec(\vtheta^{(1)}) \\
+    \vec(\vtheta^{(2)}) \\
+    \vdots \\
+    \vec(\vtheta^{(L)})
+  \end{pmatrix}
+  \in \sR^D
+  \,,
+\end{align*}
+where $\vec \in \{ \rvec, \cvec \}$ is one of the previously described flattening operations.
+This convention allows $\vec$ to handle parameters in list/tuple format, and is a simple generalization which simply applies the original definition to each element of the list/tuple and concatenates all flattened items.
+However, in code we will still work with the list/tuple format.
+
+\paragraph{Empirical risk:} We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ i.i.d.\,samples.
+The inputs are processed by the neural network and the resulting predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, such as mean-squared or softmax cross-entropy loss.
+For a datum $n$, we define the per-datum loss as:
+\begin{align*}
+  (\ell_n: \Theta \to \sR) = (c_n \circ f_n: \Theta \to \gF \to \sR)
+  \\
+  \ell_n(\vtheta) = c_n(f_n(\vtheta))
+\end{align*}
+where $c_n(\bullet) \coloneq c(\bullet, \vy_n)$ and $f_n(\bullet) \coloneq f(\bullet, \vx_n)$.
+We will often use the shorthands $c_n, f_n, \ell_n$ for the per-datum predictions, criteria, and losses.
+
+\paragraph{Reduction factor:} The per-datum losses $\{\ell_1, \dots, \ell_N\}$ are accumulated into a single scalar which yields the empirical risk
+\begin{align*}
+  \gL_{\sD}: \Theta &\mapsto \sR
+  \\
+  \vtheta &\mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta) = R \sum_{n=1}^N c_n(f_n(\vtheta))
+\end{align*}
+where $R$ is the reduction factor. Common values for $R$ are $\nicefrac{1}{N}, 1$ and $\nicefrac{1}{N \dim(\gF)}$.
+For the purpose of this text, $\sD$ can be any collection of data points, e.g.\,the full data set or a mini-batch.
+
+\subsubsection{The Hessian}\label{sec:basics_dl_hessian}
+\input{sections/basics_dl_hessian.tex}
 
 \subsubsection{The Generalized Gauss-Newton (GGN)}
 Linearization

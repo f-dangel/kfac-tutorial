@@ -31,7 +31,9 @@ def test_run_snippets(snippet: str):
         CalledProcessError: If the snippet fails to run.
     """
     cmd = ["python", snippet]
-    if snippet.endswith("linearized_rosenbrock.py"):
+    if snippet.endswith(
+        "linearized_rosenbrock.py"
+    ) or snippet.endswith("synthetic_hessian.py"):
         cmd.append("--disable_tex")
 
     try:
