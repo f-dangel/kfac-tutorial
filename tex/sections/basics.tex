@@ -18,7 +18,8 @@ $f = f^{(L)} \circ \dots \circ f^{(1)}$, and the its evaluation produces a set o
 starting with $\vx^{(0)} \leftarrow \vx$, ending in $\vx^{(L)} \leftarrow f(\vx, \vtheta)$.
 We refer to the hidden representations $\vx^{(i-1)}$ as the \emph{input to layer $i$}, and to $\vx^{(i)}$ as the \emph{output of layer $i$}.
 For some layers, the parameters will be empty, e.g.\,activation, pooling, or dropout layers.
-To compute KFAC, we will need to access to the inputs and outputs of certain layers. We can obtain these by intercepting the forward pass of a neural network using PyTorch's hook mechanism, see \Cref{forward_pass}.
+To compute KFAC, we will need to access to the inputs and outputs of certain layers.
+We can obtain these by intercepting the forward pass of a neural network using PyTorch's hook mechanism, see \Cref{forward_pass}.
 
 \subsubsection{Probabilistic interpretation}
 
