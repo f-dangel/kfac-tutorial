@@ -1,10 +1,9 @@
-\subsection{Empirical risk minimization \& Maximum Likelihood Estimation}
-
-\subsubsection{Deep neural networks}
-
+\input{sections/basics_empirical_risk.tex}
 \switchcolumn[1]*
 \codeblock{forward_pass}
 \switchcolumn[0]
+
+\subsection{Deep neural networks}
 
 For simplicity, we consider sequential neural networks $f: \gX \times \Theta \to \gF$ that map a given input $\vx$ to a prediction $f(\vx, \vtheta)$ using parameters $\vtheta$.
 $\gX$ is the input space, $\Theta$ is the parameter space, and $\gF$ is the prediction space.
@@ -33,13 +32,9 @@ We can obtain these by intercepting the forward pass of a neural network using P
 
 \switchcolumn[0]
 
-\blindtext
-
 \switchcolumn[1]
 
 \switchcolumn[0]* % sync
-
-\blindtext
 
 \subsection{Derivatives \& Automatic Differentiation}
 
