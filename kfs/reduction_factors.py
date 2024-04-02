@@ -26,6 +26,9 @@ def get_reduction_factor(
     Returns:
         Reduction factor for the given loss layer and targets
         ($R$ from $\text{\Cref{eq:empirical_risk}}$).
+
+    Raises:
+        NotImplementedError: If the loss is unsupported.
     """
     batch_size = labels.shape[0]
     dim_Y = labels.shape[1:].numel()
