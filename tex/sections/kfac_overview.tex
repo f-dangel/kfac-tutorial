@@ -1,0 +1,22 @@
+\switchcolumn[1]*
+\codeblock{kfac}
+\switchcolumn[0]
+
+
+\begin{align*}
+   \mA \otimes \mB
+\end{align*}
+We call $\mA$ the \emph{input-based Kronecker factor} and $\mB$ the \emph{grad-output-based Kronecker factor}.
+
+There are many different flavours of KFAC and our plan is to cover as many as possible, while using the same code scaffold. The degrees of freedom are roughly as follows:
+\begin{itemize}
+\item Degrees of freedom for $\mA$ (expand versus reduce)
+\item Degrees of freedom for $\mB$ (what vector is being backpropagated)
+\end{itemize}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

@@ -1,6 +1,53 @@
 The goal of this section should be to describe the KFAC approximation from~\cite{martens2015optimizing}
 \begin{test}[KFAC]
-  Describe setting in which KFAC becomes exact.
+  Consider a deep linear network of depth $L$,
+  \begin{align*}
+    f(\vx) = (f^{(L)} \circ f^{(L-1)} \circ \ldots \circ f^{(1)})(\vx)\,,
+  \end{align*}
+  or
+  \begin{align*}
+    \vx^{(L)} = f(\vx^{(0)})
+  \end{align*}
+  via the intermediates
+  \begin{align*}
+    f^{(i)}:  \vx^{(i-1)} \mapsto \vx^{(i)} \mW^{(i)} \vx^{(i)} + \vb^{(i)}\,.
+  \end{align*}
+  Let $\tilde{\mW}^{(i)} = \begin{pmatrix} \mW^{(i)} & \vb^{(i)}\end{pmatrix}$ denote the concatenation of weights and biases of a layer $i$.
+
+  Consider a data set $\sD = \left\{ (\vx_n, \vy_n) \mid n = 1, \dots N \right\}$ and its empirical risk under square loss,
+  \begin{align*}
+    \gL_{\sD}(\tilde{\mW}^{(1)}, \dots, \tilde{\mW}^{(L)})
+    &=
+      R \sum_{n=1}^N \ell(f(\vx_n), \vy_n)
+    \\
+    &=
+      R \sum_{n=1}^N c(f(\vx_n), \vy_n)
+    \\
+    &=
+      R \sum_{n=1}^N \left\lVert \vx_n^{(L)} - \vy_n  \right\rVert^2
+  \end{align*}
+  where $R$ is a constant (the so-called reduction factor, usually $1$ or $\nicefrac{1}{N}$).
+
+  Under the function split $\ell = c \circ f$.
+
+  Then, we have the following equalities:
+  \begin{itemize}
+  \item The per-layer GGN equals KFAC.
+    \begin{align*}
+      \ggn^{\rvec}_{\tilde{\mW}^{(i)}} \gL_{\sD}
+      =
+      \left( R \sum_{n=1}^{|\sD|} \vx^{(i-1)} {\vx^{(i-1)}}^{\top}  \right)
+      \\
+      \otimes
+      \left(
+      \sum_{n=1}^{|\sD|} \frac{\partial \ell_n}{\partial \vx^i}
+      \left(
+      \frac{\partial \ell_n}{\partial \vx^i}
+      \right)^{\top}
+      \right)
+    \end{align*}
+  \end{itemize}
+
 \end{test}
 
 %%% Local Variables:
