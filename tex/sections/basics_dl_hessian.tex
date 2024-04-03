@@ -14,85 +14,87 @@ and contains the second-order partial derivatives of $\gL_{\sD}(\vtheta)$, that 
 \end{align*}
 
 \switchcolumn[1]*
-\includegraphics{../kfs/plots/synthetic_cvec_hessian.pdf}
+\begin{figure}
+  \centering
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    $\cvec$\vspace{1ex}
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_hessian.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    $\rvec$\vspace{1ex}
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_hessian.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_hessian_bda.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_hessian_bda.pdf}
+  \end{minipage}
+  \caption{Visualization of the Hessian and its block-diagonal approximation using different flattening schemes.
+    Hessian blocks are visually highlighted with white lines.
+    Left column uses $\rvec$-flattening, right column uses $\cvec$-flattening.
+    The Hessian was evaluated on synthetic data ($N=100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss.
+  }
+\end{figure}
 
-\includegraphics{../kfs/plots/synthetic_rvec_hessian.pdf}
 \switchcolumn[0]
 
-Due to the tuple/list structure of $\vtheta$, the Hessian has a block structure,
+Due to the tuple/list structure of $\vtheta$, the Hessian has a block structure.
+Using the shorthands $\hess_{i,j}^{\vec} \gL \coloneq \hess_{\vtheta^{(i)}, \vtheta^{(j)}}^{\vec} \gL_{\sD}(\vtheta)$
+which contains mixed second-order partial derivatives w.r.t.\,$\vtheta^{(i)}$ and $\vtheta^{(j)}$, as well as the shorthand $\hess_{i}^{\vec} \gL \coloneq \hess_{\vtheta^{(i)}}^{\vec} \gL_{\sD}(\vtheta)$, we can write the Hessian as
 \begin{align*}
-  \hess_{\vtheta}^{\vec} \gL_{\sD}(\vtheta)
+  \hess_{\vtheta}^{\vec} \gL
   =
   \begin{pmatrix}
-    \hess_{\vtheta^{(1)}}^{\vec} \gL_{\sD}(\vtheta)
+    \hess_1^{\vec} \gL
     &
-      \hess_{\vtheta^{(1)}, \vtheta^{(2)}}^{\vec} \gL_{\sD}(\vtheta)
+      \hess_{1, 2}^{\vec} \gL
     &
       \cdots
     &
-      \hess_{\vtheta^{(1)}, \vtheta^{(L)}}^{\vec} \gL_{\sD}(\vtheta)
+      \hess_{1, L}^{\vec} \gL
     \\
-    \hess_{\vtheta^{(2)}, \vtheta^{(1)}}^{\vec} \gL_{\sD}(\vtheta)
+    \hess_{2, 1}^{\vec} \gL
     &
-      \hess_{\vtheta^{(2)}}^{\vec} \gL_{\sD}(\vtheta)
+      \hess_2^{\vec} \gL
     &
       \cdots
     &
-      \hess_{\vtheta^{(2)}, \vtheta^{(L)}}^{\vec} \gL_{\sD}(\vtheta)
+      \hess_{2, L}^{\vec} \gL
     \\
     \vdots & \cdots & \ddots & \vdots
     \\
-    \hess_{\vtheta^{(L)}, \vtheta^{(1)}}^{\vec} \gL_{\sD}(\vtheta)
+    \hess_{L, 1}^{\vec} \gL
     &
-      \hess_{\vtheta^{(L)}, \vtheta^{(2)}}^{\vec} \gL_{\sD}(\vtheta)
+      \hess_{L, 2}^{\vec} \gL
     &
       \cdots
     &
-      \hess_{\vtheta^{(L)}}^{\vec} \gL_{\sD}(\vtheta)
+      \hess_L^{\vec} \gL
   \end{pmatrix}\,.
 \end{align*}
-where $\hess_{\vtheta^{(i)}, \vtheta^{(j)}}^{\vec} \gL_{\sD}(\vtheta)$ contains mixed second-order partial derivatives w.r.t.\,$\vtheta^{(i)}$ and $\vtheta^{(j)}$.
-
 In the following, we will only consider the block diagonal approximation of this matrix,
 \begin{align*}
-  \tilde{\hess}_{\vtheta}^{\vec} \gL_{\sD}(\vtheta)
+  \tilde{\hess}_{\vtheta}^{\vec} \gL
   =
   \begin{pmatrix}
-    \hess_{\vtheta^{(1)}}^{\vec} \gL_{\sD}(\vtheta)
-    &
-      \vzero
-    &
-      \cdots
-    &
-      \cdots
-    &
-      \vzero
+    \hess_1^{\vec} \gL & \vzero & \cdots & \vzero
     \\
-    \vzero
-    &
-      \hess_{\vtheta^{(2)}}^{\vec} \gL_{\sD}(\vtheta)
-    &
-      \vzero
-    &
-      \cdots
-    &
-      \vzero
+    \vzero & \hess_2^{\vec} \gL & \ddots & \vdots
     \\
-    \vdots & \cdots & \ddots & \vdots
+    \vdots & \ddots & \ddots & \vzero
     \\
-    \vzero
-    &
-      \vzero
-    &
-      \vzero
-    &
-      \cdots
-      &
-      \hess_{\vtheta^{(L)}}^{\vec} \gL_{\sD}(\vtheta)
+    \vzero & \cdots & \vzero & \hess_L^{\vec} \gL
   \end{pmatrix}\,.
 \end{align*}
-i.e., individual blocks $\{ \hess_{\vtheta^{(i)}}^{\vec} \gL_{\sD}(\vtheta)$.
-
+i.e., individual blocks $\{ \hess_{\vtheta^{(i)}}^{\vec} \gL_{\sD}(\vtheta)\}$.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

@@ -2,14 +2,41 @@
 
 from argparse import ArgumentParser
 from os import path
+from typing import List
 
 from matplotlib import pyplot as plt
-from torch import cat, manual_seed, rand
-from torch.nn import Linear, MSELoss, ReLU, Sequential
+from matplotlib.axes import Axes
+from torch import cat, manual_seed, rand, zeros_like
+from torch.nn import Linear, MSELoss, Sequential, Sigmoid
 from tueplots import bundles
 
+from kfs.ggns import vec_ggn
 from kfs.hessians import cvec_hess, rvec_hess
 from kfs.plots import SAVEDIR
+
+
+def highglight_blocks(
+    ax: Axes, block_dims: List[int], color: str = "white", linewidth: float = 0.25
+):
+    """Highlight the block structure of a square matrix.
+
+    Args:
+        ax: Matplotlib axes.
+        param_dims: Dimensions of the blocks.
+        color: Color of the lines. Defaults to "white".
+        linewidth: Width of the lines. Defaults to 0.25.
+    """
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+    assert xmin == ymax and xmax == ymin
+
+    style = dict(color=color, linewidth=linewidth)
+    current = xmin
+    for dim in param_dims[:-1]:
+        current += dim
+        ax.axvline(current, **style)
+        ax.axhline(current, **style)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -29,45 +56,59 @@ if __name__ == "__main__":
 
     model = Sequential(
         Linear(D_in, D_hidden),
-        ReLU(),
+        Sigmoid(),
         Linear(D_hidden, D_hidden),
-        ReLU(),
+        Sigmoid(),
         Linear(D_hidden, D_out),
     )
+    param_dims = [p.numel() for p in model.parameters()]
+    num_params = sum(param_dims)
     loss_func = MSELoss()
 
-    loss = loss_func(model(X), y)
+    output = model(X)
+    loss = loss_func(output, y)
 
-    hess_funcs = {"cvec": cvec_hess, "rvec": rvec_hess}
-    for flattening, hess_func in hess_funcs.items():
+    curvature_funcs = {
+        "cvec_hessian": lambda p_i, p_j: cvec_hess(loss, (p_i, p_j)),
+        "rvec_hessian": lambda p_i, p_j: rvec_hess(loss, (p_i, p_j)),
+        "cvec_ggn": lambda p_i, p_j: vec_ggn(loss, (p_i, p_j), output, "cvec"),
+        "rvec_ggn": lambda p_i, p_j: vec_ggn(loss, (p_i, p_j), output, "rvec"),
+    }
 
-        # compute Hessian tiles and combine them
-        H = []
-        for p_i in model.parameters():
-            H_i = []
-            for p_j in model.parameters():
-                H_ij = hess_func(loss, (p_i, p_j))
-                H_i.append(H_ij)
-            H.append(H_i)
+    for bda in [False, True]:
+        for name, func in curvature_funcs.items():
+            # compute curvature matrix tiles and combine them
+            C = []
+            for i, p_i in enumerate(model.parameters()):
+                C_i = []
+                for j, p_j in enumerate(model.parameters()):
+                    C_ij = func(p_i, p_j)
+                    if bda and i != j:
+                        C_ij = zeros_like(C_ij)
+                    C_i.append(C_ij)
+                C.append(C_i)
 
-        # concatenate along the column axis
-        H = [cat(H_i, dim=1) for H_i in H]
-        # concatenate along the row axis
-        H = cat(H)
+            # concatenate along the column axis
+            C = [cat(C_i, dim=1) for C_i in C]
+            # concatenate along the row axis
+            C = cat(C)
 
-        with plt.rc_context(
-            bundles.icml2024(usetex=not args.disable_tex)
-        ):
-            fig, ax = plt.subplots()
-            ax.imshow((H.detach().abs() + 1e-5).log10())
-            ax.set_xlabel("$j$")
-            ax.set_ylabel("$i$")
-            plt.savefig(
-                path.join(
-                    SAVEDIR,
-                    f"synthetic_{flattening}_hessian.pdf",
-                ),
-                transparent=True,
-                bbox_inches="tight",
-            )
-            plt.close(fig)
+            with plt.rc_context(bundles.icml2024(usetex=not args.disable_tex)):
+                fig, ax = plt.subplots()
+                ax.imshow(
+                    (C.detach().abs() + 1e-5).log10(),
+                    interpolation="none",
+                    extent=(0.5, num_params + 0.5, num_params + 0.5, 0.5),
+                )
+                ax.set_xlabel("$j$")
+                ax.set_ylabel("$i$")
+                highglight_blocks(ax, param_dims)
+                plt.savefig(
+                    path.join(
+                        SAVEDIR,
+                        f"synthetic_{name}{'_bda' if bda else ''}.pdf",
+                    ),
+                    transparent=True,
+                    bbox_inches="tight",
+                )
+                plt.close(fig)
