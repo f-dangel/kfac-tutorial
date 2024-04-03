@@ -1,0 +1,68 @@
+\begin{caveat}
+  Implementations of loss functions mix the concepts of criterion and reduction.
+  This is often fine, but sometimes makes it difficult to map between these components without accidentally forgetting a factor.
+  We need to keep both concepts separate to reduce the chance of introducing scaling bugs.
+\end{caveat}
+
+Empirical risk minimization with square or cross-entropy loss can be seen as maximum likelihood (or equivalently, minimium negative log-likelihood) estimation problem.
+The per-datum losses can be interpreted as negative log-likelihoods $p(\rvy \mid \rvx, \vtheta)$ of a probabilistic model, up to some constant which does not depend on the model parameters $\vtheta$ and can therefore be neglected for the purpose of optimization (also assuming that the data was drawn i.i.d.),
+\begin{align*}
+  \gL(\vtheta; \sD)
+  &=
+    R \sum_{n=1}^N \ell_n(\vtheta)
+  \\
+  &=
+    R \sum_{n=1}^N - \log p(\vy_n \mid \vx_n, \vtheta) + \text{const}
+  \\
+  &=
+    R \sum_{n=1}^N - \log r(\vy_n \mid f(\vx_n, \vtheta)) + \text{const}\,.
+\end{align*}
+Hence,
+\begin{align*}
+  \mathrm{minimize}_{\vtheta} \gL(\vtheta; \sD)
+  \\
+  \Leftrightarrow
+  \\
+  \mathrm{maximize}_{\vtheta} R p(\sD \mid \vtheta)
+  \\
+  \Leftrightarrow
+  \\
+  \mathrm{minimize}_{\vtheta} - R \log(p(\sD \mid \vtheta))
+\end{align*}
+
+\begin{example}[Probabilistic interpretation of square loss]
+  For square loss from \Cref{ex:square_loss}, we have that $c(\vf, \vy) = - \log( \mathrm{const.}
+  \cdot \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI))$ where $\gN(\bullet | \vmu, \mSigma)$ is a multi-variate Gaussian distribution with mean $\vmu \in \sR^C$ and positive definite covariance $\mSigma \in \sR^{C \times C}$,
+  \begin{align*}
+    \gN(\rvy \mid \vmu, \mSigma)
+    =
+    \frac{1}{{(2\pi)}^{C/2} \sqrt{\det(\mSigma)}}
+    \\
+    \exp\left( -\frac{1}{2} {(\rvy - \vmu)}^\top \mSigma^{-1} (\rvy - \vmu) \right)\,.
+  \end{align*}
+  Hence, we can identify
+  \begin{align*}
+    r(\rvy \mid f(\rvx, \vtheta)) &= \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI)\,
+    \\
+    p(\rvy \mid \rvx, \vtheta) &= \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI)\,.
+  \end{align*}
+\end{example}
+
+\begin{example}[Probabilistic interpretation of cross-entropy loss]
+  For cross-entropy loss from \Cref{ex:cross_entropy_loss}, we have that $c(\vf, y) = - \log( \gC(\ry \mid \vsigma = \softmax(\vf) )$ where $\gC(\bullet | \vsigma)$ is a categorical distribution over $\{1, \dots, C\}$ with probabilities $\vsigma \in \sR^C_{\ge 0}$ and $\vsigma^\top \vone = 1$,
+  \begin{align*}
+    \gC(\ry \mid \vsigma)
+    =
+    \prod_{c=1}^C [\vsigma]_c^{\delta_{\ry,c}}\,.
+  \end{align*}
+  Hence, we can identify
+  \begin{align*}
+    r(\ry \mid f(\rvx, \vtheta)) &= \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,
+    \\
+    p(\ry \mid \rvx, \vtheta) &= \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,.
+  \end{align*}
+\end{example}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

@@ -1,26 +1,19 @@
-\subsection{Empirical risk minimization \& Maximum Likelihood Estimation}
-
-\subsubsection{Deep neural networks}
-
-\subsubsection{Probabilistic interpretation}
-
-
-\begin{align}
-  \gL(\vtheta) &= \sum_{n=1}^N \ell(\vtheta, \vx_n, \vy_n)
-  \\
-               &=
-                 \sum_{n=1}^N c(f(\vtheta, \vx_n), \vy_n)
-\end{align}
-
+\switchcolumn[1]*
+\codeblock{reduction_factors}
 \switchcolumn[0]
 
-\blindtext
+\subsection{Empirical Risk Minimization}
+\input{sections/basics_empirical_risk.tex}
 
-\switchcolumn[1]
+\switchcolumn[1]*
+\codeblock{forward_pass}
+\switchcolumn[0]
 
-\switchcolumn[0]* % sync
+\subsection{Deep neural networks}
+\input{sections/basics_neural_networks.tex}
 
-\blindtext
+\subsection{Probabilistic interpretation}
+\input{sections/basics_probabilistic_interpretation.tex}
 
 \subsection{Derivatives \& Automatic Differentiation}
 
