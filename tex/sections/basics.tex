@@ -1,40 +1,19 @@
+\switchcolumn[1]*
+\codeblock{reduction_factors}
+\switchcolumn[0]
+
+\subsection{Empirical Risk Minimization}
 \input{sections/basics_empirical_risk.tex}
+
 \switchcolumn[1]*
 \codeblock{forward_pass}
 \switchcolumn[0]
 
 \subsection{Deep neural networks}
+\input{sections/basics_neural_networks.tex}
 
-For simplicity, we consider sequential neural networks $f: \gX \times \Theta \to \gF$ that map a given input $\vx$ to a prediction $f(\vx, \vtheta)$ using parameters $\vtheta$.
-$\gX$ is the input space, $\Theta$ is the parameter space, and $\gF$ is the prediction space.
-
-The network is composed of $L$ layers $f^{(i)}(\cdot, \vtheta^{(i)}), i=1,\dots, L$, each of which can have its own parameters $\vtheta^{(i)}$.
-The whole network is simply a stack of layers, i.e.
-$f = f^{(L)} \circ \dots \circ f^{(1)}$, and the its evaluation produces a set of intermediate features,
-\begin{align*}
-  \vx^{(i)} = f^{(i)}(\vx^{(i-1)}, \vtheta^{(i)}), \quad i=1,\dots, L,
-\end{align*}
-starting with $\vx^{(0)} \leftarrow \vx$, ending in $\vx^{(L)} \leftarrow f(\vx, \vtheta)$.
-We refer to the hidden representations $\vx^{(i-1)}$ as the \emph{input to layer $i$}, and to $\vx^{(i)}$ as the \emph{output of layer $i$}.
-For some layers, the parameters will be empty, e.g.\,activation, pooling, or dropout layers.
-To compute KFAC, we will need to access to the inputs and outputs of certain layers.
-We can obtain these by intercepting the forward pass of a neural network using PyTorch's hook mechanism, see \Cref{forward_pass}.
-
-\subsubsection{Probabilistic interpretation}
-
-
-\begin{align}
-  \gL(\vtheta) &= \sum_{n=1}^N \ell(\vtheta, \vx_n, \vy_n)
-  \\
-               &=
-                 \sum_{n=1}^N c(f(\vtheta, \vx_n), \vy_n)
-\end{align}
-
-\switchcolumn[0]
-
-\switchcolumn[1]
-
-\switchcolumn[0]* % sync
+\subsection{Probabilistic interpretation}
+\input{sections/basics_probabilistic_interpretation.tex}
 
 \subsection{Derivatives \& Automatic Differentiation}
 
