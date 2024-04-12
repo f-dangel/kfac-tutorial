@@ -16,7 +16,10 @@ from kfs.plots import SAVEDIR
 
 
 def highglight_blocks(
-    ax: Axes, block_dims: List[int], color: str = "white", linewidth: float = 0.25
+    ax: Axes,
+    block_dims: List[int],
+    color: str = "white",
+    linewidth: float = 0.25,
 ):
     """Highlight the block structure of a square matrix.
 
@@ -32,7 +35,7 @@ def highglight_blocks(
 
     style = dict(color=color, linewidth=linewidth)
     current = xmin
-    for dim in param_dims[:-1]:
+    for dim in block_dims[:-1]:
         current += dim
         ax.axvline(current, **style)
         ax.axhline(current, **style)
@@ -69,10 +72,18 @@ if __name__ == "__main__":
     loss = loss_func(output, y)
 
     curvature_funcs = {
-        "cvec_hessian": lambda p_i, p_j: cvec_hess(loss, (p_i, p_j)),
-        "rvec_hessian": lambda p_i, p_j: rvec_hess(loss, (p_i, p_j)),
-        "cvec_ggn": lambda p_i, p_j: vec_ggn(loss, (p_i, p_j), output, "cvec"),
-        "rvec_ggn": lambda p_i, p_j: vec_ggn(loss, (p_i, p_j), output, "rvec"),
+        "cvec_hessian": lambda p_i, p_j: cvec_hess(
+            loss, (p_i, p_j)
+        ),
+        "rvec_hessian": lambda p_i, p_j: rvec_hess(
+            loss, (p_i, p_j)
+        ),
+        "cvec_ggn": lambda p_i, p_j: vec_ggn(
+            loss, (p_i, p_j), output, "cvec"
+        ),
+        "rvec_ggn": lambda p_i, p_j: vec_ggn(
+            loss, (p_i, p_j), output, "rvec"
+        ),
     }
 
     for bda in [False, True]:
@@ -93,20 +104,30 @@ if __name__ == "__main__":
             # concatenate along the row axis
             C = cat(C)
 
-            with plt.rc_context(bundles.icml2024(usetex=not args.disable_tex)):
+            with plt.rc_context(
+                bundles.icml2024(
+                    usetex=not args.disable_tex
+                )
+            ):
                 fig, ax = plt.subplots()
                 ax.imshow(
                     (C.detach().abs() + 1e-5).log10(),
                     interpolation="none",
-                    extent=(0.5, num_params + 0.5, num_params + 0.5, 0.5),
+                    extent=(
+                        0.5,
+                        num_params + 0.5,
+                        num_params + 0.5,
+                        0.5,
+                    ),
                 )
                 ax.set_xlabel("$j$")
                 ax.set_ylabel("$i$")
                 highglight_blocks(ax, param_dims)
+                suffix = {"_bda" if bda else ""}
                 plt.savefig(
                     path.join(
                         SAVEDIR,
-                        f"synthetic_{name}{'_bda' if bda else ''}.pdf",
+                        f"synthetic_{name}{suffix}.pdf",
                     ),
                     transparent=True,
                     bbox_inches="tight",

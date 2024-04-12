@@ -14,7 +14,11 @@ from kfs.flattening import cvec, rvec
 from kfs.ggn_product import ggnvp
 
 
-def ggn(f: Tensor, x: Union[Tensor, Tuple[Tensor, Tensor]], g: Tensor) -> Tensor:
+def ggn(
+    f: Tensor,
+    x: Union[Tensor, Tuple[Tensor, Tensor]],
+    g: Tensor,
+) -> Tensor:
     r"""Compute the GGN of f linearized at g w.r.t. x .
 
     See $\text{\Cref{def:vector_ggn}}$.
@@ -39,13 +43,18 @@ def ggn(f: Tensor, x: Union[Tensor, Tuple[Tensor, Tensor]], g: Tensor) -> Tensor
         d_unraveled = unravel_index(d, x1.shape)
         one_hot_d = zeros_like(x1)
         one_hot_d[d_unraveled] = 1.0
-        G[d_unraveled] = ggnvp(f, (x2, x1), g, one_hot_d, retain_graph=True)
+        G[d_unraveled] = ggnvp(
+            f, (x2, x1), g, one_hot_d, retain_graph=True
+        )
 
     return G
 
 
 def vec_ggn(
-    f: Tensor, x: Union[Tensor, Tuple[Tensor, Tensor]], g: Tensor, vec: str
+    f: Tensor,
+    x: Union[Tensor, Tuple[Tensor, Tensor]],
+    g: Tensor,
+    vec: str,
 ) -> Tensor:
     r"""Compute the GGN matrix of f linearized at g w.r.t. x.
 
@@ -69,7 +78,9 @@ def vec_ggn(
     vec = {"cvec": cvec, "rvec": rvec}[vec]
     G = ggn(f, x, g)
     # flatten row indices
-    row_ndim = x.ndim if isinstance(x, Tensor) else x[0].ndim
+    row_ndim = (
+        x.ndim if isinstance(x, Tensor) else x[0].ndim
+    )
     G = vec(G, end_dim=row_ndim - 1)
     # flatten column indices
     return vec(G, start_dim=1)

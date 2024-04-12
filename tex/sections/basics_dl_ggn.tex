@@ -128,15 +128,21 @@ With that, we can then write the upper expression as
 \end{align*}
 I.e., we can express the flattened GGN contribution of a single datum as self-outer product.
 In the following, we will not look further into $\mV^{\vec}$; see \cite{dangel2022vivit,papyan2019measurements} for a detailed discussion. Instead, we want to derive the factorization for the Hessians of square and cross-entropy loss, which will become useful in later chapters.
-\begin{example}[Symmetric factorization of the Hessian of square loss]
-  Consider the square loss Hessian from \Cref{ex:square_loss} and its Hessian from \Cref{ex:square_loss_hessian}.
+\begin{example}[Symmetric factorization of the Hessian of square loss]\label{ex:mseloss_hessian_factorization}
+  Consider the square loss $c$ from \Cref{ex:square_loss} and its Hessian from \Cref{ex:square_loss_hessian}.
+  The Hessian's symmetric factorization is simply
+  \begin{align*}
+    \mS^{\vec} = \mI
+  \end{align*}
+  because $\mS^{\vec} {\mS^{\vec}}^{\top} = \mI = \hess_{f}^{\vec}c$.
 \end{example}
 
-\begin{example}
-  The Hessian's symmetric factorization is \cite[e.g.][]{papyan2019measurements}
+\begin{example}[Symmetric Hessian decomposition of softmax cross-entropy loss, \Cref{hessian_factorizations}]\label{ex:crossentropyloss_hessian_factorization}
+  The Hessian's symmetric factorization is \citep[e.g.][]{papyan2019measurements}
   \begin{align*}
     \mS^{\vec} = \diag(\sqrt{\vp}) - \vp \sqrt{\vp}^{\top}
   \end{align*}
+  where $\vp = \softmax(\vf)$ and the square root is applied element-wise.
   To see this, we can form $\mS^{\vec} {\mS^{\vec}}^{\top}$ which yields
   \begin{align*}
     \diag(\vp) - 2 \vp \vp^{\top} + \vp \sqrt{\vp}^{\top} \sqrt{\vp} \vp^{\top}
@@ -146,6 +152,12 @@ In the following, we will not look further into $\mV^{\vec}$; see \cite{dangel20
   using the fact that $\vp^{\top} \vone = 1 = \sqrt{\vp}^{\top} \sqrt{\vp}$.
   This expression equals the Hessian from \Cref{ex:square_loss_hessian}.
 \end{example}
+Note that the Hessian factorizations for both square and softmax cross-entropy loss do not depend on the label, i.e.\,the second argument of the criterion function.
+We will make use of this property in the next section to connect the GGN with the Fisher matrix for regression and classification tasks.
+
+\switchcolumn[1]*
+\codeblock{hessian_factorizations}
+\switchcolumn[0]
 
 TODO Implement Hessian square roots, test against Hessian computation
 
