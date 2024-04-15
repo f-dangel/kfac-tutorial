@@ -1,50 +1,42 @@
 """Kronecker-factored approximate curvature."""
 
-from collections import defaultdict
-from typing import (
-    Callable,
-    Dict,
-    List,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Callable, Dict, Tuple, Type, Union
 
 from torch import Tensor, eye
 from torch.autograd import grad
 from torch.nn import CrossEntropyLoss, Module, MSELoss
 
 from kfs.forward_pass import output_and_intermediates
+from kfs.kfac_backpropagated_vectors import (
+    compute_backpropagated_vectors,
+)
+from kfs.reduction_factors import get_reduction_factor
 
 
 class KFAC:
     """Class for computing the KFAC approximation.
 
-    This class defines a scaffold for computing KFAC.
-    We will register develop the functionality to support many
-    different KFAC flavours in the following chapters and
-    register it in this class.
+    Note:
+        This class defines a scaffold for computing KFAC.
+        We will register develop and register the
+        functionality to support many different flavours
+        in the following chapters. Import this class via
+        `from kfs import KFAC` to use it with full
+        functionality.
 
     Attributes:
-        SUPPORTED_LOSS_FUNCS: The loss functions KFAC supports.
-            New loss functions can be added by extending this set.
-        SUPPORTED_MODULES: The layers KFAC supports.
-            New layers can be added by extending this set.
-        SUPPORTED_FISHER_TYPES: The Fisher types KFAC supports.
-            New Fisher types can be added by extending this set.
-        SUPPORTED_KFAC_APPROX: The KFAC approximations KFAC supports.
-            New approximations can be added by extending this set.
-        SUPPORTED_LOSS_AVERAGE: The loss averaging methods KFAC supports.
-            New loss averaging methods can be added by extending this set.
+        COMPUTE_INPUT_BASED_FACTOR: A dictionary that maps
+            layer types and KFAC flavours to functions that
+            compute the input-based Kronecker factor.
+        COMPUTE_GRAD_OUTPUT_BASED_FACTOR: A dictionary that
+            maps layer types and KFAC flavours to functions
+            that compute the gradient-based Kronecker factor.
     """
 
-    # we will register supported loss functions, layers,
-    # Fisher types
-    COMPUTE_BACKPROPAGATED_VECTORS: Dict[
-        Tuple[Type[Module], str], Callable
-    ] = {}
     COMPUTE_INPUT_BASED_FACTOR: Dict[
+        Tuple[Type[Module], str], Callable[[Tensor], Tensor]
+    ] = {}
+    COMPUTE_GRAD_OUTPUT_BASED_FACTOR: Dict[
         Tuple[Type[Module], str], Callable[[Tensor], Tensor]
     ] = {}
 
@@ -62,6 +54,11 @@ class KFAC:
 
         Args:
             model: The model whose KFAC factors are computed.
+            loss_func: The loss function.
+            data: A batch of inputs and labels.
+            fisher_type: The type of Fisher approximation.
+            kfac_approx: The type of KFAC approximation.
+            loss_average: TODO.
 
         Returns:
             A dictionary whose keys are the layer names and
@@ -97,7 +94,7 @@ class KFAC:
                 (type(layer), kfac_approx)
             ]
             inputs = intermediates.pop(f"{name}_in")
-            As[name] = compute_A(layer, inputs)
+            As[name] = compute_A(inputs)
 
         # generate vectors to be backpropagated
         layer_outputs = [
@@ -106,20 +103,18 @@ class KFAC:
         ]
 
         backpropagated_vectors = (
-            cls.COMPUTE_BACKPROPAGATED_VECTORS[
-                (type(loss_func), fisher_type)
-            ](output, y, loss_func)
+            compute_backpropagated_vectors(
+                loss_func, fisher_type, output, y
+            )
         )
 
         for v in backpropagated_vectors:
             grad_outputs = grad(
-                output, layer_outputs, grad_output=v
+                output,
+                layer_outputs,
+                grad_outputs=v,
+                retain_graph=True,
             )
-
-            # fix scale from reduction
-            R = ...
-            for g in grad_outputs:
-                g.mul_(R)
 
             for (name, layer), g_out in zip(
                 layers.items(), grad_outputs
@@ -127,7 +122,7 @@ class KFAC:
                 # compute grad-output based Kronecker factor
                 compute_B = (
                     cls.COMPUTE_GRAD_OUTPUT_BASED_FACTOR[
-                        type(layer)
+                        (type(layer), kfac_approx)
                     ]
                 )
                 B = compute_B(g_out)
@@ -135,17 +130,23 @@ class KFAC:
                     B if name not in Bs else B + Bs[name]
                 )
 
-        # if there were no backpropagated vectors, set B to identity
+        # if there were no backpropagated vectors, set B=I
         if not Bs:
             for name, layer in layers.items():
                 weight = layer.weight
-                # This holds for the layers of this tutorial, but may not hold in general!
+                # This holds for the layers of this tutorial,
+                # but may not hold in general!
                 dim_B = weight.shape[0]
                 Bs[name] = eye(
                     dim_B,
                     device=weight.device,
                     dtype=weight.dtype,
                 )
+
+        # factor in loss reduction
+        R = get_reduction_factor(loss_func, y)
+        for B in Bs.values():
+            B.mul_(R)
 
         return {
             name: (As[name], Bs[name]) for name in layers
