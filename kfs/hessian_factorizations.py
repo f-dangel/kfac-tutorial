@@ -20,7 +20,9 @@ from kfs.reduction_factors import (
 )
 
 
-def symmetric_factorization_MSELoss(prediction: Tensor, target: Tensor) -> Tensor:
+def symmetric_factorization_MSELoss(
+    prediction: Tensor, target: Tensor
+) -> Tensor:
     r"""Compute symmetric factorization of MSELoss Hessian.
 
     Implements $\mathrm{S}$ from
@@ -106,7 +108,9 @@ def tensor_outer(S: Tensor) -> Tensor:
     d_in = " ".join(f"d_in_{i}" for i in range(ndim_F))
     d_sum = " ".join(f"sum_{i}" for i in range(ndim_F))
     d_out = " ".join(f"d_out_{i}" for i in range(ndim_F))
-    equation = f"{d_in} {d_sum}, {d_out} {d_sum} -> {d_in} {d_out}"
+    equation = (
+        f"{d_in} {d_sum}, {d_out} {d_sum} -> {d_in} {d_out}"
+    )
     return einsum(S, S, equation)
 
 

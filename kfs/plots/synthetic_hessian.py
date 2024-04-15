@@ -25,7 +25,7 @@ def highglight_blocks(
 
     Args:
         ax: Matplotlib axes.
-        param_dims: Dimensions of the blocks.
+        block_dims: Dimensions of the blocks.
         color: Color of the lines. Defaults to "white".
         linewidth: Width of the lines. Defaults to 0.25.
     """
