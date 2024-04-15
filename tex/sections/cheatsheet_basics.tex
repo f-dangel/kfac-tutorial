@@ -1,0 +1,208 @@
+\begin{itemize}
+\item Risk minimization and tractable empirical risk minimization
+  \begin{align*}
+    \argmin_{\vtheta} \gL_{p_{\text{data}}(\rvx, \rvy)}(\vtheta)
+    \qquad
+    &\text{where}\qquad
+      \gL_{p_{\text{data}}(\rvx, \rvy)}(\vtheta) \coloneq \E_{(\vx, \vy) \sim p_{\text{data}}(\rvx, \rvy)}
+      \left[
+      c(f(\vx; \vtheta), \vy)
+      \right]
+      \shortintertext{(use empirical density $p_{\sD}(\rvx, \rvy) \propto \sum_n \delta(\rvx - \vx_n) \delta(\rvy - \vy_n)$ from data set $\sD = \{ (\vx_n, \vy_n) \mid n=1, \dots, N \}$)}
+      \argmin_{\vtheta} \gL_{\sD}(\vtheta)
+      \qquad
+    &\text{where}\qquad
+      \gL_{\sD}(\vtheta) \coloneq R \sum_{n=1}^N c(f(\vx_n; \vtheta), \vy_n)
+  \end{align*}
+
+\item Common criterion functions and their reduction constants
+  \begin{align*}
+    &\begin{matrix}
+       \text{Square loss}
+       \\
+       \text{(\texttt{MSELoss})}
+     \end{matrix}
+      \qquad
+    &c(\vf, \vy) = \frac{1}{2} \left\lVert \vf - \vy \right\rVert_2^2\,,
+      \qquad
+    &R =
+      \begin{cases}
+        2 & \text{\texttt{reduction="sum"}} \\
+        \frac{2}{N \dim(\vy)} & \text{\texttt{reduction="mean"}}
+      \end{cases}
+    \\
+    &\begin{matrix}
+       \text{Softmax cross-entropy loss}\\
+       \text{(\texttt{CrossEntropyLoss})}
+     \end{matrix}
+      \qquad
+    &c(\vf, y) = - \log( [\softmax(\vf)]_y)\,,
+      \qquad
+    &R =
+      \begin{cases}
+        1 & \text{\texttt{reduction="sum"}} \\
+        \frac{1}{N \dim(y)} & \text{\texttt{reduction="mean"}}
+      \end{cases}
+  \end{align*}
+
+\item Probabilistic interpretation of a neural net: Parameterize $p(\rvx, \rvy \mid \vtheta) = p_{\text{data}}(\rvx) p(\rvy \mid \rvx, \vtheta) = p_{\text{data}}(\rvx) r(\rvy \mid f(\rvx, \vtheta))$
+  \begin{align*}
+    \argmin_{\vtheta} \mathrm{KL}( p_{\text{data}}(\rvx, \rvy) \mid\mid p(\rvx, \rvy \mid \vtheta) )
+    \qquad\Leftrightarrow\qquad
+    \argmin_{\vtheta} \E_{p_{\text{data}}(\rvx)} \left[
+    - \log r(\rvy \mid f(\rvx, \vtheta))
+    \right]
+    \\
+    \text{(make tractable by using empirical density)}\qquad
+    \argmin_{\vtheta} - R \sum_n \log r(\rvy=\vy_n \mid f(\rvx=\vx_n, \vtheta))
+  \end{align*}
+\item Common criterion functions as log-likelihoods: $c(\vf, \vy) = - \log r(\rvy=\vy \mid f(\rvx, \vtheta) = \vf)$
+  \begin{align*}
+    &\text{Square loss (\texttt{MSELoss})}
+      \qquad
+    &r(\rvy \mid f(\rvx, \vtheta)) = \gN( \rvy \mid \mu = \vf, \mSigma = \mI)
+    \\
+    &\text{Softmax cross-entropy loss (\texttt{CrossEntropyLoss})}
+      \qquad
+    &r(\ry \mid f(\rvx, \vtheta)) = \gC( \ry \mid \vsigma = \softmax(\vf))
+  \end{align*}
+
+\item Hessian, generalized Gauss-Newton, type-II/I Fishers ($\vf_n \coloneq f(\vx_n, \vtheta)$, $\rvf = f(\rvx, \vtheta)$, $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \rvf = \vf_n)$)
+  \begin{align*}
+    \hess_{\vtheta} \gL_{\sD}(\vtheta)
+    &= R \sum_{n=1}^N \hess_{\vtheta} c(\vf_n, \vy_n)
+      = -R \sum_{n=1}^N \hess_{\vtheta} \log r(\rvy = \vy_n \mid \rvf = \vf_n)
+    \\
+    \ggn_{\vtheta}\gL_{\sD}(\vtheta)
+    &= R \sum_{n=1}^N
+      \jac_{\vtheta} \vf_n^{\top}
+      \left(
+      \hess_{\vf_n} c(\vf_n, \vy_n)
+      \right)
+      \jac_{\vtheta} \vf_n
+      =
+      R \sum_{n=1}^N
+      \jac_{\vtheta} \vf_n^{\top}
+      \left(
+      -\hess_{\vf_n} \log r(\rvy = \vy_n \mid \rvf = \vf_n)
+      \right)
+      \jac_{\vtheta} \vf_n
+    \\
+    \fisher^{\text{II}}_{\vtheta} \gL_{\sD}(\vtheta)
+    &=
+      \lim_{M \to \infty}
+      \frac{R}{M}
+      \sum_{n=1}^N
+      \jac_{\vtheta} \vf_n^{\top}
+      \left[
+      -\hess_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \rvf = \vf_n)
+      \right]
+      \jac_{\vtheta} \vf_n\,,
+    \\
+    \fisher^{\text{I}}_{\vtheta} \gL_{\sD}(\vtheta)
+    &=
+      \lim_{M \to \infty}
+      \frac{R}{M}
+      \sum_{n=1}^N
+      \jac_{\vtheta} \vf_n^{\top}
+      \left[
+      -\nabla_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \rvf = \vf_n)
+      (-\nabla_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \rvf = \vf_n))^{\top}
+      \right]
+      \jac_{\vtheta} \vf_n
+  \end{align*}
+  \begin{itemize}
+  \item In expectation notation (coloured parts coincide for the above criterion functions, hence GGN = Fisher)
+    \begin{align*}
+      \hess_{\vtheta} \gL_{\sD}(\vtheta)
+      &\propto
+        \E_{p_{\sD}(\rvx)}
+        \E_{p_{\sD}(\rvy \mid \rvx)}
+        \left[
+        -\hess_{\vtheta} \log r(\rvy \mid \rvf)
+        \right]
+      \\
+      \ggn_{\vtheta}\gL_{\sD}(\vtheta)
+      &\propto
+        \E_{p_{\sD}(\rvx)}
+        \left[
+        \jac_{\vtheta} \rvf^{\top}
+        \textcolor{VectorBlue}{
+        \E_{p_{\sD}(\rvy \mid \rvx)}
+        \left[
+        -\hess_{\rvf} \log r(\rvy \mid \rvf)
+        \right]
+        }
+        \jac_{\vtheta} \rvf
+        \right]
+      \\
+      \fisher_{\vtheta} \gL_{\sD}(\vtheta)
+      &\propto
+        \E_{p_{\sD}(\rvx)}
+        \E_{r(\rvy \mid \rvf)}
+        \left[
+        -\hess_{\vtheta} \log r(\rvy \mid \rvf)
+        \right]
+      \\
+      \fisher^{\text{II}}_{\vtheta} \gL_{\sD}(\vtheta)
+      &\propto
+        \E_{p_{\sD}(\rvx)}
+        \left[
+        \jac_{\vtheta} \rvf^{\top}
+        \textcolor{VectorBlue}{
+        \E_{r(\rvy \mid \rvf)}
+        \left[
+        -\hess_{\rvf} \log r(\rvy \mid \rvf)
+        \right]
+        }
+        \jac_{\vtheta} \rvf
+        \right]
+      \\
+      \fisher^{\text{I}}_{\vtheta} \gL_{\sD}(\vtheta)
+      &\propto
+        \E_{p_{\sD}(\rvx)}
+        \left[
+        \jac_{\vtheta} \rvf^{\top}
+        \textcolor{VectorBlue}{
+        \E_{r(\rvy \mid \rvf)}
+        \left[
+        -\nabla_{\rvf} \log r(\rvy \mid \rvf)
+        (
+        -\nabla_{\rvf} \log r(\rvy \mid \rvf)
+        )^{\top}
+        \right]
+        }
+        \jac_{\vtheta} \rvf
+        \right]
+    \end{align*}
+  \end{itemize}
+\item Gradients, Hessians, and symmetric Hessian decompositions of criterion functions
+  \begin{align*}
+    &
+      \qquad&\nabla_{\vf} c(\vf, \vy)
+              \qquad&\hess_{\vf} c(\vf, \vy)
+                      \qquad&\mS,\, \mS \mS^{\top} = \hess_{\vf} c(\vf, \vy)
+    \\
+    &
+      \begin{matrix}
+        \text{Square loss}\\
+        \text{(\texttt{MSELoss})}
+      \end{matrix}
+    & \vf - \vy
+      \qquad& \mI
+              \qquad& \mI
+    \\
+    &
+      \begin{matrix}
+        \text{Softmax cross-entropy loss}\\
+        (\text{\texttt{MSELoss}}, \vp = \softmax(\vf))
+      \end{matrix}
+    \qquad& \vp - \onehot(y)
+    \qquad& \diag(\vp) - \vp \vp^{\top}
+    \qquad& \diag(\sqrt{\vp}) - \vp \sqrt{\vp}^{\top}
+  \end{align*}
+\end{itemize}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

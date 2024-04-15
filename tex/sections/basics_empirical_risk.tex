@@ -1,9 +1,3 @@
-\switchcolumn[1]*
-\codeblock{reduction_factors}
-\switchcolumn[0]
-
-\subsection{Empirical Risk Minimization}
-
 We consider supervised learning with a neural network $f: \gX \times \Theta \to \gF$ that maps a given input $\vx \in \gX$ from an input domain $\sX$ to a prediction $f(\vx, \vtheta) \in \gF$ in a prediction domain $\gF$ using parameters $\vtheta \in \Theta$ from a parameter space $\Theta$.
 Predictions are scored with a criterion function $c: \gF \times \gY \to \sR$ that compares the prediction to the true target $\vy \in \gY$ from a label space $\gY$, producing a single number called the loss on datum $(\vx, \vy)$.
 For a data set $\sD = \{(\vx_n, \vy_n) \mid n=1, \dots, N\}$ of collected labelled examples, we evaluate the per-datum criteria and accumulate them into the total loss, using an accumulation factor $R \in \sR$ (common choices are $\nicefrac{1}{N}, 1, \nicefrac{1}{N \dim(\gY)}$),
