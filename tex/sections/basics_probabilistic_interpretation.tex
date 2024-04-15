@@ -84,7 +84,7 @@ We are now very close to writing down the explicit connection between empirical 
 The last remaining step is to connect the model's likelihood $r(\rvy \mid \rvx, \vtheta)$ with the criterion function $c(f(\vx, \vtheta), \vy)$ from empirical risk minimization.
 The following two examples show that empirical risk minimization with square or softmax cross-entropy loss can be interpreted as maximum likelihood (or equivalently, minimum negative log-likelihood) estimation problem where the neural network parameterizes a Gaussian and a categorical distribution over the labels:
 
-\begin{example}[Probabilistic interpretation of square loss]
+\begin{example}[Probabilistic interpretation of square loss]\label{ex:square_loss_probabilistic}
   For square loss from \Cref{ex:square_loss}, we have that $c(\vf, \vy) = - \log( \mathrm{const.}
   \cdot \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI))$ where $\gN(\bullet | \vmu, \mSigma)$ is a multi-variate Gaussian distribution with mean $\vmu \in \sR^C$ and positive definite covariance $\mSigma \in \sR^{C \times C}$,
   \begin{align*}
@@ -106,7 +106,7 @@ The following two examples show that empirical risk minimization with square or 
   \end{align*}
 \end{example}
 
-\begin{example}[Probabilistic interpretation of cross-entropy loss]
+\begin{example}[Probabilistic interpretation of cross-entropy loss]\label{ex:cross_entropy_loss_probabilistic}
   For cross-entropy loss from \Cref{ex:cross_entropy_loss}, we have that $c(\vf, y) = - \log( \gC(\ry \mid \vsigma = \softmax(\vf) ))$ where $\gC(\bullet | \vsigma)$ is a categorical distribution over $\{1, \dots, C\}$ with probabilities $\vsigma \in \sR^C_{\ge 0}$ and $\vsigma^\top \vone = 1$,
   \begin{align*}
     \gC(\ry \mid \vsigma)
