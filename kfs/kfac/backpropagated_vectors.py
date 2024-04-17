@@ -5,23 +5,43 @@ from torch import Tensor, stack
 from torch.autograd import grad
 from torch.nn import CrossEntropyLoss, Module, MSELoss
 
-from kfs.hessian_factorizations import (
+from kfs.basics.hessian_factorizations import (
     symmetric_factorization_CrossEntropyLoss,
     symmetric_factorization_MSELoss,
 )
-from kfs.label_sampling import (
+from kfs.basics.label_sampling import (
     draw_label_CrossEntropyLoss,
     draw_label_MSELoss,
 )
-from kfs.reduction_factors import (
+from kfs.basics.reduction_factors import (
     CrossEntropyLoss_criterion,
     MSELoss_criterion,
 )
 
 
 def compute_backpropagated_vectors(
-    loss_func, fisher_type, predictions, labels
+    loss_func: Module,
+    fisher_type: str,
+    predictions: Tensor,
+    labels: Tensor,
 ) -> List[Tensor]:
+    """Compute backpropagated vectors for KFAC's `B` matrix.
+
+    Args:
+        loss_func: The loss function.
+        fisher_type: The type of Fisher approximation.
+            Can be `'type-2'`, `'mc=1'` (with an arbitrary
+            number instead of `1`), or `'input_only'`.
+        predictions: A batch of model predictions.
+        labels: A batch of labels.
+
+    Returns:
+        A list of backpropagated vectors. Each vector has
+        the same shape as `predictions`.
+
+    Raises:
+        ValueError: For invalid values of `fisher_type`.
+    """
     if fisher_type == "type-2":
         return backpropagated_vectors_type2(
             loss_func, predictions, labels
@@ -42,12 +62,29 @@ def compute_backpropagated_vectors(
 def backpropagated_vectors_type2(
     loss_func: Module, predictions: Tensor, labels: Tensor
 ) -> List[Tensor]:
+    """Compute backpropagated vectors for KFAC type-II.
+
+    Args:
+        loss_func: The loss function.
+        predictions: A batch of model predictions.
+        labels: A batch of labels.
+
+    Returns:
+        A list of backpropagated vectors. Each vector has
+        the same shape as `predictions` and the number of
+        vectors is equal `predictions.shape[1:].numel()`,
+        i.e. dim(F). Vectors contain columns of the loss
+        function's symmetric Hessian decomposition.
+
+    Raises:
+        NotImplementedError: For unsupported loss functions.
+    """
     if isinstance(loss_func, MSELoss):
         S_func = symmetric_factorization_MSELoss
     elif isinstance(loss_func, CrossEntropyLoss):
         S_func = symmetric_factorization_CrossEntropyLoss
     else:
-        raise ValueError(
+        raise NotImplementedError(
             f"Unknown loss function: {type(loss_func)}."
         )
 
@@ -76,6 +113,24 @@ def backpropagated_vectors_mc(
     labels: Tensor,
     mc_samples: int,
 ) -> List[Tensor]:
+    """Compute backpropagated vectors for KFAC type-I MC.
+
+    Args:
+        loss_func: The loss function.
+        predictions: A batch of model predictions.
+        labels: A batch of labels.
+        mc_samples: The number of Monte Carlo samples.
+
+    Returns:
+        A list of backpropagated vectors. Each vector has
+        the same shape as `predictions` and the number of
+        vectors is equal to `mc_samples`. Vectors contain
+        a would-be gradient of the negative log-likelihood
+        w.r.t. the model's predictions on a sampled label.
+
+    Raises:
+        NotImplementedError: For unsupported loss functions.
+    """
     if isinstance(loss_func, MSELoss):
         c_func = MSELoss_criterion
         sample_label_func = draw_label_MSELoss
@@ -83,7 +138,7 @@ def backpropagated_vectors_mc(
         c_func = CrossEntropyLoss_criterion
         sample_label_func = draw_label_CrossEntropyLoss
     else:
-        raise ValueError(
+        raise NotImplementedError(
             f"Unknown loss function: {type(loss_func)}."
         )
 

@@ -10,7 +10,7 @@ Then, we can obtain a simple, convexified approximation $f' \approx f$ in that n
 This involves a first-order Taylor approximation:
 
 \switchcolumn[1]*
-\codeblock{linearization}
+\codeblock{basics/linearization}
 \switchcolumn[0]
 
 \begin{definition}[Linearization (vector case, \Cref{linearization})]\label{def:vector_linearization}
@@ -97,7 +97,7 @@ We will not use the linearization aspect explicitly in the computation, but inst
 We first provide the definition of the GGN in the matrix and tensor case, before we show how to compute the GGN-vector product.
 
 \switchcolumn[1]*
-\codeblock{ggns}
+\codeblock{basics/ggns}
 \switchcolumn[0]
 
 \begin{setup}[Composite vector-to-vector-to-scalar function]\label{setup:composite_vector_to_vector_to_scalar_function}
@@ -128,7 +128,7 @@ We first provide the definition of the GGN in the matrix and tensor case, before
 \end{definition}
 
 \switchcolumn[1]*
-\codeblock{ggn_rosenbrock}
+\codeblock{basics/ggn_rosenbrock}
 \switchcolumn[0]
 
 \begin{example}[GGN for the Rosenbrock function, \Cref{ggn_rosenbrock}]
@@ -236,7 +236,7 @@ We first provide the definition of the GGN in the matrix and tensor case, before
 This expression seems daunting at first, so we will convert things back to matrix notation very soon. Before doing that, let's introduce multiplication with the GGN:
 
 \switchcolumn[1]*
-\codeblock{ggn_product}
+\codeblock{basics/ggn_product}
 \switchcolumn[0]
 
 \begin{definition}[GGN-vector-product (GGNVP, \Cref{ggn_product})]\label{def:ggnvp}%
@@ -274,7 +274,7 @@ Again, it is important to emphasize that the matrix GGN depends on the flattenin
 To emphasize this point, we conclude this section with the following:
 
 \switchcolumn[1]*
-\codeblock{ggns_linear_regression}
+\codeblock{basics/ggns_linear_regression}
 \switchcolumn[0]
 
 \begin{example}[GGN of linear regression (\Cref{ggns_linear_regression})]

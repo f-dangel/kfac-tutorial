@@ -5,7 +5,7 @@ from typing import Callable
 from einops import einsum
 from torch import Tensor, allclose, cos, manual_seed, rand
 
-from kfs.jacobians import jac
+from kfs.basics.jacobians import jac
 
 
 def linearize(

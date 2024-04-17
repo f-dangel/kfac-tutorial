@@ -10,8 +10,8 @@ from torch import (
     zeros_like,
 )
 
-from kfs.flattening import cvec, rvec
-from kfs.ggn_product import ggnvp
+from kfs.basics.flattening import cvec, rvec
+from kfs.basics.ggn_product import ggnvp
 
 
 def ggn(

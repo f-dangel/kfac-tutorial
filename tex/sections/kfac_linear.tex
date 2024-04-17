@@ -1,4 +1,84 @@
 The goal of this section should be to describe the KFAC approximation from~\cite{martens2015optimizing}
+
+Let's consider the GGN for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW \vx$ (suppressing layer indices for simplicity). Let's also assume $\cvec$-flattening, as usually done by the literature and make use of the output-parameter Jacobian of a linear layer (remember Example ??)
+\begin{align*}
+  \ggn_{\mW} \gL_{\sD}
+  &=
+    R
+    \sum_n \sum_c
+    (\jac^{\rvec}_{\mW}\vz_n)^{\top}
+    (\jac^{\rvec}_{\vz_n}\vf_n)^{\top}
+    \blacktriangle_{n,c}
+    \blacktriangle_{n,c}^{\top}
+    (\jac^{\rvec}_{\vz_n}\vf_n)
+    (\jac^{\rvec}_{\mW}\vz_n)
+  \\
+  \shortintertext{
+  (introduce $\vb_{n,c} \coloneq (\jac^{\rvec}_{\vz_n}\vf_n)^{\top} \blacktriangle_{n,c}$ for the layer output gradient)
+  }
+  &=
+    R
+    \sum_n \sum_c
+    (\jac^{\rvec}_{\mW}\vz_n)^{\top}
+    \vb_{n,c} \vb_{n,c}^{\top}
+    (\jac^{\rvec}_{\mW}\vz_n)
+    \shortintertext{Insert the linear layer's Jacobian}
+  &=
+    R
+    \sum_n \sum_c
+    (\vx_n \otimes \mI_{D_{\text{out}}})
+    \vb_{n,c} \vb_{n,c}^{\top}
+    (\vx_n^{\top} \otimes \mI_{D_{\text{out}}})
+  \\
+  &=
+    R
+    \sum_c
+    \sum_n
+    \vx_n \vx_n^{\top}
+    \otimes
+    \vb_{n,c} \vb_{n,c}^{\top}
+\end{align*}
+
+The expectation approximation in KFAC is the following:
+\begin{align}
+  \sum_n \va_n\va_n^{\top} \otimes \vb_n \vb_n^{\top}
+  \approx
+  \left( \sum_n \va_n \va_n^{\top} \right)
+  \otimes
+  \frac{
+  \left( \sum_n \vb_n \vb_n^{\top} \right)
+  }{N}
+\end{align}
+Instead of summing Kronecker products, we first sum the individual factors, then take their Kronecker product and divide by the number of summands. The scaling is by convention absorbed into the gradient-based Kronecker factor.
+
+If we apply this approximation to the above, we obtain
+\begin{align*}
+  \kfac(\ggn_{\mW}\gL_{\sD})
+  &\approx \ggn_{\mW}\gL_{\sD}
+  \\
+  &\coloneq
+    \underbrace{
+    \left(
+    R
+    \sum_n
+    \vx_n \vx_n^{\top}
+    \right)
+    }_{\coloneq \mA}
+    \otimes
+    \underbrace{
+    \frac{
+    \left(
+    \sum_n
+    \sum_c
+    \vb_{n,c} \vb_{n,c}^{\top}
+    \right)
+    }{N}
+    }_{\coloneq \mB}
+\end{align*}
+Note that we absorbed the reduction factor of the loss into input-based factor.
+
+
+
 \begin{test}[KFAC]
   Consider a deep linear network of depth $L$,
   \begin{align*}
@@ -47,8 +127,11 @@ The goal of this section should be to describe the KFAC approximation from~\cite
       \right)
     \end{align*}
   \end{itemize}
-
 \end{test}
+
+\switchcolumn[1]
+\codeblock{kfac/expand_Linear}
+\switchcolumn[0]
 
 %%% Local Variables:
 %%% mode: latex

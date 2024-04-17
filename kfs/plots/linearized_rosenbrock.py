@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from torch import Tensor, cat, linspace, meshgrid, zeros
 from tueplots import bundles
 
-from kfs.ggn_rosenbrock import (
+from kfs.basics.ggn_rosenbrock import (
     rosenbrock,
     rosenbrock_partially_linearized,
 )

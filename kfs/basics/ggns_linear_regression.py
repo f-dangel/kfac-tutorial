@@ -4,7 +4,7 @@ from einops import einsum
 from torch import allclose, eye, kron, manual_seed, rand
 from torch.nn import Linear, MSELoss
 
-from kfs.ggns import vec_ggn
+from kfs.basics.ggns import vec_ggn
 
 if __name__ == "__main__":
     manual_seed(0)  # make deterministic

@@ -34,7 +34,7 @@ Just like for Jacobians, the Hessian tensor is usually too large to be stored in
 Hence, one usually works with it implicitly through matrix-vector products, which can be done without computing the Hessian:
 
 \switchcolumn[1]*
-\codeblock{hessian_product}
+\codeblock{basics/hessian_product}
 \switchcolumn[0]
 
 \begin{definition}[Hessian-vector products (HVPs), \Cref{hessian_product}]\label{def:hvp}
@@ -54,7 +54,7 @@ It relies on the fact that multiplication with higher-order derivatives can be d
 Hence, multiplication with the Hessian can be done with two VJPs.
 
 \switchcolumn[1]*
-\codeblock{hessians}
+\codeblock{basics/hessians}
 \switchcolumn[0]
 
 \paragraph{Matricization:} For notational convenience, we will also define matricized versions of the general Hessian from \Cref{def:general_hessian}; the $\cvec$-, and $\rvec$-Hessian. Just like for the Jacobians, it does not matter whether we first flatten the function's input space then compute the Hessian, or compute the general Hessian then matricize it:
@@ -111,7 +111,7 @@ Hence, multiplication with the Hessian can be done with two VJPs.
 Whenever we consider vector-to-scalar functions, both Hessians are identical and we thus suppress the flattening scheme and write $\hess_{\va}b$. Let's look at some important examples of Hessians that we will come back to later in the text.
 
 \switchcolumn[1]*
-\codeblock{hessian_ce_loss}
+\codeblock{basics/hessian_ce_loss}
 \switchcolumn[0]
 
 \begin{example}[Softmax cross-entropy loss Hessian, \Cref{hessian_ce_loss}]
@@ -132,7 +132,7 @@ Whenever we consider vector-to-scalar functions, both Hessians are identical and
 \end{example}
 
 \switchcolumn[1]*
-\codeblock{hessian_mse_loss}
+\codeblock{basics/hessian_mse_loss}
 
 \switchcolumn[0]
 \begin{example}[Square loss Hessian, \Cref{hessian_mse_loss}]\label{ex:square_loss_hessian}

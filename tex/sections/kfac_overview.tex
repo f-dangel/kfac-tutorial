@@ -1,5 +1,5 @@
 \switchcolumn[1]*
-\codeblock{kfac}
+\codeblock{kfac/scaffold}
 \switchcolumn[0]
 
 Generally speaking, KFAC approximates a matrix of the form
@@ -87,7 +87,10 @@ Then, the computation of KFAC looks as follows:
 
 \item Compute the input-based Kronecker factors $\mA^{(i)}$ using the layer inputs $\{\vx_n^{(i-1)}\}_n$ taking into account the KFAC variation that is desired.
 
-\item Generate the vectors $\{\blacktriangle_{n,c}\}_{n,c}$ to be backpropagated, taking into account the specified KFAC approximation. Compute the pseudo-gradients $\{(\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c} \}_{n,c}$ w.r.t.\,the layer outputs. Finally, compute the output-based Kronecker factors $\mB^{(i)}$.
+\item Generate the vectors $\{\blacktriangle_{n,c}\}_{n,c}$ to be backpropagated, taking into account the specified KFAC approximation.
+  Compute the pseudo-gradients $\{(\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c} \}_{n,c}$ w.r.t.\,the layer outputs.
+  Finally, compute the output-based Kronecker factors $\mB^{(i)}$.
+  If no backpropagated vectors are produced, simply set $\mB^{(i)} = \mI$.
 
 \item Account for scaling caused by the loss function's reduction $R$.
 
@@ -95,6 +98,49 @@ Then, the computation of KFAC looks as follows:
 \end{enumerate}
 This scaffold is implemented in \Cref{kfac}.
 For the remaining part, we will now specify the details of how to compute the input-based and grad-output based Kronecker factors, as well as how to generate the backpropagated vectors, and how to test the resulting implementation for correctness.
+
+\switchcolumn[1]*
+\codeblock{kfac/backpropagated_vectors}
+\switchcolumn[0]
+
+\subsection{Backpropagated Vectors}
+The backpropagated vectors can directly be read off from the matrices we are interested in approximating:
+\begin{itemize}
+\item GGN/Type-II Fisher (see Equation ??)
+  \begin{align*}
+    \blacktriangle_{n,c} = [\mS_n]_{:,c}\,,
+  \end{align*}
+  i.e.\,we are backpropagating each column of the loss function's symmetric Hessian decomposition $\mS_n$ (remember that $\mS_n \mS_n^{\top} = \hess_{\vf_n} c(\vf_n, \vy_n)$.
+  This introduces $\dim(\gF)$ backpropagations, each of which is roughly as expensive as computing a parameter gradient.
+
+\item MC-sampled Type-I Fisher (see Equation ??)
+  \begin{align*}
+    \blacktriangle_{n,m}
+    &= -\nabla_{\vf_n} \log r(\rvy=\tilde{\vy}_{n,m} \mid \rvf = \vf_n)
+    \\
+    &= \nabla_{\vf_n}  c(\vf_n, \tilde{\vy}_{n,m})
+  \end{align*}
+  where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \vf = \vf_n)$ is a sample from the model's predictive distribution (see ?? for a reminder).
+  We can specify the range of $m=1, \dots, M$, i.e.\,how many MC samples to use.
+  From a computational perspective, $M < \dim(\gF)$ makes sense because this reduces the number of backpropagations to $M$ rather than $\dim(\gF)$ as for the type-II case.
+  Practical settings usually set $M=1$ to save computation.
+  However, we will sometimes use a larger number for $M$ to verify the estimator converges to the expected value.
+
+\item Empirical Fisher (see Equation ??)
+  \begin{align*}
+    \blacktriangle_{n,1}
+    &= -\nabla_{\vf_n} \log r(\rvy=\vy_n \mid \rvf = \vf_n)
+    \\
+    &= \nabla_{\vf_n}  c(\vf_n, \vy_n)
+  \end{align*}
+  Note that we use the same targets as when computing the empirical risk.
+  This means we can compute this KFAC approximation re-cycling the backward pass from the gradient computation.
+
+\item Input-only: Two concurrent works have recently proposed to completely remove the backpropagations of KFAC to compute $\mB^{(i)}$, and instead set $\mB^{(i)} = \mI$.
+  In this case, we do not need to generate vectors for backpropagation.
+
+\end{itemize}
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

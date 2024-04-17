@@ -10,8 +10,8 @@ from torch import cat, manual_seed, rand, zeros_like
 from torch.nn import Linear, MSELoss, Sequential, Sigmoid
 from tueplots import bundles
 
-from kfs.ggns import vec_ggn
-from kfs.hessians import cvec_hess, rvec_hess
+from kfs.basics.ggns import vec_ggn
+from kfs.basics.hessians import cvec_hess, rvec_hess
 from kfs.plots import SAVEDIR
 
 
