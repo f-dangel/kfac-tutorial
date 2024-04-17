@@ -130,6 +130,10 @@ This test is useful for checking functionality related to the criterion function
 It can further be generalized: We can replace the activation functions with arbitrary layers (e.g.\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers remain vector-shape.
 These changes do not alter the structure of the GGN/Fisher/EF for the linear layers.
 
+\switchcolumn[1]*
+\codeblock{kfac_tests/expand_deep_linear_regression}
+\switchcolumn[0]
+
 \paragraph{Constant prediction-layer-output Jacobian} The second, less obvious case is when $\vb_{n,c}$ does not depend on $n$.
 Looking at the definition of $\vb_{n,c}$, it depends on the backpropagated vector $\blacktriangle_{n,c}$ and the Jacobian of the prediction w.r.t.\,the layer's output $\jac_{\vz_n} \vf_n$.
 If we choose square loss, $\blacktriangle_{n,c}$ does not depend on $n$: For type-2, it is simply a column of the identity matrix, and for MC, it is simply a normally distributed random number.
@@ -137,7 +141,7 @@ If we further restrict all layers of our neural network to be linear w.r.t.\,the
 Such layers are e.g., dense layers, convolutions, reshapes, padding, average pooling.
 We cannot pick non-linear layers like ReLU, sigmoid, max-pooling, or normalization, as their output-input Jacobian is input-dependent. This implies the following limit in which KFAC becomes exact (first proposed in \cite{bernacchia2018exact}).
 
-\begin{test}[KFAC for linear layers in a deep linear MLP (no weight sharing) for regression]
+\begin{test}[KFAC for linear layers in a deep linear MLP (no weight sharing) for regression, \Cref{kfac_tests/expand_deep_linear_regression}]
   Consider a deep linear network consisting of $L$ dense layers
   \begin{align*}
     f = f^{(L)} \circ f^{(L-1)} \circ \ldots \circ f^{(1)}
@@ -164,6 +168,22 @@ We cannot pick non-linear layers like ReLU, sigmoid, max-pooling, or normalizati
   because the backpropagated vector depends on $\vf_n$ and therefore on $n$.
 \end{test}
 
+\switchcolumn[1]*
+\codeblock{kfac_tests/input_only_last_layer_regression}
+\switchcolumn[0]
+
+\paragraph{Input-based KFAC (last layer)}~\cite{petersen2023isaac}
+
+\subsection{How to handle weight sharing?}
+What happens if the input to our neural network is not a single vector, but a collection of vectors (i.e.\,a matrix)? Assume a linear layer is processing a sequence of vectors $\mX =
+\begin{pmatrix} \vx_1 & \dots & \vx_S \end{pmatrix}$ into a sequence of output vectors $\mZ =
+\begin{pmatrix} \vz_1 & \dots & \vz_S \end{pmatrix}$ where each $\vz_i = \mW \vx_i$.
+We say that these vectors \emph{share} the same weight.
+If each shared dimension is processed independently, we can treat it just like a batch dimension.
+This is the case if we use an MLP that consists of dense layers and element-wise activation functions.
+The test in \Cref{kfac_tests/expand_deep_linear_regression} includes such a scenario where $S > 1$.
+Note however that in practise we want to combine the features in a sequence (e.g.\,as done in the attention layer).
+But for a simple MLP, the shared axis is just treated like a batch axis, which motivates treating it as such in the KFAC-expand approximation.
 
 %%% Local Variables:
 %%% mode: latex

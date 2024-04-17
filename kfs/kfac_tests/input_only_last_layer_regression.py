@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 
-from torch import allclose, kron, manual_seed, rand
+from torch import kron, manual_seed, rand
 from torch.nn import Linear, MSELoss, Sequential
 
 from kfs.basics.ggns import vec_ggn

@@ -1,3 +1,5 @@
+"""Compute vectors for backpropagation in KFAC."""
+
 from math import sqrt
 from typing import List
 
@@ -94,13 +96,13 @@ def backpropagated_vectors_type2(
     ):
         pred_n, y_n = pred_n.squeeze(0), y_n.squeeze(0)
         S_n = S_func(pred_n, y_n)
-        # flatten the column dimension
-        S_n = S_n.flatten(end_dim=S_n.ndim // 2 - 1)
+        # flatten the column indices
+        S_n = S_n.flatten(start_dim=S_n.ndim // 2)
+        # move them to the leading axis
+        S_n = S_n.moveaxis(-1, 0)
         S.append(S_n)
     # concatenate over all data points
-    S = stack(S)
-    # move the column dimension to leading axis
-    S = S.moveaxis(-1, 0)
+    S = stack(S, dim=1)
     # convert into list, ith entry contains the ith columns of all
     # symmetric Hessian decompositions
     return [s.squeeze(0) for s in S.split(1)]

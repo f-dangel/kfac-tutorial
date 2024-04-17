@@ -8,7 +8,9 @@ from torch.nn import (
     CrossEntropyLoss,
     Linear,
     MSELoss,
+    ReLU,
     Sequential,
+    Sigmoid,
     Tanh,
 )
 
@@ -18,7 +20,7 @@ from kfs.utils import report_nonclose
 
 # allow testing different depths, loss & activation functions
 depths = [3]
-activations = [Tanh]
+activations = [Tanh, Sigmoid, ReLU]
 loss_funcs = [MSELoss, CrossEntropyLoss]
 reductions = ["mean", "sum"]
 
@@ -35,22 +37,30 @@ ys = {
     ),
 }
 
+combinations = list(
+    product(depths, activations, loss_funcs, reductions)
+)
 # loop over all settings and test KFAC equivalences
-for L, phi, c, reduction in product(
-    depths, activations, loss_funcs, reductions
+for idx, (L, phi, c, reduction) in enumerate(
+    combinations, start=1
 ):
-    loss_func = c(reduction=reduction)
+    print(
+        f"{idx}/{len(combinations)} Testing L={L},"
+        + "f phi={phi.__name__}, c={c.__name__},"
+        + f" reduction={reduction}"
+    )
+    loss_func = c(reduction=reduction).double()
     y = ys[c]
 
     # set up the MLP
     manual_seed(1)
     layers = OrderedDict()
     dims = [D_in] + (L - 1) * [D_hidden] + [D_out]
-    for l in range(L):
-        layers[f"linear{l}"] = Linear(
-            dims[l], dims[l + 1], bias=False
+    for i in range(L):
+        layers[f"linear{i}"] = Linear(
+            dims[i], dims[i + 1], bias=False
         )
-        layers[f"activation{l}"] = phi()
+        layers[f"activation{i}"] = phi()
     model = Sequential(layers).double()
 
     # compute GGN with autodiff

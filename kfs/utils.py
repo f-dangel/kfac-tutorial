@@ -30,7 +30,8 @@ def report_nonclose(
     }
     if tensor1.shape != tensor2.shape:
         raise ValueError(
-            f"Tensor shape mismatch: {tensor1.shape} vs. {tensor2.shape}."
+            "Tensor shape mismatch:",
+            f" {tensor1.shape} vs. {tensor2.shape}.",
         )
 
     if not allclose(tensor1, tensor2, **kwargs):
