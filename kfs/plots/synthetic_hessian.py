@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 ax.set_xlabel("$j$")
                 ax.set_ylabel("$i$")
                 highglight_blocks(ax, param_dims)
-                suffix = {"_bda" if bda else ""}
+                suffix = "_bda" if bda else ""
                 plt.savefig(
                     path.join(
                         SAVEDIR,
