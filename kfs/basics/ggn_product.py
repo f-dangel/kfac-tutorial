@@ -4,8 +4,8 @@ from typing import Tuple, Union
 
 from torch import Tensor
 
-from kfs.hessian_product import hvp
-from kfs.jacobian_products import jvp, vjp
+from kfs.basics.hessian_product import hvp
+from kfs.basics.jacobian_products import jvp, vjp
 
 
 def ggnvp(

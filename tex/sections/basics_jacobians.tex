@@ -38,7 +38,7 @@ For $M=N=1$, the general Jacobian reduces to the Jacobian of a vector-to-vector 
 \paragraph{Multiplication} In practise, this general Jacobian can be prohibitively large and therefore one must almost always work with it in a matrix-free fashion, i.e.\, through VJPs and JVPs.
 
 \switchcolumn[1]*
-\codeblock{jacobian_products}
+\codeblock{basics/jacobian_products}
 \switchcolumn[0]
 
 \begin{definition}[Vector-Jacobian products (VJPs), \Cref{jacobian_products}]\label{def:vjp}
@@ -79,7 +79,7 @@ To obtain an implementation that accepts variables from a computation graph and 
 Jacobian products are efficient, but somewhat more abstract to work with as we cannot `touch' the full tensor. Also, we often also would like to think about this tensor as a matrix to be able to present derivations using linear algebra notation.
 
 \switchcolumn[1]*
-\codeblock{jacobians}
+\codeblock{basics/jacobians}
 \switchcolumn[0]
 
 \paragraph{Matricization} We can reduce the general Jacobian back to the Jacobian matrix in two different ways: We can either directly matricize the tensor, or `flatten' the function $f \to f^{\vec}$ such that it consumes and produces vectors, then compute its Jacobian.
@@ -141,7 +141,7 @@ The $\rvec$-Jacobian is common in code.
 As we will see in the following examples, the two Jacobians usually differ from each other, albeit in subtle ways. We highlight their differences on a linear layer, which will be useful later on when we discuss KFAC.
 
 \switchcolumn[1]*
-\codeblock{jacobians_linear_layer}
+\codeblock{basics/jacobians_linear_layer}
 \switchcolumn[0]
 
 \begin{example}[$\cvec$- and $\rvec$-weight Jacobians of a linear layer, \Cref{jacobians_linear_layer}]
@@ -222,7 +222,7 @@ As we will see in the following examples, the two Jacobians usually differ from 
 \end{example}
 
 \switchcolumn[1]
-\codeblock{jacobians_shared_linear_layer}
+\codeblock{basics/jacobians_shared_linear_layer}
 
 %%% Local Variables:
 %%% mode: latex

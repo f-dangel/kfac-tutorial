@@ -10,8 +10,8 @@ from torch import (
     zeros_like,
 )
 
-from kfs.flattening import cvec, rvec
-from kfs.hessian_product import hvp
+from kfs.basics.flattening import cvec, rvec
+from kfs.basics.hessian_product import hvp
 
 
 def hess(

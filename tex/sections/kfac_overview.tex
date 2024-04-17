@@ -1,0 +1,147 @@
+\switchcolumn[1]*
+\codeblock{kfac/scaffold}
+\switchcolumn[0]
+
+Generally speaking, KFAC approximates a matrix of the form
+\begin{align*}
+  \mC(\vtheta^{(i)})
+  = R \sum_n
+  (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
+  \left[ \bullet(\vf_n, \vy_n) \right]
+  (\jac_{\vtheta^{(i)}} \vf_n)
+\end{align*}
+where $\bullet \in \sR^{\gF \times \gF}$ is a positive semi-definite matrix in the prediction space that depends on the prediction and target, and which is sandwiched between the Jacobians of the network's prediction w.r.t.\,parameters $\vtheta^{(i)}$ in a layer $i$.
+Many different matrices satisfy the above structure: the GGN/type-II Fisher, the type-I Fisher, and the empirical Fisher.
+The goal is to approximate $\mC(\vtheta^{(i)}$ with a Kronecker product,
+\begin{align*}
+  \mC(\vtheta^{(i)})
+  \approx
+  \mA^{(i)} \otimes \mB^{(i)}
+  \coloneq
+  \kfac(\mC(\vtheta^{(i)}))
+\end{align*}
+$\mA^{(i)}$ will be computed from the inputs to layer $i$, therefore we will refer to it as \emph{input-based Kronecker factor}.
+$\mB^{(i)}$ will be computed from gradients w.r.t.\,layer $i$'s output, therefore we will refer to it as the \emph{grad-output-based Kronecker factor}.
+More intuition about this in the following paragraph.
+
+\paragraph{Why use a Kronecker structure?}
+Despite the computational benefits of using a Kronecker-structured approximation (cheap storage and inversion), this structure naturally occurs in the above expression.
+To see this, let's re-write $\mC(\vtheta^{(i)})$ a little.
+First, since $\bullet(\vf_n, \vy_n)$ is PSD, we can express it as an outer product of $\dim(\gF)$ vectors,
+$\bullet(\vf_n, \vy_n) = \sum_{c} \blacktriangle_c(\vf_n, \vy_n) (\blacktriangle_c(\vf_n, \vy_n))^{\top}$ where $\blacktriangle_c(\vf_n, \vy_n) \in \sR^{\gF}$ (we use the shorter $\blacktriangle_{n,c}$ below. This turns the curvature matrix into
+\begin{align*}
+  \mC(\vtheta^{(i)})
+  =
+  R \sum_n \sum_{c}
+  (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
+  \blacktriangle_{n,c} \blacktriangle_{n,c}^{\top}
+  (\jac_{\vtheta^{(i)}} \vf_n)\,.
+\end{align*}
+Next, we will use the chain rule to split the Jacobian at the layer output $\vx^{(i)} = f^{(i)}(\vx^{(i-1)}, \vtheta^{(i)})$,
+\begin{align*}
+  (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
+  =
+  (\jac_{\vtheta^{(i)}} \vx^{(i)}_n)^{\top}
+  (\jac_{\vx_n^{(i)}} \vf_n)^{\top}\,.
+\end{align*}
+Inserting this, we obtain
+\begin{align*}
+  \mC(\vtheta^{(i)})
+  =
+  R \sum_n \sum_{c}
+  (\jac_{\vtheta^{(i)}} \vx^{(i)}_n)^{\top}
+  (\jac_{\vx_n^{(i)}} \vf_n)^{\top}
+  \blacktriangle_{n,c}
+  \\
+  \blacktriangle_{n,c}^{\top}
+  (\jac_{\vx_n^{(i)}} \vf_n)
+  (\jac_{\vtheta^{(i)}} \vx^{(i)}_n)
+\end{align*}
+This form now makes it much easier to understand why there is an layer input-based Kronecker factor and a grad-layer-output based Kronecker factor: We can think of $(\jac_{\vtheta^{(i)}} \vx_n^{(i)})^{\top} \blacktriangle_{n,c}$ as a pseudo-gradient.
+In fact, if we set $\blacktriangle_{n,c} \leftarrow \nabla_{\vf_n} c(\vf_n, \vy_n)$, we obtain $(\jac_{\vtheta^{(i)}} \vx_n^{(i)})^{\top} \blacktriangle_{n,c} = \nabla_{\vx_n^{(i)}} c(\vf_n, \vy_n)$, i.e.\,the per-datum loss gradient w.r.t.\,layer $i$'s output.
+The Kronecker structure emerges in the output-parameter Jacobian $\jac_{\vtheta^{(i)}} \vx_n^{(i)}$ of a layer.
+We already encountered this in previous sections, e.g.\,the output-weight Jacobian of a linear layer has Kronecker structure (\Cref{jacobians_linear_layer}) where one of the Kronecker components depends on the layer input $\vx^{(i-1)}_n$.
+
+In summary, we have the following dependencies of $\mA^{(i)}$ and $\mB^{(i)}$, which justifies their names:
+\begin{align*}
+  \mA^{(i)} &= \mA^{(i)}( \{\vx_{n}^{(i-1)}\}_n )
+  \\
+  \mB^{(i)} &= \mB^{(i)}( \{ (\jac_{\vx_n^{(i)}}\vf_{n})^{\top} \blacktriangle_{n,c}\}_{n,c})
+\end{align*}
+
+\paragraph{KFAC flavours and scaffold:}
+There are many variations of KFAC and our plan is to cover as many as possible, while using the same code scaffold.
+Some of them are motivated by computational efficiency.
+Others are motivated by limits in which the approximation becomes exact.
+The degrees of freedom are roughly as follows:
+\begin{itemize}
+\item For the input-based Kronecker factor, we will distinguish the presence of weight-sharing which will result in the so-called KFAC-expand and KFAC-reduce approximations.
+  Weight sharing means that the same weight is used multiple times in the forward pass on a datum, e.g.\,when the layer is a convolution, or a linear layer that processes a list of vectors.
+
+\item For the output gradient-based Kronecker factor, we will distinguish different choices to generate the backpropagated vectors $\blacktriangle_{n,c}$ which will allow us to tackle the approximation of different matrices (e.g.\,the Fisher versus empirical Fisher), or to reduce computational cost.
+\end{itemize}
+
+Then, the computation of KFAC looks as follows:
+\begin{enumerate}
+\item Perform a forward pass to compute $\{\vf_n\}_n $, storing the layer inputs $\{\vx_n^{(i-1)} \}_n$ and outputs $\{\vx_n^{(i)}\}_n$ of all layers $i$ for which a KFAC approximation is defined.
+
+\item Compute the input-based Kronecker factors $\mA^{(i)}$ using the layer inputs $\{\vx_n^{(i-1)}\}_n$ taking into account the KFAC variation that is desired.
+
+\item Generate the vectors $\{\blacktriangle_{n,c}\}_{n,c}$ to be backpropagated, taking into account the specified KFAC approximation.
+  Compute the pseudo-gradients $\{(\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c} \}_{n,c}$ w.r.t.\,the layer outputs.
+  Finally, compute the output-based Kronecker factors $\mB^{(i)}$.
+  If no backpropagated vectors are produced, simply set $\mB^{(i)} = \mI$.
+
+\item Account for scaling caused by the loss function's reduction $R$.
+
+\item Return the KFAC approximation in the form $\mA^{(i)}, \mB^{(i)}$ for all supported $i$.
+\end{enumerate}
+This scaffold is implemented in \Cref{kfac}.
+For the remaining part, we will now specify the details of how to compute the input-based and grad-output based Kronecker factors, as well as how to generate the backpropagated vectors, and how to test the resulting implementation for correctness.
+
+\switchcolumn[1]*
+\codeblock{kfac/backpropagated_vectors}
+\switchcolumn[0]
+
+\subsection{Backpropagated Vectors}
+The backpropagated vectors can directly be read off from the matrices we are interested in approximating:
+\begin{itemize}
+\item GGN/Type-II Fisher (see Equation ??)
+  \begin{align*}
+    \blacktriangle_{n,c} = [\mS_n]_{:,c}\,,
+  \end{align*}
+  i.e.\,we are backpropagating each column of the loss function's symmetric Hessian decomposition $\mS_n$ (remember that $\mS_n \mS_n^{\top} = \hess_{\vf_n} c(\vf_n, \vy_n)$.
+  This introduces $\dim(\gF)$ backpropagations, each of which is roughly as expensive as computing a parameter gradient.
+
+\item MC-sampled Type-I Fisher (see Equation ??)
+  \begin{align*}
+    \blacktriangle_{n,m}
+    &= -\nabla_{\vf_n} \log r(\rvy=\tilde{\vy}_{n,m} \mid \rvf = \vf_n)
+    \\
+    &= \nabla_{\vf_n}  c(\vf_n, \tilde{\vy}_{n,m})
+  \end{align*}
+  where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \vf = \vf_n)$ is a sample from the model's predictive distribution (see ?? for a reminder).
+  We can specify the range of $m=1, \dots, M$, i.e.\,how many MC samples to use.
+  From a computational perspective, $M < \dim(\gF)$ makes sense because this reduces the number of backpropagations to $M$ rather than $\dim(\gF)$ as for the type-II case.
+  Practical settings usually set $M=1$ to save computation.
+  However, we will sometimes use a larger number for $M$ to verify the estimator converges to the expected value.
+
+\item Empirical Fisher (see Equation ??)
+  \begin{align*}
+    \blacktriangle_{n,1}
+    &= -\nabla_{\vf_n} \log r(\rvy=\vy_n \mid \rvf = \vf_n)
+    \\
+    &= \nabla_{\vf_n}  c(\vf_n, \vy_n)
+  \end{align*}
+  Note that we use the same targets as when computing the empirical risk.
+  This means we can compute this KFAC approximation re-cycling the backward pass from the gradient computation.
+
+\item Input-only: Two concurrent works have recently proposed to completely remove the backpropagations of KFAC to compute $\mB^{(i)}$, and instead set $\mB^{(i)} = \mI$.
+  In this case, we do not need to generate vectors for backpropagation.
+
+\end{itemize}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

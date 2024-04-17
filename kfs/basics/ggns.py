@@ -10,8 +10,8 @@ from torch import (
     zeros_like,
 )
 
-from kfs.flattening import cvec, rvec
-from kfs.ggn_product import ggnvp
+from kfs.basics.flattening import cvec, rvec
+from kfs.basics.ggn_product import ggnvp
 
 
 def ggn(
@@ -37,7 +37,8 @@ def ggn(
         (*x[0].shape, *x[1].shape).
     """
     x1, x2 = (x, x) if isinstance(x, Tensor) else x
-    G = zeros(x1.shape + x2.shape)
+    (dtype,) = {x1.dtype, x2.dtype}
+    G = zeros(x1.shape + x2.shape, dtype=dtype)
 
     for d in arange(x1.numel()):
         d_unraveled = unravel_index(d, x1.shape)

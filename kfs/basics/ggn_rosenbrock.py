@@ -6,9 +6,9 @@ from typing import Tuple, Union
 
 from torch import Tensor, allclose, cat, manual_seed, rand
 
-from kfs.ggns import ggn
-from kfs.hessians import hess
-from kfs.linearization import linearize
+from kfs.basics.ggns import ggn
+from kfs.basics.hessians import hess
+from kfs.basics.linearization import linearize
 
 
 def rosenbrock_first(x: Tensor, alpha: float):

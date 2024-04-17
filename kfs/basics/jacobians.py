@@ -8,8 +8,8 @@ from torch import (
     zeros_like,
 )
 
-from kfs.flattening import cvec, rvec
-from kfs.jacobian_products import vjp
+from kfs.basics.flattening import cvec, rvec
+from kfs.basics.jacobian_products import vjp
 
 
 def jac(f: Tensor, x: Tensor) -> Tensor:

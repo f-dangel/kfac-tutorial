@@ -1,7 +1,189 @@
 The goal of this section should be to describe the KFAC approximation from~\cite{martens2015optimizing}
-\begin{test}[KFAC]
-  Describe setting in which KFAC becomes exact.
+
+Let's consider the GGN for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW \vx$ (suppressing layer indices for simplicity). Let's also assume $\cvec$-flattening, as usually done by the literature and make use of the output-parameter Jacobian of a linear layer (remember Example ??)
+\begin{align*}
+  \ggn_{\mW} \gL_{\sD}
+  &=
+    R
+    \sum_n \sum_c
+    (\jac^{\rvec}_{\mW}\vz_n)^{\top}
+    (\jac^{\rvec}_{\vz_n}\vf_n)^{\top}
+    \blacktriangle_{n,c}
+    \blacktriangle_{n,c}^{\top}
+    (\jac^{\rvec}_{\vz_n}\vf_n)
+    (\jac^{\rvec}_{\mW}\vz_n)
+  \\
+  \shortintertext{
+  (introduce $\vb_{n,c} \coloneq (\jac^{\rvec}_{\vz_n}\vf_n)^{\top} \blacktriangle_{n,c}$ for the layer output gradient)
+  }
+  &=
+    R
+    \sum_n \sum_c
+    (\jac^{\rvec}_{\mW}\vz_n)^{\top}
+    \vb_{n,c} \vb_{n,c}^{\top}
+    (\jac^{\rvec}_{\mW}\vz_n)
+    \shortintertext{Insert the linear layer's Jacobian}
+  &=
+    R
+    \sum_n \sum_c
+    (\vx_n \otimes \mI_{D_{\text{out}}})
+    \vb_{n,c} \vb_{n,c}^{\top}
+    (\vx_n^{\top} \otimes \mI_{D_{\text{out}}})
+  \\
+  &=
+    R
+    \sum_c
+    \sum_n
+    \vx_n \vx_n^{\top}
+    \otimes
+    \vb_{n,c} \vb_{n,c}^{\top}
+\end{align*}
+
+The expectation approximation in KFAC is the following:
+\begin{align}
+  \sum_n \va_n\va_n^{\top} \otimes \vb_n \vb_n^{\top}
+  \approx
+  \left( \sum_n \va_n \va_n^{\top} \right)
+  \otimes
+  \frac{
+  \left( \sum_n \vb_n \vb_n^{\top} \right)
+  }{N}
+\end{align}
+Instead of summing Kronecker products, we first sum the individual factors, then take their Kronecker product and divide by the number of summands. The scaling is by convention absorbed into the gradient-based Kronecker factor.
+
+If we apply this approximation to the above, we obtain
+\begin{align*}
+  \kfac(\cvec \mW)
+  &=
+    \mA \otimes \mB
+  \\
+  \kfac(\rvec \mW)
+  &=
+    \mB \otimes \mA
+    \shortintertext{where}
+    \mA
+  &=
+    R
+    \sum_n
+    \vx_n \vx_n^{\top}
+  \\
+  \mB
+  &=
+    \frac{
+    \left(
+    \sum_n
+    \sum_c
+    \vb_{n,c} \vb_{n,c}^{\top}
+    \right)
+    }{N}
+\end{align*}
+Note that we absorbed the reduction factor of the loss into input-based factor.
+Also note that the order of Kronecker factors changes depending on the flattening scheme.
+The same equation holds if we treat weight and bias jointly, but we need to make the substitutions
+\begin{align*}
+  \mW \leftrightarrow \tilde{\mW}
+  \quad
+  \text{and}
+  \quad
+  \vx_n \leftrightarrow \begin{pmatrix} \vx_n \\ 1 \end{pmatrix}.
+\end{align*}
+
+\switchcolumn[1]
+\codeblock{kfac/expand_Linear}
+\switchcolumn[0]
+
+\subsection{Tests}
+When does this approximation become exact?
+Generally speaking, it becomes exact whenever one or both of the Kronecker factors in ??
+does not depend on $n$.
+
+\switchcolumn[1]*
+\codeblock{kfac_tests/expand_mlp_batch_size_1}
+\switchcolumn[0]
+
+\paragraph{One datum:} One obvious case is whenever the summation over $n$ disappears, i.e.\,our data set contains only a single data point (or consists of $N$ identical data points).
+\begin{test}[KFAC for linear layers in an MLP (no weight sharing), one data point, \Cref{kfac_tests/expand_mlp_batch_size_1}]
+  Consider a multi-layer perceptron
+  \begin{align*}
+    f = \phi^{(L)} \circ f^{(L)} \circ \ldots \circ \phi^{(1)} \circ f^{(1)}
+  \end{align*}
+  that processes a vector-valued input $\vx$ through a sequence of layers, each of which consists of a dense layer $f^{(i)}$ and a pointwise activation $\phi^{(i)}$.
+  Let $\mW^{(i)}$, $\vb^{(i)}$, and $\tilde{\mW}^{(i)} = \begin{pmatrix} \mW^{(i)} & \vb^{(i)} \end{pmatrix}$ denote the weight, bias, and combined parameters of a dense layer $f^{(i)}$.
+  Further, assume the data set consists only of a single point, $\sD = \{ (\vx, \vy) \}$, and a criterion function $c = - \log r$ which can be interpreted as negative log likelihood.
+  Then, KFAC becomes exact in the following limits for $i = 1, \dots, L$:
+  \begin{itemize}
+  \item KFAC-type-II equals the GGN
+    \begin{align*}
+      \kfac^{\text{II}}(\tilde{\mW}^{(i)}) = \ggn_{\tilde{\mW}^{(i)}}\gL_{\sD}
+    \end{align*}
+  \item KFAC-MC converges to the GGN
+    \begin{align*}
+      \lim_{M \to \infty} \kfac^{\text{MC}}_M(\tilde{\mW}^{(i)}) = \ggn_{\tilde{\mW}^{(i)}}\gL_{\sD}
+    \end{align*}
+  \item KFAC-empirical equals the EF
+    \begin{align*}
+      \kfac^{\text{E}}(\tilde{\mW}^{(i)}) = \ef_{\tilde{\mW}^{(i)}}\gL_{\sD}
+    \end{align*}
+  \end{itemize}
 \end{test}
+This test is useful for checking functionality related to the criterion function.
+It can further be generalized: We can replace the activation functions with arbitrary layers (e.g.\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers remain vector-shape.
+These changes do not alter the structure of the GGN/Fisher/EF for the linear layers.
+
+\switchcolumn[1]*
+\codeblock{kfac_tests/expand_deep_linear_regression}
+\switchcolumn[0]
+
+\paragraph{Constant prediction-layer-output Jacobian} The second, less obvious case is when $\vb_{n,c}$ does not depend on $n$.
+Looking at the definition of $\vb_{n,c}$, it depends on the backpropagated vector $\blacktriangle_{n,c}$ and the Jacobian of the prediction w.r.t.\,the layer's output $\jac_{\vz_n} \vf_n$.
+If we choose square loss, $\blacktriangle_{n,c}$ does not depend on $n$: For type-2, it is simply a column of the identity matrix, and for MC, it is simply a normally distributed random number.
+If we further restrict all layers of our neural network to be linear w.r.t.\,their input, all prediction-intermediate Jacobian will be constant and therefore independent of $n$.
+Such layers are e.g., dense layers, convolutions, reshapes, padding, average pooling.
+We cannot pick non-linear layers like ReLU, sigmoid, max-pooling, or normalization, as their output-input Jacobian is input-dependent. This implies the following limit in which KFAC becomes exact (first proposed in \cite{bernacchia2018exact}).
+
+\begin{test}[KFAC for linear layers in a deep linear MLP (no weight sharing) for regression, \Cref{kfac_tests/expand_deep_linear_regression}]
+  Consider a deep linear network consisting of $L$ dense layers
+  \begin{align*}
+    f = f^{(L)} \circ f^{(L-1)} \circ \ldots \circ f^{(1)}
+  \end{align*}
+  with weights $\mW^{(i)}$, bias $\vb^{(i)}$, and combined parameters $\tilde{\mW}^{(i)} = \begin{pmatrix} \mW^{(i)} & \vb^{(i)} \end{pmatrix}$.
+  The network processes a vector-valued input.
+  Consider regression with square loss on an arbitrary data set $\sD = \{ (\vx_n, \vy_n) \mid n = 1, \dots, N \}$.
+  Then, we have the following equalities for $i = 1, \dots, L$ and a flattening scheme $\vec$ of our choice:
+  \begin{itemize}
+  \item KFAC-type-II equals the GGN
+    \begin{align*}
+      \kfac(\vec \tilde{\mW}^{(i)}) = \ggn^{\vec}_{\tilde{\mW}^{(i)}} \gL_{\sD}
+    \end{align*}
+  \item KFAC-MC converges to the GGN
+    \begin{align*}
+      \lim_{M \to \infty} \kfac^{\text{MC}}_M(\vec \tilde{\mW}^{(i)}) = \ggn^{\vec}_{\tilde{\mW}^{(i)}} \gL_{\sD}
+    \end{align*}
+
+  \end{itemize}
+  KFAC-empirical does \emph{not} equal the EF,
+  \begin{align*}
+    \kfac^{\text{E}}(\vec \tilde{\mW}^{(i)}) \neq \ef^{\vec}_{\tilde{\mW}^{(i)}} \gL_{\sD}\,,
+  \end{align*}
+  because the backpropagated vector depends on $\vf_n$ and therefore on $n$.
+\end{test}
+
+\switchcolumn[1]*
+\codeblock{kfac_tests/input_only_last_layer_regression}
+\switchcolumn[0]
+
+\paragraph{Input-based KFAC (last layer)}~\cite{petersen2023isaac}
+
+\subsection{How to handle weight sharing?}
+What happens if the input to our neural network is not a single vector, but a collection of vectors (i.e.\,a matrix)? Assume a linear layer is processing a sequence of vectors $\mX =
+\begin{pmatrix} \vx_1 & \dots & \vx_S \end{pmatrix}$ into a sequence of output vectors $\mZ =
+\begin{pmatrix} \vz_1 & \dots & \vz_S \end{pmatrix}$ where each $\vz_i = \mW \vx_i$.
+We say that these vectors \emph{share} the same weight.
+If each shared dimension is processed independently, we can treat it just like a batch dimension.
+This is the case if we use an MLP that consists of dense layers and element-wise activation functions.
+The test in \Cref{kfac_tests/expand_deep_linear_regression} includes such a scenario where $S > 1$.
+Note however that in practise we want to combine the features in a sequence (e.g.\,as done in the attention layer).
+But for a simple MLP, the shared axis is just treated like a batch axis, which motivates treating it as such in the KFAC-expand approximation.
 
 %%% Local Variables:
 %%% mode: latex

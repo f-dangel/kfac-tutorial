@@ -13,8 +13,8 @@ from torch import (
     zeros,
 )
 
-from kfs.hessians import hess
-from kfs.reduction_factors import (
+from kfs.basics.hessians import hess
+from kfs.basics.reduction_factors import (
     CrossEntropyLoss_criterion,
     MSELoss_criterion,
 )

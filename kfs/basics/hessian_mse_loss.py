@@ -9,7 +9,7 @@ from torch import (
 )
 from torch.nn import MSELoss
 
-from kfs.hessians import cvec_hess, hess, rvec_hess
+from kfs.basics.hessians import cvec_hess, hess, rvec_hess
 
 if __name__ == "__main__":
     manual_seed(0)
