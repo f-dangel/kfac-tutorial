@@ -32,18 +32,34 @@ for reduction in ["sum", "mean"]:
     # compute GGN with autodiff
     output = model(X)
     loss = loss_func(output, y)
-    ggn_blocks = [vec_ggn(loss, p, output, "rvec") for p in model.parameters()]
+    ggn_blocks = [
+        vec_ggn(loss, p, output, "rvec")
+        for p in model.parameters()
+    ]
 
     # compute KFAC type-2
-    kfac_blocks = KFAC.compute(model, loss_func, (X, y), "type-2", "expand", None)
-    assert len(ggn_blocks) == len(kfac_blocks) == len(layers)
+    kfac_blocks = KFAC.compute(
+        model, loss_func, (X, y), "type-2", "expand", None
+    )
+    assert (
+        len(ggn_blocks) == len(kfac_blocks) == len(layers)
+    )
     for G, (A, B) in zip(ggn_blocks, kfac_blocks.values()):
         G_kfac = kron(B, A)
         report_nonclose(G, G_kfac)
 
     # compute KFAC-MC with a large number of samples
-    kfac_blocks = KFAC.compute(model, loss_func, (X, y), "mc=25_000", "expand", None)
-    assert len(ggn_blocks) == len(kfac_blocks) == len(layers)
+    kfac_blocks = KFAC.compute(
+        model,
+        loss_func,
+        (X, y),
+        "mc=25_000",
+        "expand",
+        None,
+    )
+    assert (
+        len(ggn_blocks) == len(kfac_blocks) == len(layers)
+    )
     for G, (A, B) in zip(ggn_blocks, kfac_blocks.values()):
         G_kfac = kron(B, A)
         assert allclose(G, G_kfac, rtol=5e-2, atol=5e-4)

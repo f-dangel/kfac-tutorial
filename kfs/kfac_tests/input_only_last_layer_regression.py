@@ -19,7 +19,9 @@ if __name__ == "__main__":
     layers = OrderedDict(
         {
             "first": Linear(D_in, D_hidden, bias=False),
-            "middle": Linear(D_hidden, D_hidden, bias=False),
+            "middle": Linear(
+                D_hidden, D_hidden, bias=False
+            ),
             "last": Linear(D_hidden, D_out, bias=False),
         }
     )
@@ -30,8 +32,12 @@ if __name__ == "__main__":
         # GGN computation for last layer weight
         output = model(X)
         loss = loss_func(output, y)
-        rvec_ggn = vec_ggn(loss, model.last.weight, output, "rvec")
-        cvec_ggn = vec_ggn(loss, model.last.weight, output, "cvec")
+        rvec_ggn = vec_ggn(
+            loss, model.last.weight, output, "rvec"
+        )
+        cvec_ggn = vec_ggn(
+            loss, model.last.weight, output, "cvec"
+        )
 
         # KFAC computation for last layer weight
         kfacs = KFAC.compute(

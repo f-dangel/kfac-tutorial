@@ -39,22 +39,28 @@
   \section{KFAC---An Overview}
   \input{sections/kfac_overview.tex}
 
-  \section{KFAC for Linear Layers}
+  \section{KFAC-expand for Linear Layers \cite{martens2015optimizing}}
   \input{sections/kfac_linear.tex}
 
-  \section{KFAC for Convolution Layers}
-  The goal of this section should be to describe the KFAC approximation from~\cite{grosse2016kroneckerfactored}
+  \section{KFAC-expand for Convolution Layers \cite{grosse2016kroneckerfactored}}
+  The goal of this section should be to describe the KFAC approximation from.
 
   \section{KFAC for Linear Layers with Weight Sharing (expand and reduce)}
   The goal of this section should be to describe the unification from~\cite{eschenhagen2023kroneckerfactored}
+\end{paracol}
 
+\clearpage
+\begin{paracol}{1}
   \section{Cheatsheet: KFAC}
+  \input{sections/cheatsheet_kfac.tex}
+  \end{paracol}
+\clearpage
 
+\begin{paracol}{2}
   \section{Other aspects}
   \subsection{Weight tying, RNNs, PINNs}
   \subsection{Unnormalized densities}
   \subsection{KFAC for diffusion models}
-
 \end{paracol}
 
 \clearpage

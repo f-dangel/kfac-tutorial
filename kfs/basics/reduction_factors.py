@@ -9,6 +9,7 @@ from torch import (
     rand,
     rand_like,
     randint,
+    unsqueeze,
 )
 from torch.nn import CrossEntropyLoss, MSELoss
 
@@ -84,9 +85,12 @@ def CrossEntropyLoss_criterion(
         The evaluated criterion.
     """
     # TODO Figure out if one can do this without flattening
-    log_softmax_flat = prediction.log_softmax(
-        dim=0
-    ).flatten(start_dim=1)
+    log_softmax = prediction.log_softmax(dim=0)
+    log_softmax_flat = (
+        log_softmax.unsqueeze(-1)
+        if log_softmax.ndim == 1
+        else log_softmax.flatten(start_dim=1)
+    )
     target_flat = target.flatten()
     return -sum(
         log_softmax_flat[y_i, i]

@@ -1,0 +1,36 @@
+\begin{itemize}
+    \item Scaffold
+
+  \item Backpropagated vectors $\{ \blacktriangle_{n,c} \}_{n,c}$
+    \begin{itemize}
+    \item Type-II: $\blacktriangle_{n,c} = [\mS_n]_{:,c}$ for $c = 1, \dots, C$ where $\mS_n \mS_n^{\top} = \hess_{\vf_n} c(\vf_n, \vy_n)$
+      \begin{itemize}
+      \item Square loss: $\blacktriangle_{n,c} = [\mI]_{n,c}$  (one-hot vector, does not depend on $n$)
+      \item Softmax cross-entropy loss: $\blacktriangle_{n,c} =  \sqrt{[\softmax(\vf_n)]_c} (\onehot(c) - \softmax(\vf_n))$
+      \end{itemize}
+
+    \item MC: $\blacktriangle_{n,m} = - \nabla_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \rvf = \vf_n)$ where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \rvf = \vf_n)$
+      \begin{itemize}
+      \item Square loss: $\blacktriangle_{n,m} = \tilde{\vy}_{n,m} - \vf_n$ where $\vy_{n,m} \stackrel{\text{i.i.d.}}{\sim} \gN(\rvy \mid \vmu = \vf_n, \mSigma = \mI)$\\
+        $\Leftrightarrow \blacktriangle_{n,m} = \tilde{\vy}$ where $\tilde{\vy} \stackrel{\text{i.i.d.}}{\sim} \gN(\rvy \mid \mu = \vzero, \mSigma = \mI)$ (does not depend on $n$)
+        \item Softmax cross-entropy loss
+      \end{itemize}
+
+    \item Empirical: $\blacktriangle_{n,1} = - \nabla_{\vf_n} \log r(\rvy = \vy_n \mid \rvf = \vf_n)$
+      \begin{itemize}
+      \item Square loss: $\blacktriangle_{n,1} = \vy_n - \vf_n$
+      \item Softmax cross-entropy loss: $\blacktriangle_{n,1} = \softmax(\vf_n) - \onehot(y_n)$
+      \end{itemize}
+
+    \item Input-only: No backpropagated vectors
+    \end{itemize}
+
+    \item TODO
+      \begin{itemize}
+      \item Test: TODO
+      \end{itemize}
+  \end{itemize}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

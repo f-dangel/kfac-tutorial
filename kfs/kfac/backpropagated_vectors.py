@@ -88,7 +88,6 @@ def backpropagated_vectors_type2(
             f"Unknown loss function: {type(loss_func)}."
         )
 
-    dim_Y = labels.ndim - 1
     S = []
     for pred_n, y_n in zip(
         predictions.split(1), labels.split(1)
@@ -96,7 +95,7 @@ def backpropagated_vectors_type2(
         pred_n, y_n = pred_n.squeeze(0), y_n.squeeze(0)
         S_n = S_func(pred_n, y_n)
         # flatten the column dimension
-        S_n = S_n.flatten(end_dim=dim_Y - 1)
+        S_n = S_n.flatten(end_dim=S_n.ndim // 2 - 1)
         S.append(S_n)
     # concatenate over all data points
     S = stack(S)

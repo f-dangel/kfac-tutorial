@@ -81,15 +81,23 @@ class KFAC:
             if isinstance(mod, tuple(supported))
         }
         As: Dict[str, Tensor] = {}  # input-based factors
-        Bs: Dict[str, Tensor] = {}  # grad-output based factors
+        Bs: Dict[str, Tensor] = (
+            {}
+        )  # grad-output based factors
 
         # forward pass, storing layer inputs and outputs
         X, y = data
-        prediction, intermediates = output_and_intermediates(model, X, layers.keys())
+        prediction, intermediates = (
+            output_and_intermediates(
+                model, X, layers.keys()
+            )
+        )
 
         # compute input-based Kronecker factors
         for name, layer in layers.items():
-            compute_A = cls.COMPUTE_INPUT_BASED_FACTOR[(type(layer), kfac_approx)]
+            compute_A = cls.COMPUTE_INPUT_BASED_FACTOR[
+                (type(layer), kfac_approx)
+            ]
             inputs = intermediates.pop(f"{name}_in")
             bias_augment = layer.bias is not None
             As[name] = compute_A(inputs, bias_augment)
@@ -100,10 +108,15 @@ class KFAC:
             A.mul_(R)
 
         # generate vectors to be backpropagated
-        backpropagated_vectors = compute_backpropagated_vectors(
-            loss_func, fisher_type, prediction, y
+        backpropagated_vectors = (
+            compute_backpropagated_vectors(
+                loss_func, fisher_type, prediction, y
+            )
         )
-        layer_outputs = [intermediates.pop(f"{name}_out") for name in layers]
+        layer_outputs = [
+            intermediates.pop(f"{name}_out")
+            for name in layers
+        ]
 
         for v in backpropagated_vectors:
             grad_outputs = grad(
@@ -113,13 +126,19 @@ class KFAC:
                 retain_graph=True,
             )
 
-            for (name, layer), g_out in zip(layers.items(), grad_outputs):
+            for (name, layer), g_out in zip(
+                layers.items(), grad_outputs
+            ):
                 # compute grad-output based Kronecker factor
-                compute_B = cls.COMPUTE_GRAD_OUTPUT_BASED_FACTOR[
-                    (type(layer), kfac_approx)
-                ]
+                compute_B = (
+                    cls.COMPUTE_GRAD_OUTPUT_BASED_FACTOR[
+                        (type(layer), kfac_approx)
+                    ]
+                )
                 B = compute_B(g_out)
-                Bs[name] = B if name not in Bs else B + Bs[name]
+                Bs[name] = (
+                    B if name not in Bs else B + Bs[name]
+                )
 
         # if there were no backpropagated vectors, set B=I
         if not backpropagated_vectors:
@@ -128,6 +147,10 @@ class KFAC:
                 # This holds for the layers of this tutorial,
                 # but may not hold in general!
                 dim_B = W.shape[0]
-                Bs[name] = eye(dim_B, device=W.device, dtype=W.dtype)
+                Bs[name] = eye(
+                    dim_B, device=W.device, dtype=W.dtype
+                )
 
-        return {name: (As[name], Bs[name]) for name in layers}
+        return {
+            name: (As[name], Bs[name]) for name in layers
+        }

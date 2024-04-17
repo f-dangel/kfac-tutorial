@@ -7,7 +7,9 @@ from torch.nn import Linear
 from kfs.kfac.scaffold import KFAC
 
 
-def input_based_factor(x_in: Tensor, bias_augment: bool) -> Tensor:
+def input_based_factor(
+    x_in: Tensor, bias_augment: bool
+) -> Tensor:
     """Compute the input-based Kronecker factor `A`.
 
     Args:
@@ -49,5 +51,9 @@ def grad_output_based_factor(g_out: Tensor) -> Tensor:
 
 # install both methods in the KFAC scaffold
 setting = (Linear, "expand")
-KFAC.COMPUTE_INPUT_BASED_FACTOR[setting] = input_based_factor
-KFAC.COMPUTE_GRAD_OUTPUT_BASED_FACTOR[setting] = grad_output_based_factor
+KFAC.COMPUTE_INPUT_BASED_FACTOR[setting] = (
+    input_based_factor
+)
+KFAC.COMPUTE_GRAD_OUTPUT_BASED_FACTOR[setting] = (
+    grad_output_based_factor
+)
