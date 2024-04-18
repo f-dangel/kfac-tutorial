@@ -51,7 +51,6 @@ class KFAC:
         data: Tuple[Tensor, Tensor],
         fisher_type: str,
         kfac_approx: str,
-        loss_average: Union[None, str],
     ) -> Dict[str, Tuple[Tensor, Tensor]]:
         """Compute KFAC for all supported layers.
 
@@ -61,7 +60,6 @@ class KFAC:
             data: A batch of inputs and labels.
             fisher_type: The type of Fisher approximation.
             kfac_approx: The type of KFAC approximation.
-            loss_average: TODO.
 
         Returns:
             A dictionary whose keys are the layer names and

@@ -29,14 +29,14 @@ Despite the computational benefits of using a Kronecker-structured approximation
 To see this, let's re-write $\mC(\vtheta^{(i)})$ a little.
 First, since $\bullet(\vf_n, \vy_n)$ is PSD, we can express it as an outer product of $\dim(\gF)$ vectors,
 $\bullet(\vf_n, \vy_n) = \sum_{c} \blacktriangle_c(\vf_n, \vy_n) (\blacktriangle_c(\vf_n, \vy_n))^{\top}$ where $\blacktriangle_c(\vf_n, \vy_n) \in \sR^{\gF}$ (we use the shorter $\blacktriangle_{n,c}$ below. This turns the curvature matrix into
-\begin{align*}
+\begin{align}\label{eq:curvature_matrix}
   \mC(\vtheta^{(i)})
   =
   R \sum_n \sum_{c}
   (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
   \blacktriangle_{n,c} \blacktriangle_{n,c}^{\top}
   (\jac_{\vtheta^{(i)}} \vf_n)\,.
-\end{align*}
+\end{align}
 Next, we will use the chain rule to split the Jacobian at the layer output $\vx^{(i)} = f^{(i)}(\vx^{(i-1)}, \vtheta^{(i)})$,
 \begin{align*}
   (\jac_{\vtheta^{(i)}} \vf_n)^{\top}

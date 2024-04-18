@@ -1,96 +1,114 @@
-The goal of this section should be to describe the KFAC approximation from~\cite{martens2015optimizing}
+\paragraph{Roadmap:} This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (i.e.\,a \texttt{torch.nn.Linear}).
+It comes in two flavours~\cite{eschenhagen2023kroneckerfactored}: KFAC-expand and KFAC-reduce; the names will become clear by the end.
+Roughly speaking, they are motivated by the presence of weight sharing and reductions over weight-shared dimensions during a forward pass.
 
-Let's consider the GGN for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW \vx$ (suppressing layer indices for simplicity). Let's also assume $\cvec$-flattening, as usually done by the literature and make use of the output-parameter Jacobian of a linear layer (remember Example ??)
+Our discussion will heavily rely on regression settings with deep linear networks, i.e.\,MLPs that consist of dense layers without any non-linearities.
+We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
+
+We will start with the KFAC-expand approximation, which corresponds to the seminal KFAC approximation proposed by~\citet{martens2015optimizing}. It was introduced for standard MLP settings where the linear layers do not exhibit weight sharing (and therefore no reductions over weight-shared axes).
+We will then show how to extend KFAC-expand to the presence of weight sharing.
+
+The discussion of KFAC-expand naturally leads to an alternative setting where weight sharing dimensions are reduced during a forward pass; the so-called reduce setting.
+For this setting, KFAC is not well motivated as it has no limit in which it becomes exact.
+As a solution, we will explain the alternative KFAC-reduce approximation, recently introduced by~\citet{eschenhagen2023kroneckerfactored}.
+
+\subsection{KFAC-expand}
+
+Let's consider a good old MLP with $L$ layers,
 \begin{align*}
-  \ggn_{\mW} \gL_{\sD}
-  &=
-    R
-    \sum_n \sum_c
-    (\jac^{\rvec}_{\mW}\vz_n)^{\top}
-    (\jac^{\rvec}_{\vz_n}\vf_n)^{\top}
-    \blacktriangle_{n,c}
-    \blacktriangle_{n,c}^{\top}
-    (\jac^{\rvec}_{\vz_n}\vf_n)
-    (\jac^{\rvec}_{\mW}\vz_n)
+  f = f^{(L)} \circ f^{(L-1)} \circ \ldots \circ f^{(1)} \,.
+\end{align*}
+Each layer $f^{(l)}$ is either a an elementwise activation function (such as ReLU, tanh, sigmoid), or a linear layer with weight $\mW^{(l)}$ and bias $\vb^{(l)}$ (and their combined parameter $\tilde{\mW}^{(l)} = \begin{pmatrix} \mW^{(l)} & \vb^{(l)} \end{pmatrix}$).
+The MLP processes a vector-valued input $\vx_n$ into a vector-valued output $\vf_n = f(\vx_n, \vtheta)$.
+Because all layers are dense or point-wise, all intermediates are also vector-valued.
+
+We are interested in approximating the block of a curvature matrix $\mC(\vec \mW^{(l)})$ (with $\vec$ some flattening convention) of the form~\Cref{eq:curvature_matrix}, e.g.\,the empirical Fisher, MC-sampled Fisher, type-II Fisher/GGN. Our derivations use $\vec \mW^{(l)}$; we describe the modifications for $\vec \tilde{\mW}^{(l)}$ later.
+
+To declutter notation, let's suppress the layer index and instead of $\vx_n^{(l)} = \mW^{(l)}\vx_n^{(l-1)} + \vb^{(l)}$ write $\vz_n = \mW \va_n + \vb$, using $\va_n$ for the layer input and $\vz_n$ its corresponding output. Because the literature usually adopts column-stacking as flattening convention, we will use $\cvec$.
+Starting from \Cref{eq:curvature_matrix}, let us first split the Jacobian of the prediction w.r.t.\,the weight using the chain rule
+$(\jac^{\cvec}_{\mW}\vf_n)^{\top} = (\jac^{\cvec}_{\mW}\vz_n)^{\top} (\jac^{\cvec}_{\vz_n}\vf_n)^{\top}$ and introduce the shortcut $\vg_{n,c} \coloneq (\jac^{\cvec}_{\vz_n}\vf_n)^{\top} \blacktriangle_{n,c}$ for the vectors backpropagated to the layer's output:
+\begin{align*}
+  &\mC(\cvec \mW)
   \\
-  \shortintertext{
-  (introduce $\vb_{n,c} \coloneq (\jac^{\rvec}_{\vz_n}\vf_n)^{\top} \blacktriangle_{n,c}$ for the layer output gradient)
-  }
-  &=
+  &\quad=
     R
     \sum_n \sum_c
-    (\jac^{\rvec}_{\mW}\vz_n)^{\top}
-    \vb_{n,c} \vb_{n,c}^{\top}
-    (\jac^{\rvec}_{\mW}\vz_n)
-    \shortintertext{Insert the linear layer's Jacobian}
-  &=
+    (\jac^{\cvec}_{\mW}\vz_n)^{\top}
+    \vg_{n,c} \vg_{n,c}^{\top}
+    (\jac^{\cvec}_{\mW}\vz_n)
+    \shortintertext{After inserting the linear layer's output-weight Jacobian from \Cref{ex:weight_jacobians_linear_layer}, we get}
+  &\quad=
     R
     \sum_n \sum_c
-    (\vx_n \otimes \mI_{D_{\text{out}}})
-    \vb_{n,c} \vb_{n,c}^{\top}
-    (\vx_n^{\top} \otimes \mI_{D_{\text{out}}})
-  \\
-  &=
+    (\va_n \otimes \mI_{\vz_n})
+    \vg_{n,c} \vg_{n,c}^{\top}
+    (\va_n^{\top} \otimes \mI_{\vz_n})
+    \shortintertext{which simplifies to}
+  &\quad=
     R
     \sum_c
     \sum_n
-    \vx_n \vx_n^{\top}
+    \va_n \va_n^{\top}
     \otimes
-    \vb_{n,c} \vb_{n,c}^{\top}
+    \vg_{n,c} \vg_{n,c}^{\top}\,.
 \end{align*}
+The curvature matrix is a sum of Kronecker products.
+We want to approximate this with a single Kronecker product.
 
-The expectation approximation in KFAC is the following:
-\begin{align}
-  \sum_n \va_n\va_n^{\top} \otimes \vb_n \vb_n^{\top}
-  \approx
-  \left( \sum_n \va_n \va_n^{\top} \right)
-  \otimes
-  \frac{
-  \left( \sum_n \vb_n \vb_n^{\top} \right)
-  }{N}
+To do that, we need to agree on a convention to carry out the sum over $n$ before taking the Kronecker product. We will use the following convention:
+\begin{align}\label{eq:expectation_approximation}
+  \begin{split}
+    &\sum_{n=1}^{\textcolor{VectorOrange}{N}} \va_n\va_n^{\top} \otimes \vg_n \vg_n^{\top}
+    \\
+    &\quad\approx
+      \left( \sum_{n=1}^N \va_n \va_n^{\top} \right)
+      \otimes
+      \frac{
+      \left( \textcolor{VectorOrange}{\sum_n} \vg_n \vg_n^{\top} \right)
+      }{\textcolor{VectorOrange}{N}}
+  \end{split}
 \end{align}
-Instead of summing Kronecker products, we first sum the individual factors, then take their Kronecker product and divide by the number of summands. The scaling is by convention absorbed into the gradient-based Kronecker factor.
+In words, we sum the outer products on the left and right of the Kronecker product independently and divide by the number of outer products in the term containing the gradient vectors.
 
-If we apply this approximation to the above, we obtain
-\begin{align*}
-  \kfac(\cvec \mW)
-  &=
-    \mA \otimes \mB
-  \\
-  \kfac(\rvec \mW)
-  &=
-    \mB \otimes \mA
-    \shortintertext{where}
-    \mA
-  &=
-    R
-    \sum_n
-    \vx_n \vx_n^{\top}
-  \\
-  \mB
-  &=
-    \frac{
-    \left(
-    \sum_n
-    \sum_c
-    \vb_{n,c} \vb_{n,c}^{\top}
-    \right)
-    }{N}
-\end{align*}
-Note that we absorbed the reduction factor of the loss into input-based factor.
-Also note that the order of Kronecker factors changes depending on the flattening scheme.
-The same equation holds if we treat weight and bias jointly, but we need to make the substitutions
-\begin{align*}
-  \mW \leftrightarrow \tilde{\mW}
-  \quad
-  \text{and}
-  \quad
-  \vx_n \leftrightarrow \begin{pmatrix} \vx_n \\ 1 \end{pmatrix}.
-\end{align*}
-
-\switchcolumn[1]
+\switchcolumn[1]*
 \codeblock{kfac/expand_Linear}
 \switchcolumn[0]
+
+If we apply \Cref{eq:expectation_approximation}, we obtain
+\begin{definition}[KFAC-expand for a linear layer with vector-valued input, \Cref{kfac/expand_Linear}]
+  Consider a linear layer with weight $\mW$ and bias $\vb$ inside a neural network that processes a vector-valued input $\va_n$ for each datum $n$ in to a vector-valued output $\vz_n = \mW \va_n + \vb$. The KFAC-expand approximation of a curvature matrix $\mC(\cvec \mW)$ in column-flattening convention is given by
+  \begin{subequations}
+    \begin{align}
+      \kfac_{\text{exp}}(\cvec \mW)
+      =
+      \mA \otimes \mB
+      \approx \mC(\cvec \mW)\,,
+      \intertext{where}
+      \mA = R \sum_n \va_n \va_n^{\top}\,,
+      \quad
+      \mB = \frac{\left(\sum_n \sum_c \vg_{n,c} \vg_{n,c}^{\top} \right)}{N}\,.
+    \end{align}
+  \end{subequations}
+  The reduction factor from the loss function is absorbed into the input-based Kronecker factor (this is done by the scaffold in \Cref{kfac/scaffold}).
+
+  If we treat weight and bias jointly, we need to make the substitutions
+  \begin{align*}
+    \mW \leftrightarrow \tilde{\mW}
+    \quad
+    \text{and}
+    \quad
+    \va_n \leftrightarrow \begin{pmatrix} \va_n \\ 1 \end{pmatrix}\,.
+  \end{align*}
+\end{definition}
+We can work out the same steps to approximate the curvature matrix in row-stacking flattening, which simply leads swapping the two Kronecker factors,
+\begin{align*}
+  \kfac_{\text{exp}}(\rvec \mW)
+  =
+  \mB \otimes \mA
+  \approx \mC(\rvec \mW)\,.
+\end{align*}
+
+\subsection{Sanity Check with Batch Size 1}
 
 \subsection{Tests}
 When does this approximation become exact?
