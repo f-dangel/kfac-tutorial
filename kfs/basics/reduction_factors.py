@@ -89,7 +89,7 @@ def CrossEntropyLoss_criterion(
         log_softmax, dim=0, index=target.unsqueeze(0)
     )
     return -log_probs.sum()
-    
+
 
 if __name__ == "__main__":
     manual_seed(0)
