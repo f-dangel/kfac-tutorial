@@ -117,9 +117,9 @@ if __name__ == "__main__":
         [
             [
                 1 + 4 * alpha * x[0] ** 2,
-                -2 * sqrt(alpha) * x[0],
+                -2 * alpha * x[0],
             ],
-            [-2 * sqrt(alpha) * x[0], alpha],
+            [-2 * alpha * x[0], alpha],
         ]
     )
     assert allclose(G, G_manual)
