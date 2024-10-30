@@ -1,3 +1,5 @@
+"""Test KFAC on a deep MLP with intermediate reduction."""
+
 from itertools import product
 
 from pytest import raises

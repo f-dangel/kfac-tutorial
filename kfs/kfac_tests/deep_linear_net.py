@@ -13,6 +13,25 @@ def create_deep_linear_net(
     reduction_pos: Optional[int] = None,
     bias: bool = False,
 ) -> Sequential:
+    """Create a deep linear network with optional reduction.
+
+    Args:
+        dims: List of dimensions for the network. For a net
+            of length `L` this list has `L + 1` entries.
+        reduce_shared: Reduction operation for the shared axis.
+            Can be `'sum'` or `'mean'`. If `None`, no reduction
+            layer is inserted.
+        reduction_pos: Position of the reduction layer. If
+            `None`, the reduction layer is inserted after the
+            last layer.
+        bias: Whether to include bias terms. Default: `False`.
+
+    Raises:
+        ValueError: If the reduction is not known.
+
+    Returns:
+        Sequential: Deep linear network with optional reduction.
+    """
     L = len(dims) - 1
     reduction_pos = (
         L - 1 if reduction_pos is None else reduction_pos

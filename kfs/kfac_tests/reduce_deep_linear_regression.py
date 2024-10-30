@@ -1,3 +1,5 @@
+"""Test KFAC-reduce on an MLP with final reduction layer."""
+
 from itertools import product
 
 from torch import kron, manual_seed, rand

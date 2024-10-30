@@ -1,3 +1,5 @@
+"""Test KFAC-reduce on a CNN."""
+
 from einops.layers.torch import Reduce
 from torch import kron, manual_seed, rand
 from torch.nn import Conv2d, MSELoss, Sequential
@@ -51,7 +53,13 @@ for idx, (G, (A, B)) in enumerate(
         continue
     report_nonclose(G, kron(B, A))
 
-# for G, (A, B) in zip(cvec_ggns, kfacs.values()):
+# NOTE This currently does not work because we are flattening
+# the 4d kernel incorrectly (KFAC is defined in terms of the
+# kernel's 2d matrix view)
+# for idx, (G, (A, B)) in \
+#         enumerate(zip(cvec_ggns, kfacs.values())):
+#     if idx == 0:
+#         continue
 #     print(G.shape, A.shape, B.shape)
 #     print(B)
 #     report_nonclose(G, kron(A, B))
