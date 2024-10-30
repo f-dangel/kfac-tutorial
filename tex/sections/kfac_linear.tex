@@ -404,12 +404,14 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       \argmin_{\mB}
       \left\lVert
       \scalebox{0.75}{%
+      $
       \begin{pmatrix}
         \vg_1 \vg_1^{\top} -\mB & \vg_1 \vg_2^{\top} & \dots & \vg_1 \vg_N^{\top} \\
         \vg_2 \vg_1^{\top} & \vg_2 \vg_2^{\top} - \mB & \ddots & \vg_2 \vg_N^{\top} \\
         \vdots & \ddots & \ddots & \vdots \\
         \vg_N \vg_1^{\top} & \vg_N \vg_2^{\top} & \dots & \vg_N \vg_N^{\top} - \mB \\
       \end{pmatrix}
+      $
       }
       \right\rVert_2^2
     \\
@@ -417,12 +419,14 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       \argmin_{\mB}
       \left\lVert
       \scalebox{0.75}{%
+      $
       \begin{pmatrix}
         \vg_1 \vg_1^{\top} - \mB & \vzero & \dots & \vzero \\
         \vzero & \vg_2 \vg_2^{\top} - \mB & \ddots & \vdots \\
         \vdots & \ddots & \ddots & \vzero \\
         \vzero & \hdots & \vzero & \vg_N \vg_N^{\top} - \mB \\
       \end{pmatrix}
+      $
       }
       \right\rVert_2^2
     \\
@@ -432,8 +436,8 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       \left\lVert
       \vg_n \vg_n^{\top} - \mB
       \right\rVert_2^2
-      \\
-      &=
+    \\
+    &=
       \argmin_{\mB}
       \sum_{n=1}^N
       \sum_{i,j = 1}^{D_{\text{out}}}
@@ -444,29 +448,29 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
   Taking the derivative w.r.t.\,$\mB$ and setting it to zero yields
   \begin{align*}
     &\frac{\partial \left(
-    \sum_{n=1}^N
-    \sum_{i,j = 1}^{D_{\text{out}}}
-    \left(
-    [\vg_n]_i [\vg_n]_j - [\mB]_{i,j}
-    \right)^2
-    \right)
-    }{
-    \partial [\mB]_{k,l}
-    }
-      \\
+      \sum_{n=1}^N
+      \sum_{i,j = 1}^{D_{\text{out}}}
+      \left(
+      [\vg_n]_i [\vg_n]_j - [\mB]_{i,j}
+      \right)^2
+      \right)
+      }{
+      \partial [\mB]_{k,l}
+      }
+    \\
     &=
       2 \sum_{n=1}^N
       \left(
       [\mB]_{k,l} -  [\vg_n]_k [\vg_n]_l
       \right)
-      \\
-      &=
+    \\
+    &=
       2 \left( N[\mB]_{k,l} - \sum_{n=1}^N [\vg_n]_k [\vg_n]_l \right)
       \stackrel{!}{=} 0 \qquad\forall k,l
-        \\
-      &\implies
+    \\
+    &\implies
       \mB = \frac{1}{N} \sum_{n=1}^N \vg_n \vg_n^{\top}
-            = \frac{1}{N} \mG \mG^{\top}\,.
+      = \frac{1}{N} \mG \mG^{\top}\,.
   \end{align*}
   Hence, if we `model' the gradient covariance as block-diagonal matrix with identical blocks $\mB$, the `best' choice is the average of gradient outer products, just like in KFAC,
   \begin{align*}
