@@ -2,7 +2,7 @@
 
 # register functionality to compute KFAC-expand/reduce on
 # Linear/ConvNd layers
-from kfs.kfac import (
+from kfs.kfac import (  # noqa: F401
     expand_ConvNd,
     expand_Linear,
     reduce_ConvNd,

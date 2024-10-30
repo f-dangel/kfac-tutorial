@@ -1,7 +1,5 @@
-from collections import OrderedDict
 from itertools import product
 
-from einops.layers.torch import Reduce
 from pytest import raises
 from torch import kron, manual_seed, rand
 from torch.nn import MSELoss

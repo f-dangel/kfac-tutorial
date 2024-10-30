@@ -1,5 +1,5 @@
 from einops.layers.torch import Reduce
-from torch import allclose, kron, manual_seed, rand
+from torch import kron, manual_seed, rand
 from torch.nn import Conv2d, MSELoss, Sequential
 
 from kfs.basics.ggns import vec_ggn
