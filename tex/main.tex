@@ -39,14 +39,23 @@
   \section{KFAC---An Overview}
   \input{sections/kfac_overview.tex}
 
-  \section{KFAC-expand for Linear Layers \cite{martens2015optimizing}}
+  \section{KFAC for Linear Layers}
   \input{sections/kfac_linear.tex}
 
-  \section{KFAC-expand for Convolution Layers \cite{grosse2016kroneckerfactored}}
+  \section{KFAC for Convolution Layers}
   The goal of this section should be to describe the KFAC approximation from.
 
-  \section{KFAC for Linear Layers with Weight Sharing (expand and reduce)}
-  The goal of this section should be to describe the unification from~\cite{eschenhagen2023kroneckerfactored}
+  \switchcolumn[1]*
+  \codeblock{kfac/expand_ConvNd}
+  \switchcolumn[0]
+
+  \switchcolumn[1]*
+  \codeblock{kfac/reduce_ConvNd}
+  \switchcolumn[0]
+
+  \switchcolumn[1]*
+  \codeblock{kfac_tests/reduce_shallow_cnn}
+  \switchcolumn[0]
 \end{paracol}
 
 \clearpage

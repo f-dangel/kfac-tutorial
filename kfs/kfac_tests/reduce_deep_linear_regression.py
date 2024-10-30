@@ -1,5 +1,3 @@
-"""Test KFAC for square loss with a deep MLP."""
-
 from itertools import product
 
 from torch import kron, manual_seed, rand
@@ -12,43 +10,48 @@ from kfs.kfac_tests.deep_linear_net import (
 )
 from kfs.utils import report_nonclose
 
-# allow testing different depths and reductions
-depths = [3]
-reductions = ["mean", "sum"]
-sequence_lengths = [
-    1,  # no weight sharing
-    5,  # weight sharing, $\text{\Cref{sec:expand_sharing}}$
-]
-
 batch_size = 6
 D_in, D_hidden, D_out = 4, 3, 2
+depths = [1, 3]
+sequence_lengths = [5]
+loss_reductions = ["sum", "mean"]
+shared_reduction = ["sum", "mean"]
 
-combinations = list(
-    product(depths, sequence_lengths, reductions)
+configurations = product(
+    depths,
+    sequence_lengths,
+    loss_reductions,
+    shared_reduction,
 )
 
-for idx, (L, S, reduction) in enumerate(
-    combinations, start=1
-):
+for (
+    L,
+    S,
+    loss_reduction,
+    shared_reduction,
+) in configurations:
     print(
-        f"{idx}/{len(combinations)} Testing L={L},"
-        + "f S={S}, reduction={reduction}"
+        f"Testing L={L}, S={S},"
+        + f" loss_reduction={loss_reduction},"
+        + f" shared_reduction={shared_reduction}"
     )
-    loss_func = MSELoss(reduction=reduction).double()
+
+    loss_func = MSELoss(reduction=loss_reduction).double()
 
     # use double-precision for exact comparison
     manual_seed(0)
-    if S == 1:
-        X = rand(batch_size, D_in).double()
-        y = rand(batch_size, D_out).double()
-    else:
-        X = rand(batch_size, S, D_in).double()
-        y = rand(batch_size, S, D_out).double()
+    X = rand(batch_size, S, D_in).double()
+    y = rand(batch_size, D_out).double()
 
     # set up the MLP
     manual_seed(1)
     dims = [D_in] + (L - 1) * [D_hidden] + [D_out]
-    model = create_deep_linear_net(dims).double()
+    model = create_deep_linear_net(
+        dims,
+        reduce_shared=shared_reduction,
+        reduction_pos=L,
+    ).double()
+    print(model)
 
     # compute GGN with autodiff
     output = model(X)
@@ -63,7 +66,7 @@ for idx, (L, S, reduction) in enumerate(
 
     # compute KFAC type-2 and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "type-2", "expand"
+        model, loss_func, (X, y), "type-2", "reduce"
     )
     assert len(rvec_ggn) == len(cvec_ggn) == L
     for (A, B), G_cvec, G_rvec in zip(
@@ -72,15 +75,17 @@ for idx, (L, S, reduction) in enumerate(
         report_nonclose(G_rvec, kron(B, A))
         report_nonclose(G_cvec, kron(A, B))
 
-    # compute KFAC-MC with large number of samples and compare
+    # compute KFAC MC with large number of samples and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "mc=25_000", "expand"
+        model, loss_func, (X, y), "mc=25_000", "reduce"
     )
-    assert len(kfac) == len(rvec_ggn) == len(cvec_ggn) == L
     assert len(rvec_ggn) == len(cvec_ggn) == L
-    tols = {"atol": 5e-4, "rtol": 5e-2}
     for (A, B), G_cvec, G_rvec in zip(
         kfac.values(), cvec_ggn, rvec_ggn
     ):
+        tols = {
+            "atol": 5e-3 * G_cvec.abs().max(),
+            "rtol": 1e-2,
+        }
         report_nonclose(G_rvec, kron(B, A), **tols)
         report_nonclose(G_cvec, kron(A, B), **tols)
