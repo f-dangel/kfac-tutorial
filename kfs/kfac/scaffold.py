@@ -37,7 +37,7 @@ class KFAC:
 
     COMPUTE_INPUT_BASED_FACTOR: Dict[
         Tuple[Type[Module], str],
-        Callable[[Tensor, bool], Tensor],
+        Callable[[Tensor, Module], Tensor],
     ] = {}
     COMPUTE_GRAD_OUTPUT_BASED_FACTOR: Dict[
         Tuple[Type[Module], str], Callable[[Tensor], Tensor]
@@ -99,8 +99,7 @@ class KFAC:
                 (type(layer), kfac_approx)
             ]
             inputs = intermediates.pop(f"{name}_in")
-            bias_augment = layer.bias is not None
-            As[name] = compute_A(inputs, bias_augment)
+            As[name] = compute_A(inputs, layer)
 
         # factor in loss reduction
         R = get_reduction_factor(loss_func, y)

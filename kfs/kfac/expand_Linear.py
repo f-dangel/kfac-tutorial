@@ -8,21 +8,22 @@ from kfs.kfac.scaffold import KFAC
 
 
 def input_based_factor(
-    x_in: Tensor, bias_augment: bool
+    x_in: Tensor, layer: Linear
 ) -> Tensor:
     """Compute the input-based Kronecker factor `A`.
 
     Args:
         x_in: The batched input tensor to the layer.
             Has shape `(batch_size, *, in_features)`.
-        bias_augment: Whether to augment the input
-            with ones to account for a bias term.
+        layer: The linear layer for which the Kronecker
+            factor is computed.
 
     Returns:
-        The input-based Kronecker factor `A`.
-        Has shape `(in_features, in_features)`.
+        The input-based Kronecker factor `A`. Has shape
+        `(in_features + 1, in_features + 1)` if the layer
+        has a bias, otherwise `(in_features, in_features)`.
     """
-    if bias_augment:
+    if layer.bias is not None:
         x_in = cat(
             [x_in, x_in.new_ones(*x_in.shape[:-1], 1)],
             dim=-1,
