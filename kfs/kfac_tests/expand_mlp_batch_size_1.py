@@ -46,7 +46,7 @@ for idx, (L, phi, c, reduction) in enumerate(
 ):
     print(
         f"{idx}/{len(combinations)} Testing L={L},"
-        + "f phi={phi.__name__}, c={c.__name__},"
+        + f" phi={phi.__name__}, c={c.__name__},"
         + f" reduction={reduction}"
     )
     loss_func = c(reduction=reduction).double()
@@ -76,7 +76,7 @@ for idx, (L, phi, c, reduction) in enumerate(
 
     # compute KFAC-type-II and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "type-2", "expand", None
+        model, loss_func, (X, y), "type-2", "expand"
     )
     assert len(kfac) == len(rvec_ggn) == len(cvec_ggn) == L
     for (A, B), G_cvec, G_rvec in zip(
@@ -87,12 +87,7 @@ for idx, (L, phi, c, reduction) in enumerate(
 
     # compute KFAC-MC with large number of samples and compare
     kfac = KFAC.compute(
-        model,
-        loss_func,
-        (X, y),
-        "mc=25_000",
-        "expand",
-        None,
+        model, loss_func, (X, y), "mc=25_000", "expand"
     )
     assert len(kfac) == len(rvec_ggn) == len(cvec_ggn) == L
     tols = {"atol": 5e-4, "rtol": 5e-2}
