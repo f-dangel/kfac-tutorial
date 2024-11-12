@@ -41,12 +41,7 @@ if __name__ == "__main__":
 
         # KFAC computation for last layer weight
         kfacs = KFAC.compute(
-            model,
-            loss_func,
-            (X, y),
-            "input_only",
-            "expand",
-            None,
+            model, loss_func, (X, y), "input_only", "expand"
         )
         A, B = kfacs["last"]
 

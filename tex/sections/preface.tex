@@ -35,6 +35,103 @@ There could be a JAX or functorch version, too.
 
 \end{itemize}
 TODO Should mention somewhere that many of the provided examples are already discussed in Felix's PhD thesis~\cite{dangel2023backpropagation}.
+
+\paragraph{KFAC flavours} There are various degrees of freedom that induce different KFAC flavours:
+\begin{align*}
+  \begin{array}{c}
+    \begin{Bmatrix}
+      \text{PyTorch}
+      \\
+      \text{JAX}
+    \end{Bmatrix}
+    \\
+    \text{(software framework)}
+  \end{array}
+  \times
+  \begin{array}{c}
+    \begin{Bmatrix}
+      \rvec
+      \\
+      \cvec
+    \end{Bmatrix}
+    \\
+    \text{(flattening convention)}
+  \end{array}
+  \times
+  \begin{array}{c}
+    \begin{Bmatrix}
+      \text{MC (type-I Fisher)}
+      \\
+      \text{type-II Fisher}
+      \\
+      \text{empirical Fisher}
+    \end{Bmatrix}
+    \\
+    \text{(target curvature)}
+  \end{array}
+  \times
+  \begin{array}{c}
+    \begin{Bmatrix}
+      \text{expand}
+      \\
+      \text{reduce}
+    \end{Bmatrix}
+    \\
+    \text{(how weight sharing is handled)}
+  \end{array}
+  \times
+  \begin{array}{c}
+    \begin{Bmatrix}
+      \text{fully-connected}
+      \\
+      \text{convolutions}
+    \end{Bmatrix}
+    \\
+    \text{(layers)}
+  \end{array}
+\end{align*}
+The original work from~\citet{martens2015optimizing} uses
+\begin{align*}
+  \text{cvec} \times \text{MC (type-I Fisher)} \times \text{expand} \times \text{fully-connected}\,.
+\end{align*}
+\paragraph{Version 1.0} This document aims to provide an introduction to the following flavours:
+\begin{align*}
+  \text{PyTorch}
+  \times
+  \begin{Bmatrix}
+    \rvec
+    \\
+    \cvec
+  \end{Bmatrix}
+  \times
+  \begin{Bmatrix}
+    \text{MC (type-I Fisher)}
+    \\
+    \text{type-II Fisher}
+    \\
+    \text{empirical Fisher}
+  \end{Bmatrix}
+  \times
+  \text{expand}
+  \times
+  \text{fully-connected}
+\end{align*}
+This allows us to (i) highlight challenges when translating math to code, (ii) pointing out various connections between the curvature matrices and KFAC, and (iii) produce a working, tested, version of the original KFAC paper with slight generalizations.
+
+\paragraph{Plan for version 1.1}
+\begin{itemize}
+\item JAX version
+\item How to define Fisher matrices for neural networks with $>2$d outputs
+\item KFAC-expand for convolutions \cite{grosse2016kroneckerfactored}
+\item KFAC-reduce for convolutions \cite{eschenhagen2023kroneckerfactored}
+\item KFAC for linear layers with weight sharing \cite{eschenhagen2023kroneckerfactored}
+\end{itemize}
+
+\paragraph{Ideas for version 2.0}
+\begin{itemize}
+  \item KFAC for RNNs \cite{martens2018kroneckerfactored}
+    \item KFAC for PINNs \cite{dangel2024kroneckerfactored}
+\end{itemize}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

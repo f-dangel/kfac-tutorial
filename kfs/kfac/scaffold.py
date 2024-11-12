@@ -37,7 +37,7 @@ class KFAC:
 
     COMPUTE_INPUT_BASED_FACTOR: Dict[
         Tuple[Type[Module], str],
-        Callable[[Tensor, bool], Tensor],
+        Callable[[Tensor, Module], Tensor],
     ] = {}
     COMPUTE_GRAD_OUTPUT_BASED_FACTOR: Dict[
         Tuple[Type[Module], str], Callable[[Tensor], Tensor]
@@ -51,7 +51,6 @@ class KFAC:
         data: Tuple[Tensor, Tensor],
         fisher_type: str,
         kfac_approx: str,
-        loss_average: Union[None, str],
     ) -> Dict[str, Tuple[Tensor, Tensor]]:
         """Compute KFAC for all supported layers.
 
@@ -61,7 +60,6 @@ class KFAC:
             data: A batch of inputs and labels.
             fisher_type: The type of Fisher approximation.
             kfac_approx: The type of KFAC approximation.
-            loss_average: TODO.
 
         Returns:
             A dictionary whose keys are the layer names and
@@ -99,8 +97,7 @@ class KFAC:
                 (type(layer), kfac_approx)
             ]
             inputs = intermediates.pop(f"{name}_in")
-            bias_augment = layer.bias is not None
-            As[name] = compute_A(inputs, bias_augment)
+            As[name] = compute_A(inputs, layer)
 
         # factor in loss reduction
         R = get_reduction_factor(loss_func, y)

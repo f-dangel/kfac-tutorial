@@ -9,6 +9,7 @@ def report_nonclose(
     rtol: float = 1e-5,
     atol: float = 1e-8,
     equal_nan: bool = False,
+    verbose: bool = True,
 ):
     """Compare two PyTorch tensors.
 
@@ -19,6 +20,8 @@ def report_nonclose(
         atol: Absolute tolerance. Default: `1e-8`.
         equal_nan: Whether comparing two NaNs is
             considered as `True`. Default: `False`.
+        verbose: Whether to print the mismatches.
+            Default: `True`.
 
     Raises:
         ValueError: If the two tensors don't match.
@@ -35,15 +38,18 @@ def report_nonclose(
         )
 
     if not allclose(tensor1, tensor2, **kwargs):
-        for t1, t2 in zip(
-            tensor1.flatten(), tensor2.flatten()
-        ):
-            if not isclose(t1, t2, **kwargs):
-                print(f"{t1} ≠ {t2} (ratio {t1 / t2:.5f})")
-        print(
-            f"Max: {tensor1.max():.5f}, {tensor2.max():.5f}"
-        )
-        print(
-            f"Min: {tensor1.min():.5f}, {tensor2.min():.5f}"
-        )
+        if verbose:
+            for t1, t2 in zip(
+                tensor1.flatten(), tensor2.flatten()
+            ):
+                if not isclose(t1, t2, **kwargs):
+                    print(
+                        f"{t1} ≠ {t2} (ratio {t1 / t2:.5f})"
+                    )
+            print(
+                f"Max: {tensor1.max():.5f}, {tensor2.max():.5f}"
+            )
+            print(
+                f"Min: {tensor1.min():.5f}, {tensor2.min():.5f}"
+            )
         raise ValueError("Compared arrays don't match.")

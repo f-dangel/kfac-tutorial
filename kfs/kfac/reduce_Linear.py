@@ -1,6 +1,6 @@
 """Kronecker factor computation for Linear layer."""
 
-from einops import rearrange
+from einops import reduce
 from torch import Tensor, cat
 from torch.nn import Linear
 
@@ -28,8 +28,7 @@ def input_based_factor(
             [x_in, x_in.new_ones(*x_in.shape[:-1], 1)],
             dim=-1,
         )
-    # treat all shared dimensions like batch dimension
-    x_in = rearrange(x_in, "n ... d_in -> (n ...) d_in")
+    x_in = reduce(x_in, "n ... d_in -> n d_in", "sum")
     return x_in.T @ x_in
 
 
@@ -44,14 +43,13 @@ def grad_output_based_factor(g_out: Tensor) -> Tensor:
         The gradient-based Kronecker factor `B`.
         Has shape `(out_features, out_features)`.
     """
-    # treat all shared dimensions like batch dimension
-    g_out = rearrange(g_out, "n ... d_out -> (n ...) d_out")
+    g_out = reduce(g_out, "n ... d_out -> n d_out", "mean")
     num_outer_products = g_out.shape[0]
     return (g_out.T @ g_out) / num_outer_products
 
 
 # install both methods in the KFAC scaffold
-setting = (Linear, "expand")
+setting = (Linear, "reduce")
 KFAC.COMPUTE_INPUT_BASED_FACTOR[setting] = (
     input_based_factor
 )
