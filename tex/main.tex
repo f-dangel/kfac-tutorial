@@ -40,32 +40,42 @@
 
 \begin{paracol}{2}
   \section{KFAC---An Overview}
-  \input{sections/kfac_overview.tex}
+  \input{sections/new_kfac_overview.tex}
 
-  \section{KFAC for Linear Layers}
-  \input{sections/kfac_linear.tex}
+  \section{KFAC-expand for Linear Layers}
+  \input{sections/kfac_linear_expand.tex}
 
-  \section{KFAC for Convolution Layers}
-  The goal of this section should be to describe the KFAC approximation from.
+  % \section{KFAC for Convolution Layers}
+  % The goal of this section should be to describe the KFAC approximation from.
 
-  \switchcolumn[1]*
-  \codeblock{kfac/expand_ConvNd}
-  \switchcolumn[0]
+  % \switchcolumn[1]*
+  % \codeblock{kfac/expand_ConvNd}
+  % \switchcolumn[0]
 
-  \switchcolumn[1]*
-  \codeblock{kfac/reduce_ConvNd}
-  \switchcolumn[0]
+  % \switchcolumn[1]*
+  % \codeblock{kfac/reduce_ConvNd}
+  % \switchcolumn[0]
 
-  \switchcolumn[1]*
-  \codeblock{kfac_tests/reduce_shallow_cnn}
-  \switchcolumn[0]
+  % \switchcolumn[1]*
+  % \codeblock{kfac_tests/reduce_shallow_cnn}
+  % \switchcolumn[0]
 \end{paracol}
 
 \clearpage
+
 \begin{paracol}{1}
   \section{Cheatsheet: KFAC}
   \input{sections/cheatsheet_kfac.tex}
   \end{paracol}
+\clearpage
+
+
+\begin{paracol}{1}
+  \section{Outlook}
+  \input{sections/outlook.tex}
+
+\end{paracol}
+
 \clearpage
 
 \begin{paracol}{2}
