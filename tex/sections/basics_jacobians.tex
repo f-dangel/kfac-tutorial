@@ -30,7 +30,7 @@ The more general Jacobian of a tensor-to-tensor function can be indexed with com
 \begin{definition}[General Jacobian, \Cref{jacobians}]\label{def:general_jacobian}
   The general Jacobian of $f$ from \Cref{setup:jacobians}, $\tJ_{\tB}\tA$, is a rank-$(M+N)$ tensor that collects the first-order partial derivatives such that
   \begin{align*}
-    [\tJ_{\tA}\tB]_{j_1, \cdots ,j_M, i_1, \cdots, i_N} = \frac{\partial [f(\tA)]_{j_1, \cdots, j_M}}{\partial [\tA]_{i_1, \cdots, i_N}}\,.
+    [\tJ_{\tA}\tB]_{i_1, \cdots, i_M, j_1, \cdots, j_N} = \frac{\partial [f(\tA)]_{i_1, \cdots, i_M}}{\partial [\tA]_{j_1, \cdots, j_N}}\,.
   \end{align*}
 \end{definition}
 For $M=N=1$, the general Jacobian reduces to the Jacobian of a vector-to-vector function from \Cref{def:vector_jacobian}.
@@ -44,12 +44,12 @@ For $M=N=1$, the general Jacobian reduces to the Jacobian of a vector-to-vector 
 \begin{definition}[Vector-Jacobian products (VJPs), \Cref{jacobian_products}]\label{def:vjp}
   Given a tensor-to-tensor function $f$ from \Cref{setup:jacobians} and a tensor $\tV \in \sR^{B_1 \times \dots \times B_M}$ in the output domain, the vector-Jacobian product (VJP) $\tU$ of $\tV$ and $\tJ_{\tB}\tA$ lives in the $f$'s input domain and follows by contracting out the output indices,
   \begin{align*}
-    &[\tU]_{i_1, \dots, i_N}
+     & [\tU]_{j_1, \dots, j_N}
     \\
-    &=
-      \sum_{j_1, \dots, j_M}
-      [\tV]_{j_1, \dots, j_M}
-      [\tJ_{\tA}\tB]_{j_1, \dots, j_M, i_1, \dots, i_N}\,.
+     & =
+    \sum_{i_1, \dots, i_M}
+    [\tV]_{i_1, \dots, i_M}
+    [\tJ_{\tA}\tB]_{i_1, \dots, i_M, j_1, \dots, j_N}\,.
   \end{align*}
 \end{definition}
 For $M=N=1$, $\tV, \tU \to \vv, \vu$ are column vectors, $\tJ_{\tA}\tB \to \jac_{\va}\vb$ is a matrix, and the VJP is $\vu^{\top} = \vv^{\top} (\jac_{\va}\vb)$ or $\vu = (\jac_{\va}\vb)^{\top} \vv$, i.e.\,multiplication with the transpose Jacobian.
@@ -62,19 +62,19 @@ The other popular contraction is between the Jacobian and a vector from the func
 \begin{definition}[Jacobian-vector products (JVPs), \Cref{jacobian_products}]\label{def:jvp}
   Given a tensor-to-tensor function $f$ from \Cref{setup:jacobians} and a tensor $\tV \in \sR^{A_1 \times A_N}$ in the input domain, the Jacobian-vector product (JVP) $\tU$ between $\tV$ and $\tJ_{\tB}\tA$ lives in $f$'s output domain and follows by contracting the output indices,
   \begin{align*}
-    &[\tU]_{j_1, \dots, j_M}
+     & [\tU]_{j_1, \dots, j_M}
     \\
-    &=
-      \sum_{i_1, \dots, i_N}
-      [\tJ_{\tA}\tB]_{j_1, \dots, j_M, i_1, \dots, i_N}
-      [\tV]_{i_1, \dots, i_N}\,.
+     & =
+    \sum_{i_1, \dots, i_N}
+    [\tJ_{\tA}\tB]_{j_1, \dots, j_M, i_1, \dots, i_N}
+    [\tV]_{i_1, \dots, i_N}\,.
   \end{align*}
 \end{definition}
 For the vector case, $\tU, \tV, \tJ_{\tA}\tB \to \vu, \vv, \jac_{\va}\vb$, the JVP is $\vu = (\jac_{\va}\vb) \vv$, as suggested by its name.
-JVPs are common in forward mode automatic differentiation ($\tU$ is often called the \emph{push-forward} of $\tV$ through $f$).
+JVPs are common in forward mode automatic differentiation ($\tU$ is often called the \emph{pushforward} of $\tV$ through $f$).
 Only recently has this mode garnered attention.
-Hence, the current JVP functionality in ML libraries usually follows a functional API.
-To obtain an implementation that accepts variables from a computation graph and is more compatible with the modular approach we chose in this tutorial, we can use a trick\footnote{See \url{https://j-towns.github.io/2017/06/12/A-new-trick.html}.} that implements a VJP using two VJPs.
+The current JVP functionality in ML libraries usually follows a functional API.
+To obtain an implementation that accepts variables from a computation graph and is more compatible with the modular approach we chose in this tutorial, we can use a trick\footnote{See \url{https://j-towns.github.io/2017/06/12/A-new-trick.html}.} that implements a JVP using two VJPs.
 
 Jacobian products are efficient, but somewhat more abstract to work with as we cannot `touch' the full tensor. Also, we often also would like to think about this tensor as a matrix to be able to present derivations using linear algebra notation.
 
@@ -89,9 +89,9 @@ The following definitions are consistent in the sense that both of the aforement
 \begin{figure}[!h]
   \centering
   \begin{tikzpicture}[%
-    font=\scriptsize,%
-    thick,
-    box/.style = {rectangle, draw=black, rounded corners, fill=VectorGray!50},%%
+      font=\scriptsize,%
+      thick,
+      box/.style = {rectangle, draw=black, rounded corners, fill=VectorGray!50},%%
     ]
     \node[box] (A) at (0,0) {$f: \tA \mapsto \tB = f(\tA)$};
     \node[box] (B) at (4,0) {$\jac_{\tA}\tB$};
@@ -116,12 +116,12 @@ The following definitions are consistent in the sense that both of the aforement
     $\mat$ denotes matricization and involves two flattenings for the row and column dimensions, respectively.}
 \end{figure}
 
-Hence, there are two of interest for the purpose of this tutorial: the $\cvec$- and $\rvec$-Jacobians.
+There are two matrices of interest for the purpose of this tutorial: the $\cvec$- and $\rvec$-Jacobians.
 The $\cvec$-Jacobian is used in mathematical derivations in the literature.
 The $\rvec$-Jacobian is common in code.
 
 \begin{definition}[$\cvec$-Jacobian, \Cref{jacobians}]\label{def:cvec_jacobian}
-  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_N \cdots A_1 \times B_M \cdots B_1}$ results from flattening input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
+  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_N \cdots A_1 \times B_M \cdots B_1}$ is attained by flattening the input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
   \begin{align*}
     [\jac^{\cvec}_{\tA}\tB]_{i,j}
     =
@@ -130,7 +130,7 @@ The $\rvec$-Jacobian is common in code.
 \end{definition}
 
 \begin{definition}[$\rvec$-Jacobian, \Cref{jacobians}]\label{def:rvec_jacobian}
-  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\rvec$-Jacobian $\jac^{\rvec}_{\tA}\tB \in \sR^{A_1 \cdots A_N \times B_1 \cdots B_M}$ results from flattening input and output tensors with $\rvec$ and applying the Jacobian definition for vectors,
+  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\rvec$-Jacobian $\jac^{\rvec}_{\tA}\tB \in \sR^{A_1 \cdots A_N \times B_1 \cdots B_M}$ is attained by flattening the input and output tensors with $\rvec$ and applying the Jacobian definition for vectors,
   \begin{align*}
     [\jac^{\rvec}_{\tA}\tB]_{i,j}
     =
@@ -144,7 +144,7 @@ As we will see in the following examples, the two Jacobians usually differ from 
 \codeblock{basics/jacobians_linear_layer}
 \switchcolumn[0]
 
-\begin{example}[$\cvec$- and $\rvec$-weight Jacobians of a linear layer, \Cref{jacobians_linear_layer}]
+\begin{example}[$\cvec$ and $\rvec$ weight Jacobians of a linear layer, \Cref{jacobians_linear_layer}]
   Consider an affine map with weight matrix $\mW \in \sR^{D_{\text{out}} \times D_{\text{in}}}$, bias vector $\vb \in \sR^{D_{\text{out}}}$, input vector $\vx \in \sR^{D_{\text{in}}}$ and output vector $\vz \in \sR^{D_{\text{out}}}$ with
   \begin{align*}
     \vz
@@ -173,7 +173,7 @@ As we will see in the following examples, the two Jacobians usually differ from 
   \end{align*}
   In contrast, the $\rvec$-Jacobian is
   \begin{align*}
-    \jac^{\cvec}_{\tilde{\mW}}\vz
+    \jac^{\rvec}_{\tilde{\mW}}\vz
     =
     \mI_{D_{\text{out}}}
     \otimes
@@ -189,19 +189,19 @@ As we will see in the following examples, the two Jacobians usually differ from 
   In matrix notation,
   \begin{align*}
     \mZ
-    &\coloneqq
-      \mW \mX + \vb \vone^{\top}_S
+     & \coloneqq
+    \mW \mX + \vb \vone^{\top}_S
     \\
-    &=
-      \begin{pmatrix}
-        \mW & \vb
-      \end{pmatrix}
-      \begin{pmatrix}
-        \mX \\ \vone^{\top}_S
-      \end{pmatrix}
-      \coloneqq
-      \tilde{\mW}
-      \tilde{\mX}\,.
+     & =
+    \begin{pmatrix}
+      \mW & \vb
+    \end{pmatrix}
+    \begin{pmatrix}
+      \mX \\ \vone^{\top}_S
+    \end{pmatrix}
+    \coloneqq
+    \tilde{\mW}
+    \tilde{\mX}\,.
   \end{align*}
   The $\cvec$-Jacobian w.r.t.\,the combined weight is
   \begin{align*}
@@ -213,7 +213,7 @@ As we will see in the following examples, the two Jacobians usually differ from 
   \end{align*}
   In contrast, the $\rvec$-Jacobian is
   \begin{align*}
-    \jac^{\cvec}_{\tilde{\mW}}\mZ
+    \jac^{\rvec}_{\tilde{\mW}}\mZ
     =
     \mI_{D_{\text{out}}}
     \otimes
