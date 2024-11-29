@@ -1,31 +1,31 @@
 There are many ways to flatten the entries of a tensor into a vector.
-The two by far most common conventions are (i) last-varies-fastest ($\cvec$) and (ii) first-varies-fastest ($\rvec$).
+The two by far most common conventions are (i) last-varies-fastest ($\rvec$) and (ii) first-varies-fastest ($\cvec$).
 Their names are easy to remember from their action on a matrix (see \Cref{ex:flattening}): $\cvec$-flattening concatenates columns into a vector (column flattening); $\rvec$-flattening concatenates rows into a vector (row flattening).
 Column-flattening is popular in mathematical presentations, while row-flattening is popular in deep learning libraries which lay out tensors in row-major format in memory.
 To see their differences, we will implement both.
 
-For arbitrary tensors, we can generalize the matrix flattenings by ordering entries such that either their last index ($\cvec$, \Cref{def:cvec}) or first index ($\rvec$, \Cref{def:rvec}) varies fastest:
+For arbitrary tensors, we can generalize the matrix flattenings by ordering entries such that either their first index ($\cvec$, \Cref{def:cvec}) or last index ($\rvec$, \Cref{def:rvec}) varies fastest:
 
 \switchcolumn[1]*
 \codeblock{basics/flattening}
 \switchcolumn[0]
 
 \begin{setup}\label{setup:flattening}
-  Let $\tA \in \sR^{N_1 \times \dots \times N_A}$ be a tensor of rank $A$ whose entries are indexed through a tuple $(n_1, \dots, n_A)$ where $n_a \in \{1, \dots, N_a\}$.
+  Let $\tA \in \sR^{N_1 \times \dots \times N_A}$ be a tensor of rank $A$ whose entries are indexed through a tuple $(n_1, \dots, n_A)$ where $n_a \in \{1, \dots, N_a\}$, $a \in \{1, \dots, A\}$.
 \end{setup}
 \begin{definition}[$\cvec$, \Cref{flattening}]\label{def:cvec}
   The first-varies-fastest flattening of $\tA$ from \Cref{setup:flattening} is
   \begin{align*}
     \cvec(\tA) =
     \begin{pmatrix}
-      \etA_{1,1,\dots,1} \\
-      \etA_{2,1,\dots,1} \\
-      \vdots \\
+      \etA_{1,1,\dots,1}   \\
+      \etA_{2,1,\dots,1}   \\
+      \vdots               \\
       \etA_{N_1,1,\dots,1} \\
-      \etA_{1,2,\dots,1} \\
-      \vdots \\
+      \etA_{1,2,\dots,1}   \\
+      \vdots               \\
       \etA_{N_1,2,\dots,1} \\
-      \vdots \\
+      \vdots               \\
       \etA_{N_1,N_2,\dots,N_A}
     \end{pmatrix}
     \in \sR ^{N_1 \cdots N_A}\,.
@@ -37,14 +37,14 @@ For arbitrary tensors, we can generalize the matrix flattenings by ordering entr
   \begin{align*}
     \rvec(\tA) =
     \begin{pmatrix}
-      \etA_{1,\dots,1,1} \\
-      \etA_{1,\dots,1,2} \\
-      \vdots \\
+      \etA_{1,\dots,1,1}   \\
+      \etA_{1,\dots,1,2}   \\
+      \vdots               \\
       \etA_{1,\dots,1,N_A} \\
-      \etA_{1,\dots,2,1} \\
-      \vdots \\
+      \etA_{1,\dots,2,1}   \\
+      \vdots               \\
       \etA_{1,\dots,2,N_A} \\
-      \vdots \\
+      \vdots               \\
       \etA_{N_1,\dots,N_{A-1},N_A}
     \end{pmatrix}
     \in \sR ^{N_A \cdots N_1}\,.
