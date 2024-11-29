@@ -46,52 +46,32 @@ def hess(
     return H
 
 
-def cvec_hess(
-    f: Tensor, x: Union[Tensor, Tuple[Tensor, Tensor]]
+def vec_hess(
+    f: Tensor, x: Union[Tensor, Tuple[Tensor, Tensor]], vec: str
 ) -> Tensor:
-    r"""Compute the cvec-Hessian of f w.r.t. x.
+    r"""Compute the rvec- or cvec-Hessian of f w.r.t. x.
 
-    See $\text{\Cref{def:cvec_hessian}}$.
+    See $\text{\Cref{def:cvec_hessian}}$ and $\text{\Cref{def:rvec_hessian}}$.
 
     Args:
-        f: The function whose cvec-Hessian is computed.
-        x: Variable w.r.t. which the cvec-Hessian is taken.
+        f: The function whose rvec- or cvec-Hessian is computed.
+        x: Variable w.r.t. which the rvec- or cvec-Hessian is taken.
             If x is a tuple, the mixed cvec-Hessian is
             computed.
+        vec: Name of the flattening scheme.
+            Must be either 'rvec' or 'cvec'.
 
     Returns:
-        The cvec-Hessian of f w.r.t. x. Has shape
+        The rvec- or cvec-Hessian of f w.r.t. x. Has shape
         (x.numel(), x.numel()). If x was a tuple, the
         result has shape (x[0].numel(), x[1].numel()).
     """
+    vec = {"cvec": cvec, "rvec": rvec}[vec]
     H = hess(f, x)
     # flatten row indices
     row_ndim = (
         x.ndim if isinstance(x, Tensor) else x[0].ndim
     )
-    H = cvec(H, end_dim=row_ndim - 1)
+    H = vec(H, end_dim=row_ndim - 1)
     # flatten column indices
-    return cvec(H, start_dim=1)
-
-
-def rvec_hess(f: Tensor, x: Tensor) -> Tensor:
-    r"""Compute the rvec-Hessian of f w.r.t. x.
-
-    See $\text{\Cref{def:rvec_hessian}}$.
-
-    Args:
-        f: The function whose rvec-Hessian is computed.
-        x: Variable w.r.t. which the rvec-Hessian is taken.
-
-    Returns:
-        The rvec-Hessian of f w.r.t. x.
-        Has shape (x.numel(), x.numel()).
-    """
-    H = hess(f, x)
-    # flatten row indices
-    row_ndim = (
-        x.ndim if isinstance(x, Tensor) else x[0].ndim
-    )
-    H = rvec(H, end_dim=row_ndim - 1)
-    # flatten column indices
-    return rvec(H, start_dim=1)
+    return vec(H, start_dim=1)
