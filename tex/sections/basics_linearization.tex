@@ -20,33 +20,32 @@ This involves a first-order Taylor approximation:
     (\lin_{\va_0}(f))(\va) = f(\va_0) + \jac_{\va_0}f(\va_0) (\va - \va_0)\,,
   \end{align*}
   with the Jacobian from \Cref{def:vector_jacobian}.
-  Note that $\lin_{\va_0}(f)$ is linear in $\va$ and coincides with the original function at the anchor point, $(\lin_{\va_0}(f))(\va_0) = f(\va_0)$ (also the Jacobian does).
+  Note that $\lin_{\va_0}(f)$ is linear in $\va$ and coincides with the original function at the anchor point, $(\lin_{\va_0}(f))(\va_0) = f(\va_0)$ (the Jacobians also concide).
 \end{definition}
 
 \begin{definition}[Linearization (tensor case, \Cref{linearization})]\label{def:tensor_linearization}
   The linearization of a tensor-to-tensor function from \Cref{setup:jacobians} at an anchor point $\tA_0 \in \sR^{A_1 \times \ldots \times A_N}$, denoted by $\lin_{\tA_0}(f)$ is defined per-entry as
   \begin{align*}
-    \left[
-    (\lin_{\tA_0}(f))(\tA)
-    \right]_{j_1, \ldots, j_M}
-    = f(\tA_0)
+     & \left[
+      (\lin_{\tA_0}(f))(\tA)
+      \right]_{i_1, \ldots, i_M} = f(\tA_0)
     \\
-    +
-    \sum_{i_1, \ldots, i_N}
+     & \hspace{2em}+
+    \sum_{j_1, \ldots, j_N}
     \left[
-    \jac_{\tA_0}f(\tA_0)
-    \right]_{j_1, \ldots, j_M, i_1, \ldots, i_N}
+      \jac_{\tA_0}f(\tA_0)
+      \right]_{i_1, \ldots, i_M, j_1, \ldots, j_N}
     \\
-    \left[
-    \tA - \tA_0
-    \right]_{i_1, \ldots, i_N}\,,
+     & \hspace{6.2em}\left[
+      \tA - \tA_0
+      \right]_{j_1, \ldots, j_N}\,,
   \end{align*}
   with the Jacobian from \Cref{def:general_jacobian}. Note that this is nothing else but the function evaluated at the anchor point plus the JVP (\Cref{def:jvp}) with the distance to the anchor.
 \end{definition}
 
 In deep learning, we will often face the situation where $f = g \circ h, \tA \mapsto b = f(\tA)$ and $h$ is non-convex while $g$ is convex.
 This means the Hessian of $f$ can be indefinite; but for algorithms we require a positive definite approximation to the Hessian.
-We can obtain that by considering the partially linearized function $f' = g \circ \lin_{\tA_0}(h)$, whose Hessian is positive semi-definite. The Hessian of this partially linearized function is called the generalized Gauss-newton (GGN) matrix.
+We can obtain that by considering the partially linearized function $\bar{f} = g \circ \lin_{\tA_0}(h)$, whose Hessian is positive semi-definite. The Hessian of this partially linearized function is called the generalized Gauss-newton (GGN) matrix.
 
 Let's stick to our one-dimensional example for a moment, i.e.\,let $f(x) = (g \circ h)(x) \in \sR$. If we use the chain rule twice, we obtain the following expression for the Hessian:
 \begin{align*}
@@ -56,41 +55,41 @@ Let's stick to our one-dimensional example for a moment, i.e.\,let $f(x) = (g \c
   +
   \hess_x h(x) \cdot \jac_{h(x)} g(h(x))\,.
 \end{align*}
-Now, if we take the hessian of the partially linearized function $f'(x) = (g \circ \lin_{x_0}(h))(x)$, and using the shorthand $h' = \lin_{x_0}(h)$ the second term disappears as the linear function's Hessian is zero:
+Now, if we take the hessian of the partially linearized function $\bar{f}(x) = (g \circ \lin_{x_0}(h))(x)$, and using the shorthand $\bar{h} = \lin_{x_0}(h)$ the second term disappears as the linear function's Hessian is zero:
 \begin{align*}
-  \hess_x (g \circ h')(x) =
-  \jac_x h'(x) \cdot \hess_{h'(x)} g(h'(x)) \cdot \jac_x h'(x)
+  \hess_x (g \circ \bar{h})(x) =
+  \jac_x \bar{h}(x) \cdot \hess_{\bar{h}(x)} g(\bar{h}(x)) \cdot \jac_x \bar{h}(x)
   \\
   +
-  \underbrace{\hess_x h'(x)}_{= 0} \cdot \jac_{h'(x)} g(h'(x))\,.
+  \underbrace{\hess_x \bar{h}(x)}_{= 0} \cdot \jac_{\bar{h}(x)} g(\bar{h}(x))\,.
 \end{align*}
 If we evaluate both equations at the anchor point, setting $x = x_0$, we obtain that the first terms coincide.
 
 \begin{figure}[!h]
   \centering
   \begin{tikzpicture}[%
-    font=\scriptsize,%
-    thick,
-    box/.style = {rectangle, draw=black, rounded corners, fill=VectorGray!50},%%
+      font=\scriptsize,%
+      thick,
+      box/.style = {rectangle, draw=black, rounded corners, fill=VectorGray!50},%%
     ]
     \node[box] (A) at (0,0) {$f = g \circ h: \tA \mapsto \tB \mapsto c$};
     \node[box] (B) at (4,0) {$\tH_{\tA}c$};
     \node[box, align=center] (C) at (0,-2.5) {%
-      $\tilde{f}_{\tA_0} = g \circ \lin_{\tA_0} h$\\%
+      $\bar{f}_{\tA_0} = g \circ \lin_{\tA_0} h$\\%
     };
     \node[box, align=center] (D) at (4,-2.5) {%
-      $\tG_{\tA}f(\tA)$
-      \\
-      $=$\\%
-      $\tH_{\tA} f'_{\tA_0}(\tA)|_{\tA_0 = \tA}$\\%
+    $\tG_{\tA}f(\tA)|_{\tA_0 = \tA}$
+    \\
+    $=$\\%
+    $\tH_{\tA} \bar{f}_{\tA_0}(\tA)|_{\tA_0 = \tA}$\\%
     };
     \draw[-Stealth] (A.east) -- node[fill=white] {$\tH$} (B.west);
-    \draw[-Stealth] (A.south) -- node[fill=white, align=center] {partially linearize $f$ \\
+    \draw[-Stealth] (A.south) -- node[fill=white, align=center] {partially linearize $h$ \\
       around some $\tA_0$} (C.north);
     \draw[-Stealth] (C.east) -- node[fill=white, align=center] {$\tH$, then\\ set\\ $\tA_0 = \tA$} (D.west);
-    \draw[-Stealth] (B.south) -- node[fill=white] {matricize $\tH_{\tA}b$} (D.north);
+    \draw[-Stealth] (B.south) -- node[fill=white, align=center] {ignore second-order\\ effects of $h$} (D.north);
   \end{tikzpicture}
-  \caption{Taking the Hessian and partially linearization commute and lead to the same GGN. All operations also commute with flattening the function versus matrizicing the Hessian tensor, so we can apply any flattening scheme on top to obtain the $\rvec$- and $\cvec$-GGN matrices matrices.}
+  \caption{Taking the Hessian and partial linearization commute and lead to the same GGN. All operations also commute with flattening the function versus matrizicing the Hessian tensor, so we can apply any flattening scheme on top to obtain the $\rvec$- and $\cvec$-GGN matrices.}
 \end{figure}
 
 We will not use the linearization aspect explicitly in the computation, but instead rely on GGN-vector products which can be built from the previously introduced autodiff operations.
@@ -103,15 +102,15 @@ We first provide the definition of the GGN in the matrix and tensor case, before
 \begin{setup}[Composite vector-to-vector-to-scalar function]\label{setup:composite_vector_to_vector_to_scalar_function}
   Let
   \begin{align*}
-    f: \sR^{A} &\to \sR
+    f: \sR^{A} & \to \sR
     \\
-    \va &\mapsto c = f(\va)
+    \va        & \mapsto c = f(\va)
   \end{align*}
   be the composite of a vector-to-vector function $h$ and a vector-to-scalar function $g$, that is
   \begin{align*}
-    f = g \circ h: \sR^A &\to \sR^B \to \sR
+    f = g \circ h: \sR^A & \to \sR^B \to \sR
     \\
-    \va &\mapsto \vb = h(\va) \mapsto c = g(\vb)\,.
+    \va                  & \mapsto \vb = h(\va) \mapsto c = g(\vb)\,.
   \end{align*}
 \end{setup}
 
@@ -139,14 +138,14 @@ We first provide the definition of the GGN in the matrix and tensor case, before
     (1 - x_1)^2 + \alpha (x_2 - x_1^2)^2\,.
   \end{align*}
   with some $\alpha > 0$.
-  We can express $f_{\alpha} = \ell \circ g_{\alpha}$,\footnote{\url{https://www.brnt.eu/phd/node10.html}}
+  We can express $f_{\alpha} = c \circ g_{\alpha}$,\footnote{\url{https://www.brnt.eu/phd/node10.html}}
   \begin{align*}
     g_{\alpha}(\vx) = \begin{pmatrix}
-                        x_1 \\
+                        1 - x_1 \\
                         \sqrt{\alpha} (x_2 - x_1^2)
                       \end{pmatrix}
     \shortintertext{and convex}
-    \ell(\vg) = \vg^\top \vg\,,
+    c(\vg) = \vg^\top \vg\,,
   \end{align*}
   namely square loss.
 
@@ -159,24 +158,22 @@ We first provide the definition of the GGN in the matrix and tensor case, before
     \jac_{\vx}g_{\alpha}(\vx)
     =
     \begin{pmatrix}
-      1 & 0 \\
+      -1                   & 0             \\
       -2 \sqrt{\alpha} x_1 & \sqrt{\alpha}
     \end{pmatrix}\,.
   \end{align*}
-  The first way to form the Hessian is to take the Hessian of $f_{\alpha}' = \ell \circ g_{\alpha}^{\text{lin}}$, and evaluate it at $\vx' = \vx$,
+  To form the GGN of $f_{\alpha} = c \circ g_{\alpha}$ at $\vx = \vx'$, we take the Hessian of $f_{\alpha}' = c \circ g_{\alpha}^{\text{lin}}$, and evaluate it at $\vx = \vx'$,
   \begin{align*}
-    (\hess_{\vx} f_{\alpha}'(\vx))|_{x=x'}
+      & (\hess_{\vx} f_{\alpha}'(\vx))|_{x=x'}
     \\
-    =
-    2 (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}^{\top}
+    = & 2 (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}^{\top}
     (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}
     \\
-    =
-    2
+    = & 2
     \begin{pmatrix}
-      1 + 4\alpha x_1^2& -2 \sqrt{\alpha} x_1\\
-      -2 \sqrt{\alpha} x_1 & \alpha
-    \end{pmatrix}
+      1 + 4\alpha x_1^2 & -2 \alpha x_1 \\
+      -2 \alpha x_1     & \alpha
+    \end{pmatrix}\,.
   \end{align*}
   This matrix is PSD because it is an outer product of two matrices.
   It is also different from the Hessian matrix
@@ -185,8 +182,8 @@ We first provide the definition of the GGN in the matrix and tensor case, before
     =
     \begin{pmatrix}
       2 + 12 \alpha x_1^2 - 4 \alpha x_2 & -4 \alpha x_1 \\
-      -4 \alpha x_1 & 2 \alpha
-    \end{pmatrix}
+      -4 \alpha x_1                      & 2 \alpha
+    \end{pmatrix}\,.
   \end{align*}
   \begin{figure}[H]
     \centering
@@ -198,26 +195,26 @@ We first provide the definition of the GGN in the matrix and tensor case, before
 \begin{setup}[Composite tensor-to-tensor-to-scalar function]\label{setup:composite_tensor_to_tensor_to_scalar_function}
   Let the tensor-to-scalar function
   \begin{align*}
-    f: \sR^{A_1 \times \ldots \times A_N} &\to \sR
+    f: \sR^{A_1 \times \ldots \times A_N} & \to \sR
     \\
-    \tA &\mapsto c = f(\tA)
+    \tA                                   & \mapsto c = f(\tA)
   \end{align*}
   be the composite of a tensor-to-tensor function $h$ and a tensor-to-scalar function $g$, that is
   \begin{align*}
-    f = g \circ h: &\sR^{A_1 \times \ldots \times A_N} \to \sR^{B_1 \times \ldots \times B_M}  \to \sR
+    f = g \circ h: & \sR^{A_1 \times \ldots \times A_N} \to \sR^{B_1 \times \ldots \times B_M}  \to \sR
     \\
-                   &\tA \mapsto \tB = h(\tA) \mapsto c = g(\tB)\,.
+                   & \tA \mapsto \tB = h(\tA) \mapsto c = g(\tB)\,.
   \end{align*}
 \end{setup}
 
 \begin{definition}[Generalized Gauss-Newton (GGN) tensor (\Cref{ggns})]\label{def:general_ggn}%
-  The GGN tensor of a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function}, $\ggn_{\tA} f(\tA) \in \sR^{A_1 \times \ldots \times A_N \times A_1 \times \ldots \times A_N}$ is the Hessian of the partially linearized function $f' = g \circ \lin_{\tA_0}(h)$, evaluated at the anchor point $\tA_0 = \tA$.
+  The GGN tensor of a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function}, $\tG_{\tA} f(\tA) \in \sR^{A_1 \times \ldots \times A_N \times A_1 \times \ldots \times A_N}$ is the Hessian of the partially linearized function $\bar{f} = g \circ \lin_{\tA_0}(h)$, evaluated at the anchor point $\tA_0 = \tA$.
   \begin{align*}
     \tG_{\tA} f(\tA)
     =
-    \hess_{\tA} \tilde{f}(\tA)|_{\tA_0 = \tA}\,.
+    \tH_{\tA} \bar{f}(\tA)|_{\tA_0 = \tA}\,.
   \end{align*}
-  where $\tilde{f} = g \circ \lin_{\tA_0}(h)$.
+  where $\bar{f} = g \circ \lin_{\tA_0}(h)$.
 
   We can express this tensor as a tensor contraction between the Jacobians and Hessians of the two composites, i.e.\,
   \begin{align*}
@@ -226,11 +223,11 @@ We first provide the definition of the GGN in the matrix and tensor case, before
     =
     \textcolor{VectorPink}{\sum_{k_1, \dots, k_M}}
     \textcolor{VectorBlue}{\sum_{l_1, \dots, l_M}}
-    & [\jac_{\tA} \tB]_{\textcolor{VectorPink}{k_1, \dots, k_M}, i_1, \dots, i_N}
+     & [\jac_{\tA} \tB]_{\textcolor{VectorPink}{k_1, \dots, k_M}, i_1, \dots, i_N}
     \\
-    &[\hess_{\tB} c]_{\textcolor{VectorPink}{k_{1}, \ldots, k_{M}}, \textcolor{VectorBlue}{l_{1}, \ldots, l_{M}}}
+     & [\hess_{\tB} c]_{\textcolor{VectorPink}{k_{1}, \ldots, k_{M}}, \textcolor{VectorBlue}{l_{1}, \ldots, l_{M}}}
     \\
-    &[\jac_{\tA} \tB]_{\textcolor{VectorBlue}{l_1, \ldots, l_M}, j_1, \ldots, j_N}\,.
+     & [\jac_{\tA} \tB]_{\textcolor{VectorBlue}{l_1, \ldots, l_M}, j_1, \ldots, j_N}\,.
   \end{align*}
 \end{definition}
 This expression seems daunting at first, so we will convert things back to matrix notation very soon. Before doing that, let's introduce multiplication with the GGN:
@@ -243,18 +240,18 @@ This expression seems daunting at first, so we will convert things back to matri
   Consider the GGN tensor of a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function,def:general_ggn}.
   The GGN-vector-product (GGNVP) $\tU \in \sR^{A_1 \times \ldots \times A_N}$ with a tensor $\tV \in \sR^{A_1 \times \ldots \times A_N}$ from the input domain is
   \begin{align*}
-    &[\tU]_{i_1, \dots, i_N}
+     & [\tU]_{i_1, \dots, i_N}
     \\
-    &=
-      \sum_{j_1, \dots, j_N}
-      [\tG_{\tA} f(\tA)]_{i_1, \dots, i_N, j_1, \dots, j_N}
-      [\tV]_{j_1, \dots, j_N}\,,
+     & =
+    \sum_{j_1, \dots, j_N}
+    [\tG_{\tA} f(\tA)]_{i_1, \dots, i_N, j_1, \dots, j_N}
+    [\tV]_{j_1, \dots, j_N}\,,
   \end{align*}
   and decomposes into a JVP, HVP, and JVP when applying the composition from \Cref{def:general_ggn}.
 \end{definition}
 This is easiest to see for the vector-to-vector-to-scalar case where $\tA, \tB, \tU, \tV \to \va, \vb, \vu, \vv$ and $\vu = (\jac_{\va}\vb)^{\top} (\hess_{\vb} c) (\jac_{\va} \vb) \vv$, which can be written as a matrix chain and computed without explicitly building up any of the matrices in memory~\cite{schraudolph2002fast}.
 
-\paragraph{Matricization} As for the Hessian and Jacobian, we can flatten the both composite functions before applying the partial linearization and taking the Hessian to obtain the GGN.
+\paragraph{Matricization} As for the Hessian and Jacobian, we can flatten both composite functions before applying the partial linearization and taking the Hessian to obtain the GGN.
 This is equivalent to matricizing the GGN tensor from \Cref{def:general_ggn}.
 And it is also equivalent to matricizing the Hessians and Jacobians in the general definition.
 
@@ -284,7 +281,7 @@ To emphasize this point, we conclude this section with the following:
   \end{align*}
   where $\ell_n = c_n \circ f_n$ is the composition of a linear classifier and square loss
   on a data point labeled $n$, that is
-  $f_n(\mW) = \mW \vx_n$ and $c_n(\vz) = \left\lVert \vz - \vy_n \right\rVert^2_2$.
+  $f_n(\mW) = \mW \vx_n$ and $c_n(\vz) = \frac{1}{2}\left\lVert \vz - \vy_n \right\rVert^2_2$.
 
   Using the shorthands $\vf_n \coloneq f_n(\mW)$ and $c_n \coloneq c_n(\vf_n)$, the matrix GGNs are given by
   \begin{align*}
@@ -302,19 +299,19 @@ To emphasize this point, we conclude this section with the following:
   We can use the results from previous examples, specifically \Cref{jacobians_linear_layer,ex:square_loss_hessian}, to obtain the following expressions
   \begin{align*}
     \ggn_{\mW}^{\cvec}\gL(\mW)
-    &=
-      \left(
-      \sum_n \vx_n \vx_n^{\top}
-      \right)
-      \otimes \mI
+     & =
+    \left(
+    \sum_n \vx_n \vx_n^{\top}
+    \right)
+    \otimes \mI
     \\
     \ggn_{\mW}^{\rvec}\gL(\mW)
-    &=
-      \mI
-      \otimes
-      \left(
-      \sum_n \vx_n \vx_n^{\top}
-      \right)
+     & =
+    \mI
+    \otimes
+    \left(
+    \sum_n \vx_n \vx_n^{\top}
+    \right)
   \end{align*}
 \end{example}
 Two interesting observations about this result are (i) both GGNs are a Kronecker product (ii) whose order of factors depends on the flattening scheme we are using.
