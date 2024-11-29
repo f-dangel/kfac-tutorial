@@ -39,7 +39,7 @@ and contains the second-order partial derivatives of $\gL_{\sD}(\vtheta)$, that 
   \end{minipage}
   \caption{Visualization of the Hessian and its block-diagonal approximation using different flattening schemes.
     Hessian blocks are visually highlighted with white lines.
-    Left column uses $\rvec$-flattening, right column uses $\cvec$-flattening.
+    Left column uses $\cvec$-flattening, right column uses $\rvec$-flattening.
     The Hessian was evaluated on synthetic data ($N=100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss.
   }
 \end{figure}
@@ -47,8 +47,20 @@ and contains the second-order partial derivatives of $\gL_{\sD}(\vtheta)$, that 
 \switchcolumn[0]
 
 Due to the tuple/list structure of $\vtheta$, the Hessian has a block structure.
-Using the shorthands $\hess_{i,j}^{\vec} \gL \coloneq \hess_{\vtheta^{(i)}, \vtheta^{(j)}}^{\vec} \gL_{\sD}(\vtheta)$
-which contains mixed second-order partial derivatives w.r.t.\,$\vtheta^{(i)}$ and $\vtheta^{(j)}$, as well as the shorthand $\hess_{i}^{\vec} \gL \coloneq \hess_{\vtheta^{(i)}}^{\vec} \gL_{\sD}(\vtheta)$, we can write the Hessian as
+We first introduce the definitions
+\begin{align*}
+  [\hess_{\vtheta^{(k)}, \vtheta^{(l)}}^{\vec} \gL_{\sD}(\vtheta)]_{i,j}
+  =
+  \frac{\partial^2 \gL_{\sD}(\vtheta)}{\partial [\vec\left(\vtheta^{(k)}\right)]_i \partial [\vec\left(\vtheta^{(l)}\right)]_j}\,
+\end{align*}
+and
+\begin{align*}
+  [\hess_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)]_{i,j}
+  =
+  \frac{\partial^2 \gL_{\sD}(\vtheta)}{\partial [\vec\left(\vtheta^{(k)}\right)]_i \partial [\vec\left(\vtheta^{(k)}\right)]_j}\,.
+\end{align*}
+Using the shorthands $\hess_{k,l}^{\vec} \gL \coloneq \hess_{\vtheta^{(k)}, \vtheta^{(l)}}^{\vec} \gL_{\sD}(\vtheta)$
+and $\hess_{k}^{\vec} \gL \coloneq \hess_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)$, we can write the Hessian as
 \begin{align*}
   \hess_{\vtheta}^{\vec} \gL
   =
@@ -94,7 +106,7 @@ In the following, we will only consider the block diagonal approximation of this
     \vzero & \cdots & \vzero & \hess_L^{\vec} \gL
   \end{pmatrix}\,.
 \end{align*}
-i.e., individual blocks $\{ \hess_{\vtheta^{(i)}}^{\vec} \gL_{\sD}(\vtheta)\}$.
+i.e., individual blocks $\{ \hess_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)\}_{k=1}^L$.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
