@@ -12,7 +12,8 @@ from kfs.basics.linearization import linearize
 
 
 def rosenbrock_first(x: Tensor, alpha: float):
-    """Evaluate first sub-function of the Rosenbrock function.
+    """Evaluate the first sub-function of the Rosenbrock
+    function.
 
     Args:
         x: A two-dimensional vector.
@@ -29,7 +30,8 @@ def rosenbrock_first(x: Tensor, alpha: float):
 
 
 def rosenbrock_last(g: Tensor) -> Tensor:
-    """Evaluate the last sub-function of the Rosenbrock function.
+    """Evaluate the last sub-function of the Rosenbrock
+    function.
 
     Args:
         g: A two-dimensional vector containing the evaluation
