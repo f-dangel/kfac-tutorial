@@ -39,9 +39,10 @@ def jac(f: Tensor, x: Tensor) -> Tensor:
 
 
 def vec_jac(f: Tensor, x: Tensor, vec: str) -> Tensor:
-    r"""Compute the Jacobian in row- or column-flattening convention.
+    r"""Compute the cvec- or rvec-Jacobian.
 
-    See $\text{\Cref{def:cvec_jacobian}}$ and $\text{\Cref{def:rvec_jacobian}}$.
+    See $\text{\Cref{def:cvec_jacobian}}$
+    and $\text{\Cref{def:rvec_jacobian}}$.
 
     Args:
         f: The result tensor of f(x).

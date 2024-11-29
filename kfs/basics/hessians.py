@@ -47,16 +47,19 @@ def hess(
 
 
 def vec_hess(
-    f: Tensor, x: Union[Tensor, Tuple[Tensor, Tensor]], vec: str
+    f: Tensor,
+    x: Union[Tensor, Tuple[Tensor, Tensor]],
+    vec: str,
 ) -> Tensor:
     r"""Compute the rvec- or cvec-Hessian of f w.r.t. x.
 
-    See $\text{\Cref{def:cvec_hessian}}$ and $\text{\Cref{def:rvec_hessian}}$.
+    See $\text{\Cref{def:cvec_hessian}}$
+    and $\text{\Cref{def:rvec_hessian}}$.
 
     Args:
         f: The function whose rvec- or cvec-Hessian is computed.
-        x: Variable w.r.t. which the rvec- or cvec-Hessian is taken.
-            If x is a tuple, the mixed cvec-Hessian is
+        x: Variable w.r.t. which the rvec- or cvec-Hessian is
+            taken. If x is a tuple, the mixed cvec-Hessian is
             computed.
         vec: Name of the flattening scheme.
             Must be either 'rvec' or 'cvec'.
