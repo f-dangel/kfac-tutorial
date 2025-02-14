@@ -1,6 +1,22 @@
 \begin{itemize}
-    \item Scaffold
-
+  \item General KFAC Scaffold
+  \begin{align*}
+    \mC(\vtheta^{(i)})
+    \approx
+    \kfac(\mC(\vtheta^{(i)}))
+    \coloneqq \mA^{(i)} \otimes \mB^{(i)}
+  \end{align*}
+  with
+  \begin{itemize} 
+    \item $\mC(\vtheta^{(i)})
+    = R \sum_n
+    (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
+    \left[ \bullet(\vf_n, \vy_n) \right]
+    (\jac_{\vtheta^{(i)}} \vf_n)$
+    \item $\bullet(\vf_n, \vy_n) = \sum_{c=1}^{\dim(\gF)} \blacktriangle_c(\vf_n, \vy_n) (\blacktriangle_c(\vf_n, \vy_n))^{\top}$ \quad (which together with $R$ depends on the curvature target)
+    \item $\mA^{(i)} = \mA^{(i)}( \{\vx_{n}^{(i-1)}\}_n )$ \quad (input-based factor)
+    \item $\mB^{(i)} = \mB^{(i)}( \{ (\jac_{\vx_n^{(i)}}\vf_{n})^{\top} \blacktriangle_{n,c}\}_{n,c})$ \quad (output-gradient-based factor)
+  \end{itemize}
   \item Backpropagated vectors $\{ \blacktriangle_{n,c} \}_{n,c}$
     \begin{itemize}
     \item Type-II: $\blacktriangle_{n,c} = [\mS_n]_{:,c}$ for $c = 1, \dots, C$ where $\mS_n \mS_n^{\top} = \hess_{\vf_n} c(\vf_n, \vy_n)$
@@ -21,15 +37,62 @@
       \item Square loss: $\blacktriangle_{n,1} = \vy_n - \vf_n$
       \item Softmax cross-entropy loss: $\blacktriangle_{n,1} = \softmax(\vf_n) - \onehot(y_n)$
       \end{itemize}
-
-    \item Input-only: No backpropagated vectors
     \end{itemize}
-
-    \item TODO
-      \begin{itemize}
-      \item Test: TODO
+  \item KFAC-expand for a linear layer
+    \begin{align*}
+      &\kfac_{\text{exp}}(\vec \mW) \approx \mC(\vec \mW)
+      =
+        \begin{cases}
+          \mA_{\text{exp}} \otimes \mB_{\text{exp}} & \vec = \cvec
+          \\
+          \mB_{\text{exp}} \otimes \mA_{\text{exp}} & \vec = \rvec
+        \end{cases}\,
+    \end{align*}
+    with
+    \begin{align*} 
+      \mA_{\text{exp}} = R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top} \in \sR^{D_{\text{in}} \times D_{\text{in}}}, \qquad
+      \mB_{\text{exp}} &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}  \in \sR^{D_{\text{out}} \times D_{\text{out}}}
+    \end{align*}
+    where
+    \begin{align*}
+    \vg_{n,c} = (\jac_{\vz_{n,s}}^{\vec}\mF_n)^{\top} (\vec \blacktriangle_{n,c}).
+    \end{align*}
+  \item Test cases
+    \begin{itemize}
+      \item KFAC-expand for linear layers in an MLP (no weight sharing) and assuming a dataset with only a single data point:
+        \begin{itemize}
+          \item KFAC-expand-type-II coincides with the GGN, i.e.,
+            \begin{align*}
+              \kfac^{\text{II}}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}.
+            \end{align*}
+          \item KFAC-expand-MC converges to the GGN, i.e.,
+            \begin{align*}
+              \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}.
+            \end{align*}
+          \item KFAC-expand-empirical coincides with the Empirical Fisher (EF), i.e.,
+            \begin{align*}
+              \kfac^{\text{E}}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ef^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}.
+            \end{align*}
+        \end{itemize}
+      \item KFAC-expand for regression with a Deep Linear Network (no weight sharing and no nonlinear layers).
+        \begin{itemize}
+          \item KFAC-expand-type-II coincides with the GGN, i.e.,
+            \begin{align*}
+              \kfac^{\text{II}}_{\text{exp}}(\vec \tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
+            \end{align*}
+          \item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$, i.e., 
+            \begin{align*}
+              \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec \tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
+            \end{align*}
+          \item KFAC-expand-empirical does \emph{not} equal the empirical Fisher, i.e.,
+            \begin{align*}
+              \kfac_{\text{exp}}^{\text{E}}(\vec \tilde{\mW}^{(l)})
+              \neq
+              \ef^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
+            \end{align*}         
+        \end{itemize}
       \end{itemize}
-  \end{itemize}
+    \end{itemize}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
