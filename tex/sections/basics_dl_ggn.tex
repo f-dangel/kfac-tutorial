@@ -114,7 +114,7 @@ This contribution is
 We will now make this more symmetric.
 Note that, by assumption, the criterion function $c$ is convex in $f$.
 This means that the flattened Hessian $\hess^{\vec}_{f} c(f)$ is positive semi-definite.
-Since any positive semi-definite matrix $\mA \in \sR^{C \times C}$ can be expressed as an outer product $\mA = \mB \mB^{\top}$ where $\mB \in \sR^{C \times \rank(A)}$, we can find a symmetric factorization $\mS^{\vec} \in \sR^{\dim(\gF) \times \dim(\gF)}$ of the criterion's Hessian such that $\hess^{\vec}_{f} c(f) = \mS^{\vec} {\mS^{\vec}}^{\top}$.
+Since any positive semi-definite matrix $\mA \in \sR^{C \times C}$ can be expressed as an outer product $\mA = \mB \mB^{\top}$ where $\mB \in \sR^{C \times \rank(\mA)}$, we can find a symmetric factorization $\mS^{\vec} \in \sR^{\dim(\gF) \times \dim(\gF)}$ of the criterion's Hessian such that $\hess^{\vec}_{f} c(f) = \mS^{\vec} {\mS^{\vec}}^{\top}$.
 With that, we can then write the upper expression as
 \begin{align*}
   &[\jac_{\vtheta}^{\vec} f]^{\top} \mS^{\vec} {\mS^{\vec}}^{\top} [\jac_{\vtheta}^{\vec} f]

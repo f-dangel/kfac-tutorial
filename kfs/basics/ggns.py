@@ -46,7 +46,7 @@ def ggn(
         one_hot_d[d_unraveled] = 1.0
         G[d_unraveled] = ggnvp(
             f, (x2, x1), h, one_hot_d, retain_graph=True
-        )  # ggnvp is defined in Snippet 15
+        )  # ggnvp is defined in $\text{\Cref{def:ggnvp}}$
 
     return G
 

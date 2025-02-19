@@ -70,7 +70,7 @@ This convention allows $\vec$ to handle parameters in list/tuple format, and is 
 However, in code we will still work with the list/tuple format.
 
 \paragraph{Empirical risk:} We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ independent and identically distributed (i.i.d.)\,samples.
-The inputs are processed by the neural network $f: \Theta \times \mathcal{X} \to \mathcal{F}$ and the resulting predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, such as mean-squared or softmax cross-entropy loss.
+The inputs are processed by the neural network $f: \Theta \times \gX \to \gF$ and the resulting predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, such as mean-squared or softmax cross-entropy loss.
 For a datum $n$, we define the per-datum loss as:
 \begin{align*}
   (\ell_n: \Theta \to \sR) = (c_n \circ f_n: \Theta \to \gF \to \sR)
