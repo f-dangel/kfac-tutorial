@@ -19,7 +19,7 @@ py_files = glob(
 @mark.parametrize(
     "snippet",
     py_files,
-    ids=[path.basename(f) for f in py_files],
+    ids=[f.replace(REPODIR, "")[1:] for f in py_files],
 )
 def test_run_snippets(snippet: str):
     """Execute a snippet.
