@@ -84,15 +84,15 @@ def symmetric_factorization_CrossEntropyLoss(
         device=prediction.device,
         dtype=prediction.dtype,
     )
-    # *dims_Y, *dims_Y, num_classes, num_classes
 
     for d_raveled in arange(dims_Y.numel()):
         d = unravel_index(d_raveled, dims_Y)
         S[d][d] = p_sqrt[d].diag() - outer(p[d], p_sqrt[d])
 
     # move class dimensions to their correct position
+    # before: *dims_Y, *dims_Y, num_classes, num_classes
     S = S.movedim(-2, 0).movedim(-1, len(dims_Y) + 1)
-    # num_classes, *dims_Y, num_classes, *dims_Y
+    # after: num_classes, *dims_Y, num_classes, *dims_Y
 
     return S
 
