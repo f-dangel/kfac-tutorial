@@ -1,0 +1,489 @@
+Building on the scaffold and code from the previous chapter, we now introduce the KFAC approximation for the weights (or combined weights and bias) of fully connected layers, specifically focusing on \texttt{torch.nn.Linear}. 
+Our discussion will primarily center on regression settings with deep linear networks---MLPs composed of dense layers without nonlinearities.
+
+This setting provides an ideal framework for understanding the core approximations behind KFAC and verifying them numerically through rigorous testing.
+In the broader KFAC nomenclature, we focus on the \emph{KFAC-expand approximation}, which corresponds to the seminal method proposed by~\citet{martens2015optimizing}.
+This formulation was originally introduced for standard MLP architectures, where linear layers do not exhibit weight sharing---hence, no reductions over weight-shared axes are required.
+For more complex layer types and cases involving weight-sharing, we provide an additional comment in the outlook.
+
+% In scenarios of weight-sharing such as in convolutional layers further nuances of the KFAC approximation arise. 
+% For more details and references, see the outlook (??) or \citet{eschenhagen2023kroneckerfactored}.
+
+\begin{setup}[Linear layer inside a neural network]\label{setup:linear_layer}
+  Consider a linear layer with weights $\mW \in \sR^{D_{\text{out}}\times D_{\text{in}}}$ and bias $\vb \in \sR^{D_{\text{out}}}$ embedded within a potentially larger neural network.
+  The network's prediction feeds into a criterion function, and we compute an empirical risk over a dataset of $N$ points, incorporating a reduction factor $F$.
+  Our goal is to approximate the curvature matrix $\mC(\vec \mW)$.
+
+  For each datum $n$, the layer processes an input vector $x_n \in \sR^{D {\text{in}}}$, producing an output vector $\vz_{n} \in \sR^{D_{\text{out}}}$ as follows 
+  $$ \vz_{n} = \mW \vx_{n} + \vb.$$
+  Denote the network's prediction for datum $n$ by $\mF_n \in \sR^{C}$. 
+  For each backprograted vector $\blacktriangle_{n,c} \in \sR^{C}$, we define the error signal arriving at the layer's output as: 
+  $$\vg_{n,c} = (\jac^{\vec}_{\vz_{n}} \mF_n)^{\top} \blacktriangle_{n,c} \in \sR^{D_{\text{out}}}.$$ 
+  These vectors remain unaffected by the choice of flattening scheme, as the contracted dimensions are summed out.
+
+  In the following derivations, we focus on approximating the curvature for the weight matrix $\mW$ alone, treating the bias term independently.
+  However, in practise, the weight and bias are often concatenated into a single weight matrix $\tilde{\mW}$ by augmenting the input vectors with an additional constant dimension:
+  \begin{align*}
+    \tilde{\mW} &= \begin{bmatrix} W & b \end{bmatrix} \in \sR^{D_{\text{out}} \times (D_{\text{in}} + 1)}, \\
+    \tilde{\vx} &= \begin{bmatrix} x \\ 1 \end{bmatrix} \in \sR^{D_{\text{in}} + 1}
+  \end{align*}
+  Thus, the derivations below hold equivalently for $\tilde{\mW}, \tilde{\vx}$ in place of $\mW, \vx$. 
+\end{setup}
+
+\begin{caveat} 
+  In some cases, a linear layer processes a sequence of $S$ input vectors, transforming $(\vx_{n,1}, \dots, \vx_{n, S})$ into corresponding outputs $(\vz_{n, 1}, \dots, \vz_{n, S})$.
+  This is known as a weight-sharing linear layer, and a key distinction arises depending on whether the layer processes each sequence element independently or not.
+  \begin{itemize}
+    \item \textbf{Independent processing:} The sequence dimension $S$ can be merged with the batch dimension $N$, effectively treating the inputs as a larger batch.
+    \item \textbf{Non-independent processing:} In cases like convolutional layers with additional pooling, the sequence elements interact, and special handling is required.
+  \end{itemize}
+  
+  For a more detailed discussion on challenges associated with general weight-sharing, see~\citet{eschenhagen2023kroneckerfactored}.
+\end{caveat}
+
+\switchcolumn[1]
+\codeblock{kfac/expand_Linear}
+\switchcolumn[0]
+
+\subsection{Derivation of KFAC-expand}
+
+We now derive the KFAC-expand approximation for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW\vx$, supressing layer indices for simplicity. Following convention in the literature, we assume column-major ($\cvec$-flattening) and use the output-parameter jacobian of a linear layer. The Generalized Gauss-Newton (GGN) matrix for this layer is given by
+\begin{align*}
+  \ggn_{\mW} \gL_{\sD}
+  =
+    R
+    \sum_n &\sum_c
+    (\jac^{\cvec}_{\mW}\vz_n)^{\top}
+    (\jac^{\cvec}_{\vz_n}\vf_n)^{\top}
+    \blacktriangle_{n,c} \\
+    \times
+    &\blacktriangle_{n,c}^{\top}
+    (\jac^{\cvec}_{\vz_n}\vf_n)
+    (\jac^{\cvec}_{\mW}\vz_n)
+\end{align*}
+We recall that the Jacobian of a linear layer's output with respect to its weights is:
+$$ \jac^{\cvec}_{\mW}\vz_n = \left(\vx_n \otimes \mI_{D_{\text{out}}}\right)^{\top}\, $$
+where $\vx_n \in \R^{D_\text{in}}$ is the layer's input. 
+A key property of the Kronecker product allows us to simplify multiplication with an arbitrary vector $\vb \in \sR^{D_{\text{in}}}$:
+\begin{align*} 
+  (\vx_n \otimes \mI_{D_{\text{out}}}) \vb &= \text{vec}\left(\vx_n \vb^{\top}\mI_{D_{\text{out}}}\right) \\
+  &= \text{vec}\left( \vx_n \vb^{\top} \right) \\
+  &= \vx_n \otimes \vb
+\end{align*}
+Defining the layer output gradient as $$\vb_{n,c} \coloneq (\jac^{\cvec}_{\vz_n}\vf_n)^{\top} \blacktriangle_{n,c},$$ we can rewrite the GGN matrix:
+\begin{align*}
+  &\ggn_{\mW} \gL_{\sD} \\
+  &= R \sum_n \sum_c
+  (\jac^{\cvec}_{\mW}\vz_n)^{\top}
+  \vb_{n,c} \vb_{n,c}^{\top}
+  (\jac^{\cvec}_{\mW}\vz_n) \\
+  &= R \sum_n \sum_c (\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \\
+  & \qquad \qquad \qquad \times\vb_{n,c}^{\top}
+  (\vx_n \otimes \mI_{D_{\text{out}}})^{\top} \\
+  &= R \sum_n \sum_c (\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \\
+  & \qquad \qquad \qquad \times \left((\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \right)^{\top} \\
+  &= R \sum_n \sum_c \left( \vx_n \otimes \vb_{n,c} \right) 
+  \left( \vx_n \otimes \vb_{n,c} \right)^{\top} \\
+  &= R \sum_n \sum_c \left( \vx_n \otimes \vb_{n,c} \right) 
+  \left( \vx_n^{\top} \otimes \vb_{n,c}^{\top} \right) \\
+  &= R \sum_n \sum_c \left(\vx_n \vx_n^{\top}\right) \otimes \left(\vb_{n,c} \vb_{n,c}^{\top}\right).
+\end{align*}
+
+Applying the so-called KFAC's expectation approximation, we replace the summation of Kronecker products by the Kronecker product of summed factors:
+\begin{align*}
+  \ggn_{\mW}&\gL_{\sD} \\
+  \approx& \left( R \sum_n \vx_n \vx_n^{\top} \right) \otimes \left( \frac{1}{N} \sum_n \sum_c \vb_{n,c} \vb_{n,c}^{\top} \right).
+\end{align*}
+
+Instead of summing Kronecker products across data points and backpropagated vectors, we first sum the individual factors and then take their Kronecker product. The scaling factor is conventionally absorbed into the gradient-based Kronecker factor.
+Note that the loss reduction factor has been absorbed into the input-based Kronecker factor.
+This strategy is the central approximation of layer-wise KFAC.
+
+For the $\rvec$-flattening scheme the output-parameter Jacobian takes the form
+$$ \jac^{\cvec}_{\mW}\vz_n = \left(\vx_n \otimes \mI_{D_{\text{out}}}\right)^{\top},$$
+which leads to a reversal in the order of the Kronecker factors $\mA$ and $\mB$. 
+
+\begin{definition}[KFAC-expand for a linear layer, \Cref{kfac/expand_Linear}]\label{def:kfac_expand_linear}
+  Consider a linear layer inside a neural network from \Cref{setup:linear_layer}.
+  The \emph{KFAC-expand approximation} of a curvature matrix w.r.t.\,the layer's weights is given by
+  \begin{subequations}\label{eq:kfac_expand_linear}
+    \begin{align}
+      \begin{split}
+        &\kfac_{\text{exp}}(\vec \mW) \approx \mC(\vec \mW)
+        \\
+        &\quad=
+          \begin{cases}
+            \mA_{\text{exp}} \otimes \mB_{\text{exp}} & \vec = \cvec
+            \\
+            \mB_{\text{exp}} \otimes \mA_{\text{exp}} & \vec = \rvec
+          \end{cases}\,,
+      \end{split}
+    \end{align}
+    with the input-based factor
+    \begin{align}
+      \mA_{\text{exp}} &= R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top}\in \sR^{D_{\text{in}} \times D_{\text{in}}},
+                         \intertext{and the output-gradient-based factor}
+                         \mB_{\text{exp}} &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}\in \sR^{D_{\text{out}} \times D_{\text{out}}}.
+    \end{align}
+  \end{subequations}
+  Here $\vg_{n,c}$ represents the general backpropagated vector of a curvature matrix at layer output $\vz$ given by $$\vg_{n,c} = (\jac_{\vz_{n,s}}^{\vec}\mF_n)^{\top} (\vec \blacktriangle_{n,c}).$$ 
+\end{definition}
+
+\subsection{Algebraic Structure of a Curvature Matrix}
+In the previous section, we observed that the curvature matrix at a linear layer is expressed as a sum of Kronecker products.
+To approximate this sum with a single Kronecker product, we followed the convention of summing over $n$ before applying the Kronecker product. 
+This approximation is summarized in the following definition:
+
+\begin{definition}[KFAC's expectation approximation]
+  \label{def:kfac_exp_approx}
+  Consider two sets of $N$ vectors $\{\vx_{n}\}_{n=1}^N$ and $\{\vg_{n}\}_{n=1}^N$ where each $\vx_n$ is input-based and each $\vg_n$ is output-gradient-based.
+  KFAC approximates the sum of Kronecker products of their self-outer products by a single Kronecker product, using the following expectation approximation:
+  \begin{subequations}\label{eq:expectation_approximation}
+    \begin{align}
+      \begin{split}
+        &\sum_{n=1}^{\textcolor{VectorOrange}{N}} \vx_n\vx_n^{\top} \otimes \vg_n \vg_n^{\top}
+        \\
+        &\qquad\approx
+          \left( \sum_{n=1}^N \vx_n \vx_n^{\top} \right)
+          \otimes
+          \frac{
+          \left( \textcolor{VectorOrange}{\sum_n} \vg_n \vg_n^{\top} \right)
+          }{\textcolor{VectorOrange}{N}}.
+      \end{split}
+      \intertext{In words, we sum the outer products on the left and right of the Kronecker product independently and divide by the number of outer products in the term containing the gradient vectors.
+      In expectation notation (expectation meaning averaging over all values of $n$, i.e.\,$\E_n[\bullet_n] = \nicefrac{1}{N} \sum_{n=1}^N \bullet_n$), we can write this approximation more conveniently as}
+      \begin{split}
+        &\E_n \left[ \vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top} \right]
+        \\
+        &\qquad\approx
+          \E_n \left[ \vx_n \vx_n^{\top} \right]
+          \otimes
+          \E_n \left[ \vg_n \vg_n^{\top} \right]\,,
+      \end{split}
+    \end{align}
+  \end{subequations}
+  i.e.\,`pull' the expectation into the Kronecker factors.
+
+\end{definition}
+
+If $\vx$ and $\vg$ were independent in the above definition, then the approximation would be exact. 
+Under reasonable assumption, it can be shown that this approximation satsifies an optimiality condition, making the convention a principled choice for reducing computational complexity while preserving essential curvature information. 
+
+\begin{example}[Justification for KFAC's expectation approximation]
+  \label{ex:just_kfac_exp_approx}
+  KFAC's expectation approximation can be derived from an optimality condition under specific assumptions to presevere a Kronecker structure.
+
+  Consider the curvature matrix: 
+  \begin{align*}
+    \mC
+    &=
+      R \sum_{n=1}^N
+      (\vx_n \otimes \mI_{D_{\text{out}}})
+      \vg_n \vg_n^{\top}
+      (\vx_n^{\top} \otimes \mI_{D_{\text{out}}}),
+  \end{align*}
+  where $\vx_n \in \sR^{D_{\text{in}}}$ represents the input-based factor and $\vg_n \in \sR^{D_{\text{out}}}$ the output-gradient-based factor. Our goal is to approximate $\mC$ with a single Kronecker product.
+
+  To make this expression more compact, we first stack the vectors $\vx_n$ and $\vg_n$ into matrices:
+  
+  \begin{align*}
+    \mX
+    &=
+      \begin{pmatrix}
+        \vx_1 & \vx_2 & \ldots & \vx_N
+      \end{pmatrix}
+      \in \sR^{D_{\text{in}} \times N}\,,
+    \\
+    \mG
+    &=
+      \begin{pmatrix}
+        \vg_1 & \vg_2 & \ldots & \vg_N
+      \end{pmatrix}
+      \in \sR^{D_{\text{out}} \times N}\,.
+  \end{align*}
+
+  and rewrite $\mC$ in terms of these matrices:
+  \begin{align*}
+    \mC =&
+    R (\mX \otimes \mI_{D_{\text{out}}})
+    \cvec(\mG) \\
+    &\cvec(\mG)^{\top}(\mX^{\top} \otimes \mI_{D_{\text{out}}}).
+  \end{align*}
+  Looking at the expression for $\mC$, we realize that an easy way to achieve a single Kronecker product is if we could somehow approximate $\cvec(\mG) \cvec(\mG)^{\top} \approx \mI_{D_{\text{in}}} \otimes \mB$ with $\mB \in \sR^{D_{\text{out}}\times D_{\text{out}}}$.
+  This could be used to get the desired single Kronecker product structure by then rewriting
+  \begin{align*}
+    \mC
+    &\approx
+      R (\mX \otimes \mI_{D_{\text{out}}})
+      (\mI_{D_{\text{in}}} \otimes \mB)
+      (\mX^{\top} \otimes \mI_{D_{\text{out}}})
+    \\
+    &=
+      R \mX \mX^{\top} \otimes \mB
+      =
+      \mA \otimes \mB.
+  \end{align*}
+  To determine such a $\mB$, we minimize the squared Frobenius norm residual:
+  \begin{align*}
+    \begin{split}
+    &\argmin_{\mB}
+      \left\lVert
+      \cvec(\mG) \cvec(\mG)^{\top} - \mI_{D_{\text{in}}} \otimes \mB
+      \right\rVert_2^2.
+    \end{split}
+    \intertext{Expanding the Kronecker structure, this is equivalent to minimizing: }
+    \begin{split}
+      &\argmin_{\mB}
+      \left\lVert
+      \scalebox{0.75}{%
+      $
+      \begin{pmatrix}
+        \vg_1 \vg_1^{\top} -\mB & \dots & \vg_1 \vg_N^{\top} \\
+        \vdots & \ddots & \vdots \\
+        \vg_N \vg_1^{\top} & \dots & \vg_N \vg_N^{\top} - \mB \\
+      \end{pmatrix}
+      $
+      }
+      \right\rVert_2^2
+    \\
+    &=
+      \argmin_{\mB}
+      \left\lVert
+      \scalebox{0.75}{%
+      $
+      \begin{pmatrix}
+        \vg_1 \vg_1^{\top} - \mB & \dots & \vzero \\
+        \vdots & \ddots & \vdots \\
+        \vzero & \hdots & \vg_N \vg_N^{\top} - \mB \\
+      \end{pmatrix}
+      $
+      }
+      \right\rVert_2^2
+    \\
+    &=
+      \argmin_{\mB}
+      \sum_{n=1}^N
+      \left\lVert
+      \vg_n \vg_n^{\top} - \mB
+      \right\rVert_2^2
+    \\
+    &=
+      \argmin_{\mB}
+      \sum_{n=1}^N
+      \sum_{i,j = 1}^{D_{\text{out}}}
+      \left(
+      [\vg_n]_i [\vg_n]_j - [\mB]_{i,j}
+      \right)^2 \,.
+    \end{split}
+  \end{align*}
+  Taking the derivative w.r.t.\,$\mB$ and setting it to zero yields for all $k, l \in \{1, \dots, D_{\text{out}}\}$,
+  \begin{align*}
+    &\frac{\partial \left(
+      \sum_{n=1}^N
+      \sum_{i,j = 1}^{D_{\text{out}}}
+      \left(
+      [\vg_n]_i [\vg_n]_j - [\mB]_{i,j}
+      \right)^2
+      \right)
+      }{
+      \partial [\mB]_{k,l}
+      }
+    \\
+    &=
+      2 \sum_{n=1}^N
+      \left(
+      [\mB]_{k,l} -  [\vg_n]_k [\vg_n]_l
+      \right)
+    \\
+    &=
+      2 \left( N[\mB]_{k,l} - \sum_{n=1}^N [\vg_n]_k [\vg_n]_l \right)
+      \stackrel{!}{=} 0
+    \\
+    &\implies
+      \mB = \frac{1}{N} \sum_{n=1}^N \vg_n \vg_n^{\top}
+      = \frac{1}{N} \mG \mG^{\top}.
+  \end{align*}
+  Thus, under this optimality condition, the best choice for $\mB$ is the empirical covariance of the gradient vectors:
+  \begin{align*}
+    \mC
+    \approx
+    \left(R \sum_n \vx_n \vx_n^\top \right)
+    \otimes
+    \left(\frac{1}{N} \sum_{n'} \vg_{n'} \vg_{n'}^\top \right).
+  \end{align*}
+  This is precisely the expectation approximation used in KFAC.
+\end{example}
+
+Similarly, we can justify flattening an additional sequence dimension into the batch dimension when no additional reduction occurs along any axes in the neural network. 
+
+To see this, consider a sequence of input vectors represented as a matrix-valued input 
+\begin{align*}
+  \mX_n = (\vx_{n, 1}, \dots, \vx_{n, s}),
+\end{align*} 
+where $S$ is the sequence length.
+The corresponding sequence of output vectors is given by:
+\begin{align*}
+\mZ_n = \left( \vz_{n, 1}, \dots, \vz_{n,s} \right),
+\end{align*}
+and the backpropagated vectors, regardless of their specifc type, are stored in the matrix 
+\begin{align*}
+\mG_{n, c} = (\vg_{n, c, 1}, \dots, \vg_{n, c, s}).
+\end{align*}
+Then, the curvature matrix takes the form:
+\begin{align*}
+  \mC(&\cvec \mW)
+  \\
+  &=
+    R
+    \sum_n \sum_c \sum_s
+    (\jac^{\cvec}_{\mW}\vz_{n,s})^{\top}\cvec\vg_{n,c,s}\\
+ &\quad \times(\cvec\vg_{n,c,s})^{\top}
+   (\jac^{\cvec}_{\mW}\vg_{n,c,s}) \\
+ &=
+   R
+   \sum_n \sum_c (\mX_n \otimes \mI_{\vz_n}) \cvec \mG_{n,c}
+ \\
+ &\quad \times
+ (\cvec \mG_{n,c})^{\top}
+   (\mX_n^{\top} \otimes \mI_{\vz_n}).
+\end{align*}
+A key observation is that the matrix $\vec\mG_{n,c} (\vec\mG_{n,c})^{\top}$ has dimensions $S D_{\text{out}} \times S D_{\text{out}}$ and does not simplify into a single Kronecker product.
+
+Similar to Example~\ref{ex:just_kfac_exp_approx}, we would like to find an approximation 
+\begin{align*}
+\cvec\mG_{n,c} (\cvec\mG_{n,c})^{\top} \approx \mK \otimes \mI_{D_\text{out}}
+\end{align*}
+to simplify the expression into a single Kronecker structure.
+
+Using the same optimality condition and arguments, it is straightforward to show that:
+\begin{align*}
+  \argmin_{\mK}
+  &\left\lVert
+  \cvec \mG_{n,c} (\cvec \mG_{n,c})^{\top} - \mK \otimes \mI_{D_{\text{out}}}
+  \right\rVert_2 \\
+  &=
+  \frac{1}{S} \mG_{n,c} \mG_{n,c}^{\top}.
+\end{align*}
+This result tells us that the optimal Kronecker approximation is again obtained by averaging the diagonal blocks of size $S\times S$, simplifying the curvature matrix to:
+\begin{align*}
+  \mC(\cvec\mW)
+  &\approx
+  R \sum_n \sum_c
+  \mZ_n \mZ_n^{\top} \otimes \frac{1}{S} \mG_{n,c} \mG_{n,c}^{\top}
+  \\
+  &= R \sum_n \sum_s \vz_{n,s} \vz_{n,s}^{\top} \\
+  &\quad\otimes \sum_{s'} \sum_c \frac{1}{S} \vg_{n,s',c} \vg_{n,s',c}^{\top}
+  \intertext{Applying KFAC's expectation approximation from \Cref{def:kfac_exp_approx}, we obtain}
+  &\approx
+  \left(R \sum_n \sum_s \vz_{n,s} \vz_{n,s}^{\top}\right)
+  \\
+  &\quad\otimes \left( \frac{\textcolor{VectorOrange}{\sum_n} \textcolor{VectorTeal}{\sum_s}\sum_c \vg_{n,s,c} \vg_{n,s,c}^{\top}}{\textcolor{VectorOrange}{N} \textcolor{VectorTeal}{S}} \right).
+\end{align*}
+This equation highlighs that the sequence dimension (highlighted in \textcolor{VectorTeal}{teal}) is treated exactly like the batch dimension (highlighted in \textcolor{VectorOrange}{orange}) in KFAC's expectation approximation. 
+Consequently, if no additional reduction occurs along the sequence dimension, it can be flattened into the batch dimension without affecting the approximation structure.
+
+\subsection{Tests}
+
+To verify a KFAC implementation, an ideal approach is to compare it against the full curvature matrix in smaller models.
+This raises an important question: When does the approximation in \Cref{eq:expectation_approximation} become exact?
+In general, KFAC's expectation approximation becomes exact whenever one of $\{\va_n\}$ or $\{\vg_n\}$ is data-independent, i.e., does not depend on $n$. 
+There are two notable cases where this happends, one of which is relatively obvious. 
+
+\switchcolumn[1]*
+\codeblock{kfac_tests/expand_mlp_batch_size_1}
+\switchcolumn[0]
+
+\subsubsection{Test Case: Data Set Size 1}
+A particularly straightforward case occurs when summation over $n$ disappears, i.e. when the dataset contains only a single data point or $N$ identical data points. 
+
+\begin{test}[KFAC-expand for linear layers in an MLP (no weight sharing), one data point, \Cref{kfac_tests/expand_mlp_batch_size_1}]\label{test:kfac_expand_linear_no_weight_sharing_batch_size_1}
+  Consider a multi-layer perceptron (MLP) of the form
+  \begin{align*}
+    f = \phi^{(L)} \circ f^{(L)} \circ \ldots \circ \phi^{(1)} \circ f^{(1)}
+  \end{align*}
+  where each layer consists of a dense (linear) transformation $f^{(l)}$ followed by a pointwise activation function $\phi^{(l)}$.
+  Let $\mW^{(l)}$, $\vb^{(l)}$, and $\tilde{\mW}^{(l)} = \begin{pmatrix} \mW^{(l)} & \vb^{(l)} \end{pmatrix}$ denote the weight, bias, and combined parameters of a dense layer $f^{(l)}$.
+
+  Now assume that the dataset consists of only one data point, $\sD = \{ (\vx, \vy) \}$, and we have a criterion function $c = - \log r$ which can be interpreted as negative log-likelihood.
+  
+  Under these conditions KFAC-expand becomes exact in the following cases for all layers $l = 1, \dots, L$, any flattening scheme $\vec$, and for both combined weights and only weight matrices:
+  \begin{itemize}
+  \item KFAC-expand-type-II coincides with the GGN
+    \begin{align*}
+      \kfac^{\text{II}}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}
+    \end{align*}
+  \item KFAC-expand-MC converges to the GGN
+    \begin{align*}
+      \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec\tilde{\mW}^{(l)})
+      \\
+      = \ggn^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}
+    \end{align*}
+  \item KFAC-expand-empirical coincides with the Empirical Fisher (EF)
+    \begin{align*}
+      \kfac^{\text{E}}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ef^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}
+    \end{align*}
+  \end{itemize}
+\end{test}
+
+This test serves as a basic functionality check for KFAC, particularly regarding the criterion function and the resulting backpropagated vectors $\blacktriangle_{n,c}$.
+It can be further generalized by replacing the activation functions with arbitrary layers (e.g.\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers maintain vector-shape.
+These modifications do not change the structure of the GGN, Fisher or Empirical Fisher matrices for the linear layers, meaning the test remains valid in these settings.
+
+
+\switchcolumn[1]*
+\codeblock{kfac_tests/expand_deep_linear_regression}
+\switchcolumn[0]
+
+\subsubsection{Test Case: Regression with Deep Linear Networks}
+
+A more subtle and interesting case where the KFAC approximation becomes exact is for deep linear networks with a square loss. 
+In this setting, the backpropoagated vectors $\vg_{n,c}$ become independent of $n$.
+To see why, recall that $\vg_{n,c}$ depends on the backpropagated vector $\blacktriangle_{n,c}$ and the Jacobian of the prediction w.r.t.\,the layer's output $\jac_{\vz_n} \vf_n$.
+For a square loss function, $\blacktriangle_{n,c}$ is often independent of $n$: 
+\begin{itemize}
+\item In Type-II Fisher, it corresponds to a column of the identity matrix.
+\item In Monte Carlo (MC) Fisher, it is simply a normally distributed random number.
+\end{itemize}
+Furthermore, if all layers in the network are linear, then all prediction-intermediate Jacobians remain constant and independent of $n$. 
+Thus, in this setting, the KFAC approximation becomes exact in the limit, as originally proposed by \cite{bernacchia2018exact}.
+
+\begin{test}[KFAC-expand for regression with a Deep Linear Network (no weight sharing and no nonlinear layers), \Cref{kfac_tests/expand_deep_linear_regression}]
+Consider a deep linear network consisting of $L$ fully connected layers
+\begin{align*}
+  f = f^{(L)} \circ f^{(L-1)} \circ \ldots \circ f^{(1)}
+\end{align*}
+with weights $\mW^{(l)}$, bias $\vb^{(l)}$, and combined parameters $\tilde{\mW}^{(l)} = \begin{pmatrix} \mW^{(l)} & \vb^{(l)} \end{pmatrix}$.
+Assume the network processes a vector-valued input per datum and performs regression with square loss on an arbitrary dataset $\sD = \{ (\vx_n, \vy_n) \mid n = 1, \dots, N \}$.
+Then, for each layer $l=1,\dots,L$ and any chosen flattening scheme $\vec$, the following identities hold:
+\begin{itemize}
+\item KFAC-expand-type-II coincides with the GGN
+  \begin{align*}
+    \kfac^{\text{II}}_{\text{exp}}(\vec \tilde{\mW}^{(l)})
+    =
+    \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}
+  \end{align*}
+\item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$
+  \begin{align*}
+    \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec \tilde{\mW}^{(l)})
+    \\=
+    \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}
+  \end{align*}
+
+\end{itemize}
+However, KFAC-expand-empirical does \emph{not} equal the empirical Fisher,
+\begin{align*}
+  \kfac_{\text{exp}}^{\text{E}}(\vec \tilde{\mW}^{(l)})
+  \neq
+  \ef^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,,
+\end{align*}
+because the backpropagated vector $\blacktriangle_{n,c}$ depends on $\vf_n$ and therefore remains dependent on $n$.
+\end{test}
+This test can be extended to include any operations that process inputs linearly, such as convolutions, reshaping, padding, average pooling, as long as the input to the dense layer remains vector-valued.
+However, nonlinear layers like ReLU, sigmoid, max-pooling, or normalization, cannot be used as their output-input Jacobian depend on the input, violating the assumptions needed for exactness.
+
+Additionally, this test remains valid when incorporating an independent sequence dimension $S$, provided that the network treats sequence elements independently.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

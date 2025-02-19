@@ -103,8 +103,8 @@ def backpropagated_vectors_type2(
         S.append(S_n)
     # concatenate over all data points
     S = stack(S, dim=1)
-    # convert into list, ith entry contains the ith columns of all
-    # symmetric Hessian decompositions
+    # convert into list, ith entry contains the ith columns of
+    # all symmetric Hessian decompositions
     return [s.squeeze(0) for s in S.split(1)]
 
 

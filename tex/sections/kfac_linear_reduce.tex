@@ -1,4 +1,40 @@
-The goal of this section should be to describe the KFAC approximation from~\cite{martens2015optimizing}
+\par{Roadmap: } This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (i.e. a \texttt{torch.nn.Linear}). 
+Our discussion will heavily rely on regression settings with deep linear networks, i.e.\,MLPs that consist of dense layers without any non-linearities.
+We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
+
+We will start with the KFAC-expand approximation, which corresponds to the seminal KFAC approximation proposed by~\citet{martens2015optimizing}. It was introduced for standard MLP settings where the linear layers do not exhibit weight sharing (and therefore no reductions over weight-shared axes).
+For more details on extensions such as KFAC-reduce see outlook or \citet{eschenhagen2023kroneckerfactored}.
+
+\begin{setup}[Linear layer inside a neural network]\label{setup:linear_layer}
+  Consider a linear layer with weight $\mW \in \sR^{D_{\text{out}}\times D_{\text{in}}}$ and bias $\vb \in \sR^{D_{\text{out}}}$ inside a neural network.
+  Further, assume the network's prediction feeds into a criterion function and we use a data set of $N$ points to compute an empirical risk (with a reduction factor $R$) whose curvature matrix $\mC(\vec \mW)$ we are interested in computing.
+
+  For each datum $n$, the layer processes a vector input $x_n \in \sR^{D {\text{in}}}$ into an output vector $\vz_{n} \in sR^{D_{\text{out}}}$ where 
+  $$ \vz_{n} = \mW \vx_{n} + \vb$$.
+  Denote by $\mF_n \in \sR^{C \times}$ the network's prediction on datum $n$. 
+  For each vector $\blacktriangle_{n,c} \in \sR^{C \times S'}$ backpropagated by KFAC, define the errors arriving at the layer's output as $\vg_{n,c} = (\jac^{\vec}_{\vz_{n}} \mF_n)^{\top} \blacktriangle_{n,c} \in \sR^{D_{\text{out}}}$. These vectors do not depend on the flattening scheme because the contracted dimensions are summed out. We can group them into a matrix-values layer output gradient
+  \begin{align*}
+    \mG_{n,c}
+    =
+    \begin{pmatrix}
+      \vg_{n,c} & \ldots & \vg_{n,c}
+    \end{pmatrix}
+    \in \sR^{D_{\text{out}}}\,.
+  \end{align*}
+  Most of the following discussion includes the case where the bias is included in the weight matrix by adding a constant input dimension to the input vectors:
+  $$ \tilde{\mW} = \begin{bmatrix} W & b \end{bmatrix} \in \sR^{D_{\text{out}} \times (D_{\text{int}} + 1)}, \quad \tilde{\vx} = \begin{bmatrix} x \\ 1 \end{bmatrix} \in \sR^{D_{\text{in}} + 1} $$
+  However, the corresponding code and the main discussion focus on the case where they are treated separately.
+\end{setup}
+
+\begin{caveat} 
+  In some cases the linear layer operates on a sequence of $S$ input vectors. 
+  For the following presentation of KFAC-expand, this could be resolved via flattening the sequence dimension into the batch dimension. 
+  A more relevant discussion is in the context of a specific treatment of weight-sharing, which will we will only briefly discuss in the outlook section. 
+  % The discussion of KFAC-expand naturally leads to an alternative setting where weight sharing dimensions are reduced during a forward pass; the so-called reduce setting.
+  % For this setting, KFAC is not well motivated as it has no limit in which it becomes exact.
+\end{caveat}
+
+\subsection{KFAC-expand}
 
 Let's consider the GGN for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW \vx$ (suppressing layer indices for simplicity). Let's also assume $\cvec$-flattening, as usually done by the literature and make use of the output-parameter Jacobian of a linear layer (remember Example ??)
 \begin{align*}
@@ -63,39 +99,6 @@ As a solution, we will explain the alternative KFAC-reduce approximation, recent
 
 \subsection{KFAC-expand \& KFAC-reduce}
 
-\begin{setup}[Linear layer inside a neural network]\label{setup:linear_layer}
-  Consider a linear layer with weight $\mW \in \sR^{D_{\text{out}}\times D_{\text{in}}}$ and bias $\vb \in \sR^{D_{\text{out}}}$ inside a neural network.
-  Further, assume the network's prediction feeds into a criterion function and we use a data set of $N$ points to compute an empirical risk (with a reduction factor $R$) whose curvature matrix $\mC(\vec \mW)$ we are interested in computing.
-
-  For each datum $n$, the layer processes a sequence of $S$ vector inputs $\vx_{n,1}, \dots, \vx_{n,S} \in \sR^{D_{\text{in}}}$ into a sequence of $S$ vector outputs $\vz_{n,1}, \dots, \vz_{n,S} \in sR^{D_{\text{out}}}$ where $\vz_{n,s} = \mW \vx_{n,s} + \vb$.
-  Equivalently, we can express the forward pass by
-  \begin{align*}
-    \mZ_n
-    &=
-      \mW \mX_n + \vb \vone_S^{\top}
-      \shortintertext{where}
-      \mX_n
-    &=
-      \begin{pmatrix} \vx_{n,1} & \ldots & \vx_{n,S} \end{pmatrix}
-      \in \sR^{D_{\text{in}} \times S}\,,
-    \\
-    \mZ_n
-    &=
-      \begin{pmatrix} \vz_{n,1} & \ldots & \vz_{n,S} \end{pmatrix}
-      \in \sR^{D_{\text{out}} \times S}\,.
-  \end{align*}
-  Denote $\mF_n \in \sR^{C \times S'}$ the network's prediction on datum $n$ where $S' \neq S$ in general, but usually $S' \in \{1, S\}$.
-  For each vector $\blacktriangle_{n,c} \in \sR^{C \times S'}$ backpropagated by KFAC,
-  define the errors arriving at the layer's output as $\vg_{n,s,c} = (\jac^{\vec}_{\vz_{n,s}} \mF_n)^{\top} \blacktriangle_{n,c} \in \sR^{D_{\text{out}}\times S}$. These vectors do not depend on the flattening scheme because the contracted dimensions are summed out. We can group them into a matrix-values layer output gradient
-  \begin{align*}
-    \mG_{n,c}
-    =
-    \begin{pmatrix}
-      \vg_{n,1,c} & \ldots & \vg_{n,S,c}
-    \end{pmatrix}
-    \in \sR^{D_{\text{out}} \times S}\,.
-  \end{align*}
-\end{setup}
 
 If we apply this approximation to the above, we obtain
 \begin{align*}
@@ -139,6 +142,8 @@ The same equation holds if we treat weight and bias jointly, but we need to make
 \switchcolumn[0]
 
 \subsection{Tests}
+A cental question for implementing KFAC is on how to actual test the code. 
+
 When does this approximation become exact?
 Generally speaking, it becomes exact whenever one or both of the Kronecker factors in ??
 does not depend on $n$.
