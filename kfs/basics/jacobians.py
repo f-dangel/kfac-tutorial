@@ -38,41 +38,25 @@ def jac(f: Tensor, x: Tensor) -> Tensor:
     return J
 
 
-def cvec_jac(f: Tensor, x: Tensor) -> Tensor:
-    r"""Compute the Jacobian in column-flattening convention.
+def vec_jac(f: Tensor, x: Tensor, vec: str) -> Tensor:
+    r"""Compute the cvec- or rvec-Jacobian.
 
-    See $\text{\Cref{def:cvec_jacobian}}$.
-
-    Args:
-        f: The result tensor of f(x).
-        x: Tensor w.r.t. which f is differentiated.
-
-    Returns:
-        cvec-Jacobian matrix of f w.r.t. x.
-        Has shape (f.numel(), x.numel()).
-    """
-    J = jac(f, x)
-    # flatten row indices
-    J = cvec(J, end_dim=f.ndim - 1)
-    # flatten column indices
-    return cvec(J, start_dim=1)
-
-
-def rvec_jac(f: Tensor, x: Tensor) -> Tensor:
-    r"""Compute the Jacobian in row-flattening convention.
-
-    See $\text{\Cref{def:rvec_jacobian}}$.
+    See $\text{\Cref{def:cvec_jacobian}}$
+    and $\text{\Cref{def:rvec_jacobian}}$.
 
     Args:
         f: The result tensor of f(x).
         x: Tensor w.r.t. which f is differentiated.
+        vec: Name of the flattening scheme.
+            Must be either 'rvec' or 'cvec'.
 
     Returns:
-        rvec-Jacobian matrix of f w.r.t. x.
+        The rvec- or cvec-Jacobian matrix of f w.r.t. x.
         Has shape (f.numel(), x.numel()).
     """
+    vec = {"cvec": cvec, "rvec": rvec}[vec]
     J = jac(f, x)
     # flatten row indices
-    J = rvec(J, end_dim=f.ndim - 1)
+    J = vec(J, end_dim=f.ndim - 1)
     # flatten column indices
-    return rvec(J, start_dim=1)
+    return vec(J, start_dim=1)

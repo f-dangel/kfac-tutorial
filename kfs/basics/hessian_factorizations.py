@@ -62,7 +62,7 @@ def symmetric_factorization_CrossEntropyLoss(
     in tensor convention.
 
     Args:
-        prediction: A single model prediction.
+        prediction: A single model prediction (logits).
         target: A single label.
 
     Returns:
@@ -90,7 +90,9 @@ def symmetric_factorization_CrossEntropyLoss(
         S[d][d] = p_sqrt[d].diag() - outer(p[d], p_sqrt[d])
 
     # move class dimensions to their correct position
+    # before: *dims_Y, *dims_Y, num_classes, num_classes
     S = S.movedim(-2, 0).movedim(-1, len(dims_Y) + 1)
+    # after: num_classes, *dims_Y, num_classes, *dims_Y
 
     return S
 
@@ -104,9 +106,9 @@ def tensor_outer(S: Tensor) -> Tensor:
     Returns:
         The Hessian. Has same shape as `S`.
     """
-    ndim_F = S.ndim // 2
+    ndim_F = S.ndim // 2  # sum(dims_Y) + num_classes
     d_in = " ".join(f"d_in_{i}" for i in range(ndim_F))
-    d_sum = " ".join(f"sum_{i}" for i in range(ndim_F))
+    d_sum = " ".join(f"d_sum_{i}" for i in range(ndim_F))
     d_out = " ".join(f"d_out_{i}" for i in range(ndim_F))
     equation = (
         f"{d_in} {d_sum}, {d_out} {d_sum} -> {d_in} {d_out}"

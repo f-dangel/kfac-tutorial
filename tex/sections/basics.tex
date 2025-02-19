@@ -20,7 +20,7 @@
 \begin{caveat}
   In deep learning, we often work with matrices, or higher-dimensional tensors.
   We want to use matrix linear algebra expressions to avoid using heavy index notation.
-  This can be achieved by flattening all tensors back into vectors and re-using definitions derivatives from the vector case.
+  This can be achieved by flattening all tensors back into vectors and re-using definitions of derivatives from the vector case.
   However, we must be careful when translating the results back to the tensor format, as the translation process depends on the flattening convention.
   Classically, the mathematical derivations prefer a \emph{different} flattening scheme than the one used in deep learning libraries.
 \end{caveat}
@@ -59,18 +59,18 @@ where each $\vtheta^{(i)}$ is an arbitrary tensor. To be able to use matrix expr
   \begin{pmatrix}
     \vec(\vtheta^{(1)}) \\
     \vec(\vtheta^{(2)}) \\
-    \vdots \\
+    \vdots              \\
     \vec(\vtheta^{(L)})
   \end{pmatrix}
   \in \sR^D
   \,,
 \end{align*}
 where $\vec \in \{ \rvec, \cvec \}$ is one of the previously described flattening operations.
-This convention allows $\vec$ to handle parameters in list/tuple format, and is a simple generalization which simply applies the original definition to each element of the list/tuple and concatenates all flattened items.
+This convention allows $\vec$ to handle parameters in list/tuple format, and is a simple generalization which applies the original definition to each element of the list/tuple and concatenates all flattened items.
 However, in code we will still work with the list/tuple format.
 
-\paragraph{Empirical risk:} We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ i.i.d.\,samples.
-The inputs are processed by the neural network and the resulting predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, such as mean-squared or softmax cross-entropy loss.
+\paragraph{Empirical risk:} We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ independent and identically distributed (i.i.d.)\,samples.
+The inputs are processed by the neural network $f: \Theta \times \gX \to \gF$ and the resulting predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, such as mean-squared or softmax cross-entropy loss.
 For a datum $n$, we define the per-datum loss as:
 \begin{align*}
   (\ell_n: \Theta \to \sR) = (c_n \circ f_n: \Theta \to \gF \to \sR)
@@ -78,13 +78,13 @@ For a datum $n$, we define the per-datum loss as:
   \ell_n(\vtheta) = c_n(f_n(\vtheta))
 \end{align*}
 where $c_n(\bullet) \coloneq c(\bullet, \vy_n)$ and $f_n(\bullet) \coloneq f(\bullet, \vx_n)$.
-We will often use the shorthands $c_n, f_n, \ell_n$ for the per-datum predictions, criteria, and losses.
+We will often use the shorthands $c_n, f_n, \ell_n$ for the per-datum criteria, predictions, and losses, respectively.
 
 \paragraph{Reduction factor:} The per-datum losses $\{\ell_1, \dots, \ell_N\}$ are accumulated into a single scalar which yields the empirical risk
 \begin{align*}
-  \gL_{\sD}: \Theta &\mapsto \sR
+  \gL_{\sD}: \Theta & \mapsto \sR
   \\
-  \vtheta &\mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta) = R \sum_{n=1}^N c_n(f_n(\vtheta))
+  \vtheta           & \mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta) = R \sum_{n=1}^N c_n(f_n(\vtheta))
 \end{align*}
 where $R$ is the reduction factor. Common values for $R$ are $\nicefrac{1}{N}, 1$ and $\nicefrac{1}{N \dim(\gF)}$.
 For the purpose of this text, $\sD$ can be any collection of data points, e.g.\,the full data set or a mini-batch.
@@ -102,22 +102,35 @@ For the purpose of this text, $\sD$ can be any collection of data points, e.g.\,
 The GGN, type-I and type-II Fisher can all be written as weighted sum over matrices sandwiched between the per-sample Jacobians (remember that we can mentally set $-\log r(\rvy \mid \vf_n) = c(\vf_n, \rvy)$ for square and softmax cross-entropy loss):
 \begin{align*}
   \mG(\vtheta)
-  & =
-    R \sum_n (\jac_{\vtheta}\vf_n)^\top
-    \textcolor{VectorBlue}{\hess_{\vf_n}c(\vf_n, \vy_n)}
-    \jac_{\vtheta}\vf_n
+   & =
+  R \sum_n
+  \begin{aligned}[t]
+     & (\jac_{\vtheta}\vf_n)^\top                           \\
+     & \textcolor{VectorBlue}{\hess_{\vf_n}c(\vf_n, \vy_n)} \\
+     & \jac_{\vtheta}\vf_n
+  \end{aligned}
   \\
   \mF^{\text{II}}(\vtheta)
-  & =
-    R \sum_n (\jac_{\vtheta}\vf_n)^\top
-    \textcolor{VectorPink}{\E_{r(\rvy \mid \vf_n)}[-\hess_{\vf_n} \log( r(\rvy \mid \vf_n)) ]}
-    \jac_{\vtheta}\vf_n
-    \\
+   & =
+  R \sum_n
+  \begin{aligned}[t]
+     & (\jac_{\vtheta}\vf_n)^\top                                                                 \\
+     & \textcolor{VectorPink}{\E_{r(\rvy \mid \vf_n)}[-\hess_{\vf_n} \log( r(\rvy \mid \vf_n)) ]} \\
+     & \jac_{\vtheta}\vf_n
+  \end{aligned}
+  \\
   \mF^{\text{I}}(\vtheta)
-  & =
-    R \sum_n (\jac_{\vtheta}\vf_n)^\top
-    \textcolor{VectorTeal}{\E_{r(\rvy \mid \vf_n)}[-\nabla_{\vf_n} \log( r(\rvy \mid \vf_n)) (-\nabla_{\vf_n} \log( r(\rvy \mid \vf_n)))^{\top} ]}
-    \jac_{\vtheta}\vf_n
+   & =
+  R \sum_n
+  \begin{aligned}[t]
+     & (\jac_{\vtheta}\vf_n)^\top                          \\
+     & \textcolor{VectorTeal}{\E_{r(\rvy \mid \vf_n)}[
+    \begin{aligned}[t]
+       & -\nabla_{\vf_n} \log( r(\rvy \mid \vf_n))           \\
+       & (-\nabla_{\vf_n} \log( r(\rvy \mid \vf_n)))^{\top}]
+    \end{aligned}} \\
+     & \jac_{\vtheta}\vf_n
+  \end{aligned}
 \end{align*}
 In previous sections, we already showed that for square loss and softmax cross-entropy the criterion function's Hessian $\hess_\vf c(\vf, \vy) = -\hess_{\vf} \log( r(\rvy = \vy \mid \vf)$ does not depend on the value of the target random variable $\rvy$!
 Therefore, the expectation in the type-II Fisher effectively disappears and we are free to set $\rvy = \vy_n$ because this does not change the Hessian.

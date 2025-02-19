@@ -27,7 +27,8 @@ def hvp(
             Must have the same shape as x (or x[1] if x is
             a tuple).
         retain_graph: Whether to retain the graph which will
-            allow future differentiations of f. Default: False.
+            allow future differentiations of f.
+            Default: False.
         detach: Whether to detach the result from the graph.
             Default: True.
 

@@ -11,7 +11,7 @@ from torch.nn import Linear, MSELoss, Sequential, Sigmoid
 from tueplots import bundles
 
 from kfs.basics.ggns import vec_ggn
-from kfs.basics.hessians import cvec_hess, rvec_hess
+from kfs.basics.hessians import vec_hess
 from kfs.plots import SAVEDIR
 
 
@@ -72,17 +72,17 @@ if __name__ == "__main__":
     loss = loss_func(output, y)
 
     curvature_funcs = {
-        "cvec_hessian": lambda p_i, p_j: cvec_hess(
-            loss, (p_i, p_j)
+        "cvec_hessian": lambda p_i, p_j: vec_hess(
+            loss, (p_i, p_j), vec="cvec"
         ),
-        "rvec_hessian": lambda p_i, p_j: rvec_hess(
-            loss, (p_i, p_j)
+        "rvec_hessian": lambda p_i, p_j: vec_hess(
+            loss, (p_i, p_j), vec="rvec"
         ),
         "cvec_ggn": lambda p_i, p_j: vec_ggn(
-            loss, (p_i, p_j), output, "cvec"
+            loss, (p_i, p_j), output, vec="cvec"
         ),
         "rvec_ggn": lambda p_i, p_j: vec_ggn(
-            loss, (p_i, p_j), output, "rvec"
+            loss, (p_i, p_j), output, vec="rvec"
         ),
     }
 

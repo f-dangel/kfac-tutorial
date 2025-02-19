@@ -4,20 +4,20 @@
   We need to keep both concepts separate to reduce the chance of introducing scaling bugs.
 \end{caveat}
 
-So far, we have only considered minimizing a risk over a data set given an arbitrary criterion function $c$.
-Here, we want to take one step back and first describe risk minimization from a probabilistic perspective.
+So far, we have only considered minimizing an empirical risk over a data set given an arbitrary criterion function $c$.
+Here, we take a step back and first describe empirical risk minimization as an approximation of minimizing the true risk.
 After, we will derive a very similar form but using a probabilistic argument via maximum likelihood estimation.
 
-Recall the definition of the risk in \cref{eq:empirical_risk}.
-We want to minimize the risk over the data set $\sD$,
+Recall the definition of the empirical risk in \cref{eq:empirical_risk}.
+We want to minimize the empirical risk over the data set $\sD$,
 \begin{align*}
   \min_{\vtheta} \gL(\vtheta; \sD) = \min_{\vtheta} R \sum_{n=1}^N \ell_n(\vtheta)\,.
 \end{align*}
 Let's express this in terms of an expectation.
 To do so, assume that there exists a data-generating process $p_{\text{data}}(\rvx, \rvy)$ over input-target pairs.
-Ideally, we would like to minimize the expected risk over that distribution, i.e.\,$\argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\text{data}}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)]$.
+Ideally, we would like to minimize the risk over that distribution, i.e.\,$\argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\text{data}}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)]$.
 However, $p_{\text{data}}$ is not tractable.
-Therefore, we draw a finite amount of samples and collect them into a data set
+Therefore, we draw a finite number of samples and collect them into a data set
 \begin{align*}
   \sD = \{ (\vx_n, \vy_n) \mid (\vx_n, \vy_n) \stackrel{\text{i.i.d.}}{\sim} p_{\text{data}}(\vx, \vy) \}\,.
 \end{align*}
@@ -25,23 +25,21 @@ Then, we can replace the intractable data-generating process $p_{\text{data}}$ w
 \begin{align*}
   p_{\sD}(\rvx, \rvy) = \frac{1}{N} \sum_{n=1}^N \delta(\rvx - \vx_n) \delta(\rvy - \vy_n)\,.
 \end{align*}
-This turns risk minimization into a tractable task,
+This turns risk minimization into a tractable task:
 \begin{align*}
-  \argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\text{data}}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)]
+          & \argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\text{data}}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)]
   \\
-  \approx
+  \approx & \argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\sD}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)].
   \\
-  \argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\sD}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)]
+  \intertext{By writing out the expectation, we obtain}
+  =       & \argmin_{\vtheta} \frac{1}{N} \sum_n c(f(\vx_n, \vtheta), \vy_n).
   \\
-  =
-  \\
-  \argmin_{\vtheta} \frac{1}{N} \sum_n c(f(\vx_n, \vtheta), \vy_n)
-  \\
-  \Leftrightarrow
-  \\
-  \argmin_{\vtheta} \gL(\vtheta; \sD)\,.
+  \intertext{This objective being minimized above is the empirical risk in \cref{eq:empirical_risk}
+    scaled by $\nicefrac{1}{NR}$. We can arbitrarily scale objectives without changing the
+    location of their minima to match the scaling with the accumulation factor $R$:
+  }
+  \equiv  & \argmin_{\vtheta} \gL(\vtheta; \sD)\,.
 \end{align*}
-Note that in the last step we used that we can arbitrarily an objective without changing the location of its minima to match the scaling factor with the reduction factor.
 So now we have shown that empirical risk minimization can be written as minimizing an objective that is a (scaled) expectation value over an empirical density $p_{\sD}(\rvx, \rvy)$.
 
 Let's approach this from a probabilistic perspective now.
@@ -49,60 +47,49 @@ Assume we want to learn $p_{\text{data}}(\rvx, \rvy) = p_{\text{data}}(\rvy \mid
 Note that we model only the likelihood for the labels with parameters $\vtheta$.
 One plausible approach to make $p$ resemble $p_{\text{data}}$ is to minimize their KL divergence,
 \begin{align*}
-  \argmin_{\vtheta} \mathrm{KL}(p_{\text{data}}(\rvx, \rvy) \mid\mid p(\rvx, \rvy \mid \vtheta))\,.
+                  & \argmin_{\vtheta} \mathrm{KL}(p_{\text{data}}(\rvx, \rvy) \mid\mid p(\rvx, \rvy \mid \vtheta))\,.
+  \\
+  \intertext{We can simplify this expression by substituting the definition of the KL divergence and dropping terms that do not depend on $\vtheta$,}
+  \Leftrightarrow & \argmin_{\vtheta} \E_{p_{\text{data}}(\rvx, \rvy)}[- \log( p(\rvx, \rvy \mid \vtheta))]\,.
+  \\
+  \intertext{Note that this looks very similar to the expected risk from above.
+    Next, let's factorize our model distribution using its conditional and marginal densities and drop terms that do not depend on $\vtheta$, which yields
+  }
+  \Leftrightarrow & \argmin_{\vtheta} \E_{p_{\text{data}}(\rvx, \rvy)}[- \log( p(\rvy \mid \rvx, \vtheta))]\,.
+  \intertext{To make this problem tractable, we need to replace the intractable data-generating process $p_{\text{data}}$ with the empirical distribution $p_{\sD}$:}
+  \approx         & \argmin_{\vtheta} \E_{p_{\sD}(\rvx, \rvy)}[- \log( p(\rvy \mid \rvx, \vtheta))].
+  \\
+  \intertext{Writing out the expectation, we obtain}
+  =               & \argmin_{\vtheta} \frac{1}{N} \sum_n - \log( p(\rvy = \vy_n \mid \rvx=\vx_n,\vtheta)).
+  \\
+  \intertext{To make this expression resemble more that of the empirical risk, we introduce a general scaling $R$ and change the likelihood's parameterization from $p(\rvy \mid \rvx, \vtheta)$ to $r(\rvy \mid f(\rvx, \vtheta))$ where $f$ is a neural net:}
+  =               & \argmin_{\vtheta} R \sum_n - \log( r(\rvy = \vy_n \mid f(\vx_n,\vtheta)))
 \end{align*}
-We can simplify this expression by substituting the definition of the KL divergence and dropping terms that do not depend on $\vtheta$,
-\begin{align*}
-  \Leftrightarrow
-  \\
-  \argmin_{\vtheta} \E_{p_{\text{data}}(\rvx, \rvy)}[- \log( p(\rvx, \rvy \mid \vtheta))]\,.
-\end{align*}
-Note that this looks very similar to the expected risk from above.
-Next, let's factorize our model distribution using its conditional and marginal densities and drop terms that do not depend on $\vtheta$, which yields
-\begin{align*}
-  \Leftrightarrow
-  \\
-  \argmin_{\vtheta} \E_{p_{\text{data}}(\rvx, \rvy)}[- \log( p(\rvy \mid \vtheta))]\,.
-\end{align*}
-To make this problem tractable, we need to replace the intractable data-generating process $p_{\text{data}}$ with the empirical distribution $p_{\sD}$:
-\begin{align*}
-  \approx
-  \\
-  \argmin_{\vtheta} \E_{p_{\sD}(\rvx, \rvy)}[- \log( p(\rvy \mid \vtheta))]
-  \\
-  =
-  \\
-  \argmin_{\vtheta} \frac{1}{N} \sum_n - \log( p(\rvy = \vy_n \mid \rvx=\vx_n,\vtheta))
-  \\
-  =
-  \\
-  \argmin_{\vtheta} R \sum_n - \log( r(\rvy = \vy_n \mid f(\vx_n,\vtheta)))
-\end{align*}
-In the last step we have made two changes to make the expression resemble more that of the empirical risk: first, we introduced a new scaling; second, we changed the likelihood's parameterization from $p(\rvy \mid \rvx, \vtheta)$ to $r(\rvy \mid f(\rvx, \vtheta))$ where $f$ is a neural net. This parameterization makes it clear that the neural network represents a conditional distribution over the labels given the inputs (and parameters).
+This parameterization makes it clear that the neural network represents a conditional distribution over the labels given the inputs (and parameters).
 
 We are now very close to writing down the explicit connection between empirical risk minimization and maximum likelihood estimation.
-The last remaining step is to connect the model's likelihood $r(\rvy \mid \rvx, \vtheta)$ with the criterion function $c(f(\vx, \vtheta), \vy)$ from empirical risk minimization.
-The following two examples show that empirical risk minimization with square or softmax cross-entropy loss can be interpreted as maximum likelihood (or equivalently, minimum negative log-likelihood) estimation problem where the neural network parameterizes a Gaussian and a categorical distribution over the labels:
+The last remaining step is to connect the model's likelihood $r(\rvy \mid f(\rvx, \vtheta))$ with the criterion function $c(f(\vx, \vtheta), \vy)$ from empirical risk minimization.
+The following two examples show that empirical risk minimization with square or softmax cross-entropy loss can be interpreted as maximum likelihood (or equivalently, minimum negative log-likelihood) estimation problem where the neural network parameterizes a Gaussian and a categorical distribution over the labels, respectively:
 
-\begin{example}[Probabilistic interpretation of square loss]\label{ex:square_loss_probabilistic}
-  For square loss from \Cref{ex:square_loss}, we have that $c(\vf, \vy) = - \log( \mathrm{const.}
-  \cdot \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI))$ where $\gN(\bullet | \vmu, \mSigma)$ is a multi-variate Gaussian distribution with mean $\vmu \in \sR^C$ and positive definite covariance $\mSigma \in \sR^{C \times C}$,
+\begin{example}[Probabilistic interpretation of the square loss]\label{ex:square_loss_probabilistic}
+  For the square loss from \Cref{ex:square_loss}, we have that $c(\vf, \vy) = - \log( \mathrm{const.}
+    \cdot \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI))$ where $\gN(\bullet | \vmu, \mSigma)$ is a multivariate Gaussian distribution with mean $\vmu \in \sR^C$ and positive definite covariance $\mSigma \in \sR^{C \times C}$,
   \begin{align*}
-    \gN(\rvy \mid \vmu, \mSigma)
-    =
-    \frac{1}{{(2\pi)}^{C/2} \sqrt{\det(\mSigma)}}
+     & \gN(\rvy \mid \vmu, \mSigma) = \frac{1}{{(2\pi)}^{C/2} \sqrt{\det(\mSigma)}}
     \\
-    \exp\left( -\frac{1}{2} {(\rvy - \vmu)}^\top \mSigma^{-1} (\rvy - \vmu) \right)\,.
+     & \hspace{1em}\cdot \exp\left( -\frac{1}{2} {(\rvy - \vmu)}^\top \mSigma^{-1} (\rvy - \vmu) \right)\,.
   \end{align*}
   We can safely neglect the constant factor for the optimization problem and therefore identify
   \begin{align*}
-    c = \text{\texttt{MSELoss}}
+    c                             & = \text{\texttt{MSELoss}}
     \\
-    \Leftrightarrow
+                                  & \Leftrightarrow
     \\
-    r(\rvy \mid f(\rvx, \vtheta)) &= \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI)\,
+    r(\rvy \mid f(\rvx, \vtheta)) & = \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI)\,
     \\
-    p(\rvy \mid \rvx, \vtheta) &= \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI)\,.
+                                  & \Leftrightarrow
+    \\
+    p(\rvy \mid \rvx, \vtheta)    & = \gN(\rvy \mid \vmu = f(\vx, \vtheta), \mSigma = \mI)\,.
   \end{align*}
 \end{example}
 
@@ -115,9 +102,11 @@ The following two examples show that empirical risk minimization with square or 
   \end{align*}
   Hence, we can identify
   \begin{align*}
-    r(\ry \mid f(\rvx, \vtheta)) &= \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,
+    r(\ry \mid f(\rvx, \vtheta)) & = \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,
     \\
-    p(\ry \mid \rvx, \vtheta) &= \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,.
+                                 & \Leftrightarrow
+    \\
+    p(\ry \mid \rvx, \vtheta)    & = \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,.
   \end{align*}
 \end{example}
 %%% Local Variables:

@@ -2,7 +2,7 @@
 
 from torch import allclose, eye, kron, manual_seed, rand
 
-from kfs.basics.jacobians import cvec_jac, rvec_jac
+from kfs.basics.jacobians import vec_jac
 
 if __name__ == "__main__":
     manual_seed(0)  # make deterministic
@@ -19,11 +19,11 @@ if __name__ == "__main__":
     z = W @ x + b
 
     # cvec Jacobian computation & comparison
-    J_cvec = cvec_jac(z, W_tilde)
+    J_cvec = vec_jac(z, W_tilde, vec="cvec")
     J_cvec_manual = kron(x_tilde.unsqueeze(0), eye(D_out))
     assert allclose(J_cvec, J_cvec_manual)
 
     # rvec Jacobian computation & comparison
-    J_rvec = rvec_jac(z, W_tilde)
+    J_rvec = vec_jac(z, W_tilde, vec="rvec")
     J_rvec_manual = kron(eye(D_out), x_tilde.unsqueeze(0))
     assert allclose(J_rvec, J_rvec_manual)
