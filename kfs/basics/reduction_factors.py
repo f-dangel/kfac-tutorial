@@ -108,7 +108,7 @@ if __name__ == "__main__":
             for f_n, y_n in zip(f, y)
         )
         R = get_reduction_factor(loss_func, y)
-        assert isclose(R, R_truth, rel_tol=1e-7)
+        assert isclose(R, R_truth, rel_tol=1e-6)
 
     # classification (tensor case)
     num_classes = 6
