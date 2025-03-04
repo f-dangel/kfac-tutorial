@@ -43,10 +43,10 @@ if __name__ == "__main__":
         for j in range(x1_resolution):
             x = xs[:, j, i]
             grid[j, i], _ = rosenbrock(x, alpha)
-            grid_linearized[j, i] = (
-                rosenbrock_partially_linearized(
-                    x, anchor, alpha
-                )
+            grid_linearized[
+                j, i
+            ] = rosenbrock_partially_linearized(
+                x, anchor, alpha
             )
 
     with plt.rc_context(
