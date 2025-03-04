@@ -127,7 +127,7 @@ With that, we can then write the upper expression as
   \mV^{\vec} {\mV^{\vec}}^{\top}\,.
 \end{align*}
 I.e., we can express the flattened GGN contribution of a single datum as a self-outer product.
-In the following, we will not look further into $\mV^{\vec}$; see \cite{dangel2022vivit,papyan2019measurements} for a detailed discussion. Instead, we want to derive the factorization for the Hessian of the square and cross-entropy losses, which will become useful in later chapters.
+In the following, we will not look further into $\mV^{\vec}$; see~\cite{dangel2022vivit,papyan2019measurements} for a detailed discussion. Instead, we want to derive the factorization for the Hessian of the square and cross-entropy losses, which will become useful in later chapters.
 \begin{example}[Symmetric factorization of the Hessian of square loss]\label{ex:mseloss_hessian_factorization}
   Consider the square loss $c$ from \Cref{ex:square_loss} and its Hessian from \Cref{ex:square_loss_hessian}.
   The Hessian's symmetric factorization is simply
@@ -155,9 +155,6 @@ In the following, we will not look further into $\mV^{\vec}$; see \cite{dangel20
 Note that the Hessian factorization for both the square loss and the softmax cross-entropy loss do not depend on the label, i.e., the second argument of the criterion function.
 We will make use of this property in the next section to connect the GGN with the Fisher matrix for regression and classification tasks.
 
-\switchcolumn[1]
-\codeblock{basics/hessian_factorizations}
-\switchcolumn[0]
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
