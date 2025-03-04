@@ -10,7 +10,6 @@ from torch import cat, manual_seed, rand, zeros_like
 from torch.nn import Linear, MSELoss, Sequential, Sigmoid
 from tueplots import bundles
 
-from kfs.basics.ggns import vec_ggn
 from kfs.basics.hessians import vec_hess
 from kfs.plots import SAVEDIR
 
@@ -77,12 +76,6 @@ if __name__ == "__main__":
         ),
         "rvec_hessian": lambda p_i, p_j: vec_hess(
             loss, (p_i, p_j), vec="rvec"
-        ),
-        "cvec_ggn": lambda p_i, p_j: vec_ggn(
-            loss, (p_i, p_j), output, vec="cvec"
-        ),
-        "rvec_ggn": lambda p_i, p_j: vec_ggn(
-            loss, (p_i, p_j), output, vec="rvec"
         ),
     }
 
