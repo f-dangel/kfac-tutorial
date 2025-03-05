@@ -1,16 +1,19 @@
 """Sampling labels from a model's likelihood."""
 
-from torch import Tensor, normal, Generator
+from typing import Optional
+
+from torch import Generator, Tensor, normal
 
 
 def draw_label_MSELoss(
-    prediction: Tensor, generator: Generator | None = None
+    prediction: Tensor,
+    generator: Optional[Generator] = None,
 ) -> Tensor:
     """Sample a label from the likelihood implied by MSELoss.
 
     Args:
         prediction: The model's prediction for one datum.
-        rng: Optional random number generator.
+        generator: Optional random number generator.
 
     Returns:
         A sample from the likelihood implied by MSELoss.
@@ -20,14 +23,15 @@ def draw_label_MSELoss(
 
 
 def draw_label_CrossEntropyLoss(
-    prediction: Tensor, generator: Generator | None = None
+    prediction: Tensor,
+    generator: Optional[Generator] = None,
 ) -> Tensor:
     """Sample a label from the likelihood implied be CELoss.
 
     Args:
         prediction: The model's prediction for one datum.
             Has shape `(num_classes, *dims_Y)`.
-        rng: Optional random number generator.
+        generator: Optional random number generator.
 
     Returns:
         A sample from the likelihood implied by CELoss.

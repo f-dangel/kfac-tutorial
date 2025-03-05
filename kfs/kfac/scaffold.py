@@ -79,9 +79,9 @@ class KFAC:
             if isinstance(mod, tuple(supported))
         }
         As: Dict[str, Tensor] = {}  # input-based factors
-        Bs: Dict[
-            str, Tensor
-        ] = {}  # grad-output based factors
+        Bs: Dict[str, Tensor] = (
+            {}
+        )  # grad-output based factors
 
         # forward pass, storing layer inputs and outputs
         X, y = data

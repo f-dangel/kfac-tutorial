@@ -79,7 +79,9 @@ def mcfisher(
             mc_samples,
             seed,
             retain_graph=True,
-        )  # mcfishervp is defined in $\text{\Cref{def:mcfishervp}}$
+        )
+        # mcfishervp is defined in
+        # $\text{\Cref{def:mcfishervp}}$
 
     return F
 

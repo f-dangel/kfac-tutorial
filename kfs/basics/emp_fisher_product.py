@@ -1,11 +1,10 @@
 """Empirical-Fisher-vector multiplication."""
 
+from typing import Tuple, Union
 
 from torch import Tensor, zeros_like
 from torch.autograd import grad
 from torch.nn import CrossEntropyLoss, Module, MSELoss
-
-from typing import Union, Tuple
 
 from kfs.basics.reduction_factors import (
     CrossEntropyLoss_criterion,
@@ -44,11 +43,17 @@ def empfishervp(
             we are calculating the Fisher.
         v: The vector that is multiplied with the empirical
             Fisher. Has same shape as params.
+        retain_graph: Optional argument to retain the
+            computation graph. Defaults to False.
 
     Returns:
         The product of the empirical Fisher
         with v. Has same shape as params if params is a
         Tensor, and params[0] if params is a tuple.
+
+    Raises:
+        NotImplementedError: If the loss is neither
+            MSELoss nor CrossEntropyLoss.
     """
     params = (
         (params, params)

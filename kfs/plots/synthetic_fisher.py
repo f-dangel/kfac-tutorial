@@ -1,6 +1,7 @@
 """Visualize the Hessian of a synthetic empirical risk."""
 
 from argparse import ArgumentParser
+from functools import partial
 from os import path
 from typing import Callable, List
 
@@ -31,6 +32,16 @@ from kfs.plots import SAVEDIR
 
 
 def get_rand_data(N: int, D_in: int, D_out: int):
+    """Get random toy dataset.
+
+    Args:
+        N: Number of data points.
+        D_in: Input dimensions.
+        D_out: Output dimensions.
+
+    Returns:
+        A tuple of N inputs and outputs.
+    """
     X = rand(N, D_in)
     y = rand(N, D_out)
 
@@ -38,6 +49,17 @@ def get_rand_data(N: int, D_in: int, D_out: int):
 
 
 def get_model(D_in: int, D_hidden: int, D_out: int):
+    """Get toy model.
+
+    Args:
+        D_in: Input dimensions.
+        D_hidden: Hidden dimensions.
+        D_out: Output dimensions.
+
+    Returns:
+        A three-layer fully-connected network with sigmoid
+        activations and no final activation.
+    """
     return Sequential(
         Linear(D_in, D_hidden),
         Sigmoid(),
@@ -48,6 +70,18 @@ def get_model(D_in: int, D_hidden: int, D_out: int):
 
 
 def curv_mat(curv: Callable, model: Module, bda: bool):
+    """Calculate dense curvature estimate of model.
+
+    Args:
+        curv: The curvature estimate to use. Accepts two
+            parameter tensors.
+        model: The model of interest.
+        bda: Whether to provide a block-diagonal
+            approximation of the dense curvature matrix.
+
+    Returns:
+        The dense curvature matrix.
+    """
     H = []
     for i, p_i in enumerate(model.parameters()):
         H_i = []
@@ -73,6 +107,17 @@ def plot_diff_spec_norms(
     mc_sample_list: List[int],
     name: str,
 ):
+    """Plot spectral norm of MC and exact Fisher diff.
+
+    Args:
+        diff_spec_norms: Spectral norm of MC and exact
+            Fisher differences for various number of
+            MC samples.
+        mc_sample_list: The number of MC samples used
+            for each entry of diff_spec_norms.
+        name: Whether the matrices are in cvec or rvec
+            convention.
+    """
     y_coords = diff_spec_norms.mean(dim=1)
     y_stds = diff_spec_norms.std(dim=1)
     fig, ax = plt.subplots()
@@ -87,7 +132,8 @@ def plot_diff_spec_norms(
     ax.set_yscale("log")
     ax.set_xlabel("MC Samples")
     ax.set_ylabel(
-        r"$\Vert \tilde{F}^{\text{I}} - F^{\text{I}} \Vert_2$"
+        r"$\Vert \tilde{F}^{\text{I}} "
+        r"- F^{\text{I}} \Vert_2$"
     )
 
     plt.savefig(
@@ -127,6 +173,134 @@ def highlight_blocks(
         ax.axhline(current, **style)
 
 
+def cvec_ggn(p_i: Tensor, p_j: Tensor):
+    """Calculate GGN block in cvec convention.
+
+    Args:
+        p_i: First parameter tensor.
+        p_j: Second parameter tensor.
+
+    Returns:
+        The cvec GGN block for p_i and p_j.
+    """
+    return vec_ggn(loss, (p_i, p_j), output, vec="cvec")
+
+
+def rvec_ggn(p_i: Tensor, p_j: Tensor):
+    """Calculate GGN block in rvec convention.
+
+    Args:
+        p_i: First parameter tensor.
+        p_j: Second parameter tensor.
+
+    Returns:
+        The rvec GGN block for p_i and p_j.
+    """
+    return vec_ggn(loss, (p_i, p_j), output, vec="rvec")
+
+
+def cvec_mcfisher(
+    p_i: Tensor,
+    p_j: Tensor,
+    num_samples: int,
+    max_samples: int,
+    seed: int = 42,
+):
+    """Calculate MC Fisher block in cvec convention.
+
+    Args:
+        p_i: First parameter tensor.
+        p_j: Second parameter tensor.
+        num_samples: Number of MC samples to use.
+        max_samples: Maximum number of MC samples allowed.
+        seed: Optional seed for reproducibility.
+
+    Returns:
+        The cvec MC Fisher block for p_i and p_j.
+    """
+    return vec_mcfisher_quick(
+        model,
+        loss_func,
+        X,
+        y,
+        (p_i, p_j),
+        min(num_samples, max_samples),
+        vec="cvec",
+        seed=seed,
+    )
+
+
+def rvec_mcfisher(
+    p_i: Tensor,
+    p_j: Tensor,
+    num_samples: int,
+    max_samples: int,
+    seed: int = 42,
+):
+    """Calculate MC Fisher block in rvec convention.
+
+    Args:
+        p_i: First parameter tensor.
+        p_j: Second parameter tensor.
+        num_samples: Number of MC samples to use.
+        max_samples: Maximum number of MC samples allowed.
+        seed: Optional seed for reproducibility.
+
+    Returns:
+        The rvec MC Fisher block for p_i and p_j.
+    """
+    return vec_mcfisher_quick(
+        model,
+        loss_func,
+        X,
+        y,
+        (p_i, p_j),
+        min(num_samples, max_samples),
+        vec="rvec",
+        seed=seed,
+    )
+
+
+def cvec_empfisher(p_i: Tensor, p_j: Tensor):
+    """Calculate empirical Fisher block in cvec convention.
+
+    Args:
+        p_i: First parameter tensor.
+        p_j: Second parameter tensor.
+
+    Returns:
+        The cvec empirical Fisher block for p_i and p_j.
+    """
+    return vec_empfisher(
+        model,
+        loss_func,
+        X,
+        y,
+        (p_i, p_j),
+        vec="cvec",
+    )
+
+
+def rvec_empfisher(p_i: Tensor, p_j: Tensor):
+    """Calculate empirical Fisher block in rvec convention.
+
+    Args:
+        p_i: First parameter tensor.
+        p_j: Second parameter tensor.
+
+    Returns:
+        The rvec empirical Fisher block for p_i and p_j.
+    """
+    return vec_empfisher(
+        model,
+        loss_func,
+        X,
+        y,
+        (p_i, p_j),
+        vec="rvec",
+    )
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
@@ -139,15 +313,19 @@ if __name__ == "__main__":
         "--reduce_mc_samples",
         action="store_true",
         default=False,
-        help="Reduce the number of MC samples for CI integration.",
+        help=(
+            "Reduce the number of MC samples for "
+            "CI integration."
+        ),
     )
     args = parser.parse_args()
 
     config = bundles.icml2024(usetex=not args.disable_tex)
     plt.rcParams.update(config)
-    plt.rcParams[
-        "text.latex.preamble"
-    ] += r"\usepackage{amsmath} \usepackage{amsfonts} \usepackage{bm}"
+    plt.rcParams["text.latex.preamble"] += (
+        r"\usepackage{amsmath} \usepackage{amsfonts} "
+        r"\usepackage{bm}"
+    )
 
     manual_seed(0)
     N = 100
@@ -174,68 +352,36 @@ if __name__ == "__main__":
     loss = loss_func(output, y)
 
     curvature_funcs = {
-        "cvec_ggn": lambda p_i, p_j: vec_ggn(
-            loss, (p_i, p_j), output, vec="cvec"
+        "cvec_ggn": cvec_ggn,
+        "rvec_ggn": rvec_ggn,
+        "cvec_mcfisher_1": partial(
+            cvec_mcfisher,
+            num_samples=1,
+            max_samples=max_num_mc_samples,
         ),
-        "rvec_ggn": lambda p_i, p_j: vec_ggn(
-            loss, (p_i, p_j), output, vec="rvec"
+        "rvec_mcfisher_1": partial(
+            rvec_mcfisher,
+            num_samples=1,
+            max_samples=max_num_mc_samples,
         ),
-        "cvec_mcfisher_1": lambda p_i, p_j: vec_mcfisher_quick(
-            model,
-            loss_func,
-            X,
-            y,
-            (p_i, p_j),
-            1,
-            vec="cvec",
+        "cvec_mcfisher_100": partial(
+            cvec_mcfisher,
+            num_samples=100,
+            max_samples=max_num_mc_samples,
         ),
-        "rvec_mcfisher_1": lambda p_i, p_j: vec_mcfisher_quick(
-            model,
-            loss_func,
-            X,
-            y,
-            (p_i, p_j),
-            1,
-            vec="rvec",
+        "rvec_mcfisher_100": partial(
+            rvec_mcfisher,
+            num_samples=100,
+            max_samples=max_num_mc_samples,
         ),
-        "cvec_mcfisher_100": lambda p_i, p_j: vec_mcfisher_quick(
-            model,
-            loss_func,
-            X,
-            y,
-            (p_i, p_j),
-            min(100, max_num_mc_samples),
-            vec="cvec",
-        ),
-        "rvec_mcfisher_100": lambda p_i, p_j: vec_mcfisher_quick(
-            model,
-            loss_func,
-            X,
-            y,
-            (p_i, p_j),
-            min(100, max_num_mc_samples),
-            vec="rvec",
-        ),
-        "cvec_empfisher": lambda p_i, p_j: vec_empfisher(
-            model,
-            loss_func,
-            X,
-            y,
-            (p_i, p_j),
-            vec="cvec",
-        ),
-        "rvec_empfisher": lambda p_i, p_j: vec_empfisher(
-            model,
-            loss_func,
-            X,
-            y,
-            (p_i, p_j),
-            vec="rvec",
-        ),
+        "cvec_empfisher": cvec_empfisher,
+        "rvec_empfisher": rvec_empfisher,
     }
 
     for name, func in curvature_funcs.items():
-        bda_options = [False, True] if "ggn" in name else [False]
+        bda_options = (
+            [False, True] if "ggn" in name else [False]
+        )
         for bda in bda_options:
             # compute curvature matrix tiles and combine them
             C = curv_mat(func, model, bda)
@@ -274,29 +420,20 @@ if __name__ == "__main__":
     ]
     num_trials = 3
 
-    rvec_ggn = lambda p_i, p_j: vec_ggn(
-        loss, (p_i, p_j), output, vec="rvec"
-    )
-
     rvec_G = curv_mat(rvec_ggn, model, bda=False)
 
     for mc_samples in mc_sample_list:
         rvec_curr_diff_spec_norms = []
         for trial_idx in range(num_trials):
-            rvec_mcfisher = (
-                lambda p_i, p_j: vec_mcfisher_quick(
-                    model,
-                    loss_func,
-                    X,
-                    y,
-                    (p_i, p_j),
-                    mc_samples,
-                    vec="rvec",
-                    seed=trial_idx,
-                )
-            )
             rvec_F = curv_mat(
-                rvec_mcfisher, model, bda=False
+                partial(
+                    rvec_mcfisher,
+                    num_samples=mc_samples,
+                    max_samples=float("inf"),
+                    seed=trial_idx,
+                ),
+                model,
+                bda=False,
             )
             rvec_diff_spec_norm = matrix_norm(
                 rvec_G - rvec_F, ord=2

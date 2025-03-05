@@ -1,5 +1,7 @@
 """Empirical Fisher tensor and matrices."""
 
+from typing import Tuple, Union
+
 from torch import (
     Tensor,
     arange,
@@ -7,12 +9,10 @@ from torch import (
     zeros,
     zeros_like,
 )
-
-from typing import Union, Tuple
-
-from kfs.basics.flattening import cvec, rvec
-from kfs.basics.emp_fisher_product import empfishervp
 from torch.nn import Module
+
+from kfs.basics.emp_fisher_product import empfishervp
+from kfs.basics.flattening import cvec, rvec
 
 
 def empfisher(
@@ -69,7 +69,9 @@ def empfisher(
             (params2, params1),
             one_hot_d,
             retain_graph=True,
-        )  # empfishervp is defined in $\text{\Cref{basics/emp_fisher_product}}$
+        )
+        # empfishervp is defined in
+        # $\text{\Cref{basics/emp_fisher_product}}$
 
     return F
 

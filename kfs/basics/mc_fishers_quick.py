@@ -1,12 +1,12 @@
-"""Efficient Monte-Carlo-approximated Type-I Fisher tensor and matrices."""
+"""Efficient MC Fisher tensor and matrices."""
 
 from typing import Tuple, Union
 
 from torch import (
     Generator,
     Tensor,
-    zeros,
     outer,
+    zeros,
 )
 from torch.autograd import grad
 from torch.nn import CrossEntropyLoss, Module, MSELoss
@@ -25,7 +25,7 @@ from kfs.basics.reduction_factors import (
 
 def mcfisher_quick(
     model: Module,
-    loss_func: MSELoss | CrossEntropyLoss,
+    loss_func: Union[MSELoss, CrossEntropyLoss],
     inputs: Tensor,
     labels: Tensor,
     params: Union[Tensor, Tuple[Tensor, Tensor]],
@@ -114,7 +114,7 @@ def mcfisher_quick(
 
 def vec_mcfisher_quick(
     model: Module,
-    loss_func: MSELoss | CrossEntropyLoss,
+    loss_func: Union[MSELoss, CrossEntropyLoss],
     inputs: Tensor,
     labels: Tensor,
     params: Union[Tensor, Tuple[Tensor, Tensor]],

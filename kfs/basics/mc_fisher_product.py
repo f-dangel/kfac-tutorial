@@ -1,11 +1,10 @@
 """MC-approximated Type-I Fisher-vector multiplication."""
 
+from typing import Tuple, Union
 
 from torch import Generator, Tensor, zeros_like
 from torch.autograd import grad
 from torch.nn import CrossEntropyLoss, Module, MSELoss
-
-from typing import Union, Tuple
 
 from kfs.basics.label_sampling import (
     draw_label_CrossEntropyLoss,
@@ -60,6 +59,10 @@ def mcfishervp(
         The product of the Monte Carlo approximated Fisher
         with v. Has same shape as params if params is a
         Tensor, and params[0] if params is a tuple.
+
+    Raises:
+        NotImplementedError: If the loss function is
+            neither MSELoss nor CrossEntropyLoss.
     """
     params = (
         (params, params)
