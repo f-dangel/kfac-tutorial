@@ -15,7 +15,7 @@ from kfs.basics.reduction_factors import (
 
 def empfishervp(
     model: Module,
-    loss_func: Module,
+    loss_func: Union[MSELoss, CrossEntropyLoss],
     inputs: Tensor,
     labels: Tensor,
     params: Union[Tensor, Tuple[Tensor, Tensor]],
@@ -50,10 +50,6 @@ def empfishervp(
         The product of the empirical Fisher
         with v. Has same shape as params if params is a
         Tensor, and params[0] if params is a tuple.
-
-    Raises:
-        NotImplementedError: If the loss is neither
-            MSELoss nor CrossEntropyLoss.
     """
     params = (
         (params, params)
@@ -63,14 +59,10 @@ def empfishervp(
 
     result = zeros_like(params[0])
 
-    if isinstance(loss_func, MSELoss):
-        c_func = MSELoss_criterion
-    elif isinstance(loss_func, CrossEntropyLoss):
-        c_func = CrossEntropyLoss_criterion
-    else:
-        raise NotImplementedError(
-            f"Unknown loss function: {type(loss_func)}"
-        )
+    c_func = {
+        MSELoss: MSELoss_criterion,
+        CrossEntropyLoss: CrossEntropyLoss_criterion,
+    }[type(loss_func)]
 
     reduction_factor = get_reduction_factor(
         loss_func, labels
