@@ -1,9 +1,9 @@
-"""Visualize the Hessian of a synthetic empirical risk."""
+"""Visualize the Fisher of a synthetic empirical risk."""
 
 from argparse import ArgumentParser
 from functools import partial
 from os import path
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
@@ -31,7 +31,9 @@ from kfs.basics.mc_fishers_quick import vec_mcfisher_quick
 from kfs.plots import SAVEDIR
 
 
-def get_rand_data(N: int, D_in: int, D_out: int):
+def get_rand_data(
+    N: int, D_in: int, D_out: int
+) -> Tuple[Tensor, Tensor]:
     """Get random toy dataset.
 
     Args:
@@ -48,7 +50,9 @@ def get_rand_data(N: int, D_in: int, D_out: int):
     return X, y
 
 
-def get_model(D_in: int, D_hidden: int, D_out: int):
+def get_model(
+    D_in: int, D_hidden: int, D_out: int
+) -> Sequential:
     """Get toy model.
 
     Args:
@@ -69,7 +73,9 @@ def get_model(D_in: int, D_hidden: int, D_out: int):
     )
 
 
-def curv_mat(curv: Callable, model: Module, bda: bool):
+def curv_mat(
+    curv: Callable, model: Module, bda: bool
+) -> Tensor:
     """Calculate dense curvature estimate of model.
 
     Args:
@@ -106,7 +112,7 @@ def plot_diff_spec_norms(
     diff_spec_norms: Tensor,
     mc_sample_list: List[int],
     name: str,
-):
+) -> None:
     """Plot spectral norm of MC and exact Fisher diff.
 
     Args:
@@ -152,7 +158,7 @@ def highlight_blocks(
     block_dims: List[int],
     color: str = "white",
     linewidth: float = 0.25,
-):
+) -> None:
     """Highlight the block structure of a square matrix.
 
     Args:
@@ -173,12 +179,16 @@ def highlight_blocks(
         ax.axhline(current, **style)
 
 
-def cvec_ggn(p_i: Tensor, p_j: Tensor):
+def cvec_ggn(
+    p_i: Tensor, p_j: Tensor, loss: Tensor, output: Tensor
+) -> Tensor:
     """Calculate GGN block in cvec convention.
 
     Args:
         p_i: First parameter tensor.
         p_j: Second parameter tensor.
+        loss: Loss value.
+        output: Output of the neural network.
 
     Returns:
         The cvec GGN block for p_i and p_j.
@@ -186,12 +196,16 @@ def cvec_ggn(p_i: Tensor, p_j: Tensor):
     return vec_ggn(loss, (p_i, p_j), output, vec="cvec")
 
 
-def rvec_ggn(p_i: Tensor, p_j: Tensor):
+def rvec_ggn(
+    p_i: Tensor, p_j: Tensor, loss: Tensor, output: Tensor
+) -> Tensor:
     """Calculate GGN block in rvec convention.
 
     Args:
         p_i: First parameter tensor.
         p_j: Second parameter tensor.
+        loss: Loss value.
+        output: Output of the neural network.
 
     Returns:
         The rvec GGN block for p_i and p_j.
@@ -202,15 +216,23 @@ def rvec_ggn(p_i: Tensor, p_j: Tensor):
 def cvec_mcfisher(
     p_i: Tensor,
     p_j: Tensor,
+    model: Sequential,
+    loss_func: MSELoss,
+    X: Tensor,
+    y: Tensor,
     num_samples: int,
     max_samples: int,
     seed: int = 42,
-):
+) -> Tensor:
     """Calculate MC Fisher block in cvec convention.
 
     Args:
         p_i: First parameter tensor.
         p_j: Second parameter tensor.
+        model: Neural network.
+        loss_func: Loss function.
+        X: Input tensor.
+        y: Target tensor.
         num_samples: Number of MC samples to use.
         max_samples: Maximum number of MC samples allowed.
         seed: Optional seed for reproducibility.
@@ -233,15 +255,23 @@ def cvec_mcfisher(
 def rvec_mcfisher(
     p_i: Tensor,
     p_j: Tensor,
+    model: Sequential,
+    loss_func: MSELoss,
+    X: Tensor,
+    y: Tensor,
     num_samples: int,
     max_samples: int,
     seed: int = 42,
-):
+) -> Tensor:
     """Calculate MC Fisher block in rvec convention.
 
     Args:
         p_i: First parameter tensor.
         p_j: Second parameter tensor.
+        model: Neural network.
+        loss_func: Loss function.
+        X: Input tensor.
+        y: Target tensor.
         num_samples: Number of MC samples to use.
         max_samples: Maximum number of MC samples allowed.
         seed: Optional seed for reproducibility.
@@ -261,12 +291,23 @@ def rvec_mcfisher(
     )
 
 
-def cvec_empfisher(p_i: Tensor, p_j: Tensor):
+def cvec_empfisher(
+    p_i: Tensor,
+    p_j: Tensor,
+    model: Sequential,
+    loss_func: MSELoss,
+    X: Tensor,
+    y: Tensor,
+) -> Tensor:
     """Calculate empirical Fisher block in cvec convention.
 
     Args:
         p_i: First parameter tensor.
         p_j: Second parameter tensor.
+        model: Neural network.
+        loss_func: Loss function.
+        X: Input tensor.
+        y: Target tensor.
 
     Returns:
         The cvec empirical Fisher block for p_i and p_j.
@@ -281,12 +322,23 @@ def cvec_empfisher(p_i: Tensor, p_j: Tensor):
     )
 
 
-def rvec_empfisher(p_i: Tensor, p_j: Tensor):
+def rvec_empfisher(
+    p_i: Tensor,
+    p_j: Tensor,
+    model: Sequential,
+    loss_func: MSELoss,
+    X: Tensor,
+    y: Tensor,
+) -> Tensor:
     """Calculate empirical Fisher block in rvec convention.
 
     Args:
         p_i: First parameter tensor.
         p_j: Second parameter tensor.
+        model: Neural network.
+        loss_func: Loss function.
+        X: Input tensor.
+        y: Target tensor.
 
     Returns:
         The rvec empirical Fisher block for p_i and p_j.
@@ -330,20 +382,13 @@ if __name__ == "__main__":
     manual_seed(0)
     N = 100
     D_in, D_hidden, D_out = 5, 4, 3
-    X = rand(N, D_in)
-    y = rand(N, D_out)
+    X, y = get_rand_data(N, D_in, D_out)
 
     max_num_mc_samples = (
         10 if args.reduce_mc_samples else float("inf")
     )
 
-    model = Sequential(
-        Linear(D_in, D_hidden),
-        Sigmoid(),
-        Linear(D_hidden, D_hidden),
-        Sigmoid(),
-        Linear(D_hidden, D_out),
-    )
+    model = get_model(D_in, D_hidden, D_out)
     param_dims = [p.numel() for p in model.parameters()]
     num_params = sum(param_dims)
     loss_func = MSELoss()
@@ -352,30 +397,62 @@ if __name__ == "__main__":
     loss = loss_func(output, y)
 
     curvature_funcs = {
-        "cvec_ggn": cvec_ggn,
-        "rvec_ggn": rvec_ggn,
+        "cvec_ggn": partial(
+            cvec_ggn, loss=loss, output=output
+        ),
+        "rvec_ggn": partial(
+            rvec_ggn, loss=loss, output=output
+        ),
         "cvec_mcfisher_1": partial(
             cvec_mcfisher,
+            model=model,
+            loss_func=loss_func,
+            X=X,
+            y=y,
             num_samples=1,
             max_samples=max_num_mc_samples,
         ),
         "rvec_mcfisher_1": partial(
             rvec_mcfisher,
+            model=model,
+            loss_func=loss_func,
+            X=X,
+            y=y,
             num_samples=1,
             max_samples=max_num_mc_samples,
         ),
         "cvec_mcfisher_100": partial(
             cvec_mcfisher,
+            model=model,
+            loss_func=loss_func,
+            X=X,
+            y=y,
             num_samples=100,
             max_samples=max_num_mc_samples,
         ),
         "rvec_mcfisher_100": partial(
             rvec_mcfisher,
+            model=model,
+            loss_func=loss_func,
+            X=X,
+            y=y,
             num_samples=100,
             max_samples=max_num_mc_samples,
         ),
-        "cvec_empfisher": cvec_empfisher,
-        "rvec_empfisher": rvec_empfisher,
+        "cvec_empfisher": partial(
+            cvec_empfisher,
+            model=model,
+            loss_func=loss_func,
+            X=X,
+            y=y,
+        ),
+        "rvec_empfisher": partial(
+            rvec_empfisher,
+            model=model,
+            loss_func=loss_func,
+            X=X,
+            y=y,
+        ),
     }
 
     for name, func in curvature_funcs.items():
@@ -420,7 +497,11 @@ if __name__ == "__main__":
     ]
     num_trials = 3
 
-    rvec_G = curv_mat(rvec_ggn, model, bda=False)
+    rvec_G = curv_mat(
+        partial(rvec_ggn, loss=loss, output=output),
+        model,
+        bda=False,
+    )
 
     for mc_samples in mc_sample_list:
         rvec_curr_diff_spec_norms = []
@@ -428,6 +509,10 @@ if __name__ == "__main__":
             rvec_F = curv_mat(
                 partial(
                     rvec_mcfisher,
+                    model=model,
+                    loss_func=loss_func,
+                    X=X,
+                    y=y,
                     num_samples=mc_samples,
                     max_samples=float("inf"),
                     seed=trial_idx,
