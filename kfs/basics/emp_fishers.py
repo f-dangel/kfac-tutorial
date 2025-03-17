@@ -9,7 +9,7 @@ from torch import (
     zeros,
     zeros_like,
 )
-from torch.nn import Module
+from torch.nn import CrossEntropyLoss, Module, MSELoss
 
 from kfs.basics.emp_fisher_product import empfishervp
 from kfs.basics.flattening import cvec, rvec
@@ -17,7 +17,7 @@ from kfs.basics.flattening import cvec, rvec
 
 def empfisher(
     model: Module,
-    loss_func: Module,
+    loss_func: Union[MSELoss, CrossEntropyLoss],
     inputs: Tensor,
     labels: Tensor,
     params: Union[Tensor, Tuple[Tensor, Tensor]],
@@ -55,7 +55,12 @@ def empfisher(
         else params
     )
     (dtype,) = {params1.dtype, params2.dtype}
-    F = zeros(params1.shape + params2.shape, dtype=dtype)
+    (device,) = {params1.device, params2.device}
+    F = zeros(
+        params1.shape + params2.shape,
+        dtype=dtype,
+        device=device,
+    )
 
     for d in arange(params1.numel()):
         d_unraveled = unravel_index(d, params1.shape)
