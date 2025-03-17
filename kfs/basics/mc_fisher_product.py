@@ -19,7 +19,7 @@ from kfs.basics.reduction_factors import (
 
 def mcfishervp(
     model: Module,
-    loss_func: Module,
+    loss_func: Union[MSELoss, CrossEntropyLoss],
     inputs: Tensor,
     labels: Tensor,
     params: Union[Tensor, Tuple[Tensor, Tensor]],
@@ -59,10 +59,6 @@ def mcfishervp(
         The product of the Monte Carlo approximated Fisher
         with v. Has same shape as params if params is a
         Tensor, and params[0] if params is a tuple.
-
-    Raises:
-        NotImplementedError: If the loss function is
-            neither MSELoss nor CrossEntropyLoss.
     """
     params = (
         (params, params)
@@ -75,16 +71,14 @@ def mcfishervp(
 
     result = zeros_like(params[0])
 
-    if isinstance(loss_func, MSELoss):
-        c_func = MSELoss_criterion
-        sample_label_func = draw_label_MSELoss
-    elif isinstance(loss_func, CrossEntropyLoss):
-        c_func = CrossEntropyLoss_criterion
-        sample_label_func = draw_label_CrossEntropyLoss
-    else:
-        raise NotImplementedError(
-            f"Unknown loss function: {type(loss_func)}"
-        )
+    c_func = {
+        MSELoss: MSELoss_criterion,
+        CrossEntropyLoss: CrossEntropyLoss_criterion,
+    }[type(loss_func)]
+    sample_label_func = {
+        MSELoss: draw_label_MSELoss,
+        CrossEntropyLoss: draw_label_CrossEntropyLoss,
+    }[type(loss_func)]
 
     reduction_factor = get_reduction_factor(
         loss_func, labels
