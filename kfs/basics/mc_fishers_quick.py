@@ -1,4 +1,8 @@
-"""Efficient MC Fisher tensor and matrices."""
+"""Efficient MC Fisher tensor and matrices.
+
+Good for tests that require instantiating Fisher matrices
+but scales poorly to high-dimensional parameter spaces.
+"""
 
 from typing import Tuple, Union
 
@@ -87,22 +91,18 @@ def mcfisher_quick(
         loss_func, labels
     )
 
-    for x_idx, x in enumerate(inputs.split(1)):
+    for x in inputs.split(1):
         pred_n = model(x)
-        for mc_idx in range(mc_samples):
+        for _ in range(mc_samples):
             y_tilde_nm = sample_label_func(
                 pred_n, generator
             )
             c_nm = c_func(pred_n, y_tilde_nm)
 
-            last_iter = (x_idx == len(inputs) - 1) and (
-                mc_idx == mc_samples - 1
-            )
-
             g_nm1, g_nm2 = grad(
                 c_nm,
                 (params1, params2),
-                retain_graph=not last_iter,
+                retain_graph=True,
             )
             g_nm1, g_nm2 = g_nm1.detach(), g_nm2.detach()
             F_flat = outer(g_nm1.flatten(), g_nm2.flatten())
