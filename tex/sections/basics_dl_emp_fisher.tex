@@ -1,9 +1,12 @@
 Finally, we introduce the empirical Fisher information matrix. This matrix serves
-as an approximation to the Type-I Fisher. Its most prominent appearance in the
-optimization literature is through the Adam algorithm. Adam stores the moving
-average of the loss' squared gradients to normalize the gradient values. This
-corresponds to a diagonal approximation to preconditioning with the empirical
-Fisher, defined below.
+as an approximation to the Type-I Fisher that does not require Monte Carlo sampling.
+Several contemporary optimizers, e.g.~the Adam variants, gained inspiration from
+second-order optimization, in particular preconditioning with the empirical Fisher.
+For example, Adam stores the moving average of the mini-batch loss' squared gradients,
+which is motivated by (but is not equivalent to) preconditioning with the \emph{diagonal}
+of the empirical Fisher, defined below.\footnote{See~\cite{pmlr-v235-lin24e} for the exact
+preconditioner Adam approximates, which is a different approximation of the Fisher
+information matrix.}
 
 \begin{definition}[Empirical Fisher (\Cref{emp_fishers})]\label{def:emp_fisher}%
   The empirical matrix of the likelihood $\log r(\rvy \mid f(\vx_n, \vtheta))$,
