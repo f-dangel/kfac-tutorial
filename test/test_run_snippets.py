@@ -32,9 +32,16 @@ def test_run_snippets(snippet: str):
     """
     cmd = ["python", snippet]
     if snippet.endswith(
-        "linearized_rosenbrock.py"
-    ) or snippet.endswith("synthetic_hessian.py"):
+        (
+            "linearized_rosenbrock.py",
+            "synthetic_hessian.py",
+            "synthetic_fisher.py",
+        )
+    ):
         cmd.append("--disable_tex")
+
+    if snippet.endswith("synthetic_fisher.py"):
+        cmd.append("--reduce_mc_samples")
 
     try:
         print(f"Running command: {' '.join(cmd)}")

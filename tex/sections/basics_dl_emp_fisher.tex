@@ -1,0 +1,48 @@
+Finally, we introduce the empirical Fisher information matrix.
+This matrix serves as an approximation to the Type-I Fisher that does not require Monte Carlo sampling.
+Several contemporary optimizers, e.g.~the Adam variants, gained inspiration from second-order optimization, in particular preconditioning with the empirical Fisher.
+For example, Adam stores the moving average of the mini-batch loss' squared gradients, which is motivated by (but is not equivalent to) preconditioning with the \emph{diagonal} of the empirical Fisher, defined below.\footnote{See~\cite{lin2024can} for the exact preconditioner Adam approximates, which is a different approximation of the Fisher information matrix.}
+
+\begin{definition}[Empirical Fisher (\Cref{emp_fishers})]\label{def:emp_fisher}%
+  The empirical matrix of the likelihood $\log r(\rvy \mid f(\vx_n, \vtheta))$,
+  $\hat{\mF}(\vtheta) \in \sR^{D \times D}$ is defined as
+  \begin{align*}
+    & \hat{\mF}(\vtheta) \\
+	& = \frac{1}{N} \sum_{n}
+	\begin{aligned}[t]
+	   & (-\nabla_{\vtheta} \log r(\rvy = \vy_n \mid \vf_n))        \\
+	   & (-\nabla_{\vtheta} \log r(\rvy = \vy_n \mid \vf_n))^{\top} \\
+	\end{aligned} \\
+    & = \frac{1}{N} \sum_{n}
+    \begin{aligned}[t]
+       & \left(\jac_{\vtheta}\vf_n\right)^{\top}                  \\
+       & (-\nabla_{\vf_n} \log r(\rvy = \vy_n \mid \vf_n))        \\
+       & (-\nabla_{\vf_n} \log r(\rvy = \vy_n \mid \vf_n))^{\top} \\
+       & \jac_{\vtheta}\vf_n.
+    \end{aligned}
+  \end{align*}
+\end{definition}
+
+\switchcolumn[1]*
+\codeblock{basics/emp_fishers}
+\codeblock{basics/emp_fisher_product}
+\switchcolumn[0]
+
+The subtle difference between the empirical and Type-I Fishers is that
+$\mF^\text{I}(\vtheta)$ contains an \emph{expectation} over the gradient
+outer product
+\begin{align*}
+  &(-\nabla_{\vtheta} \log r(\rvy = \vy_n \mid \vf_n)) \\
+  &(-\nabla_{\vtheta} \log r(\rvy = \vy_n \mid \vf_n))^{\top},
+\end{align*}
+w.r.t.~the model's predictive distribution $r(\rvy \mid \vf_n)$,
+whereas $\hat{\mF}(\vtheta)$ plugs in the \emph{ground-truth} labels $\vy_n$
+into the gradient outer product. While the computation of the empirical Fisher
+is more efficient than that Monte Carlo approximating the Type-I Fisher with
+number of samples $M > 1$, this subtle difference
+has severe implications for the utility of this matrix in optimization.
+In particular,~\citet{kunstner2019limitations} show that preconditioning with
+the empirical Fisher can have detrimental effects even in simple problems,
+owing to its poor theoretical grounding. The empirical Fisher's success
+in some settings (e.g., through Adam) can be attributed to its ability to attenuate
+\emph{gradient noise}, not its properties as a curvature estimate.

@@ -85,10 +85,11 @@ class KFAC:
 
         # forward pass, storing layer inputs and outputs
         X, y = data
-        prediction, intermediates = (
-            output_and_intermediates(
-                model, X, layers.keys()
-            )
+        (
+            prediction,
+            intermediates,
+        ) = output_and_intermediates(
+            model, X, layers.keys()
         )
 
         # compute input-based Kronecker factors
