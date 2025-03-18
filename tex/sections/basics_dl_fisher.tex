@@ -258,9 +258,7 @@ We can think of $\tilde{\mV}_n \in \sR^{D \times M}$ as a randomization of $\mV_
 
 \paragraph{Reduction factor of the Fisher versus empirical risk:}
 In the above derivation we arrived at an expression of the Fisher which uses a reduction factor $R = \frac{1}{N}$.
-However, other reduction factors are equally common, e.g.\,when predicting a sequence of $T$ tokens, the reduction factor is $R = \frac{1}{NT}$.
-In other words, the Fisher is tied to a statistical manifold over probability distributions, and depending on our choice of distribution, we obtain different normalizations.
-This is a subtlety that we will usually ignore in practise, simply by using the reduction factor from our empirical risk (which consequently implies the statistical manifold on which we are considering the Fisher).
+We will usually handle this factor flexibly in practise by using the reduction factor of our empirical risk.
 
 
 \begin{example}[Gradients of MSELoss]
