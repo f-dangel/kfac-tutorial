@@ -1,102 +1,140 @@
-This is an attempt to bundle scattered knowledge about KFAC into a single document, explain all the technicalities and pitfalls, and present tests to ensure bug-free implementations.
+\paragraph{Relevance.} Kronecker-factored approximate curvature (KFAC) is arguably one of the most prominent curvature approximations in deep learning.
+Its applications range from optimization~\cite{martens2015optimizing,grosse2016kroneckerfactored,eschenhagen2023kroneckerfactored,benzing2022gradient,petersen2023isaac} to Bayesian deep learning~\cite{daxberger2021laplace}, training data attribution with influence functions~\cite{grosse2023studying,bae2024training}, and model pruning~\cite{wang2019eigendamage} and merging~\cite{tam2024merging}.
+The intuition behind KFAC is easy to understand: it approximates curvature information in the form of Kronecker-factored matrices that are cheap to store and compute with.
+There exist several packages that compute KFAC~\cite{botev2022kfac-jax,dangel2020backpack,osawa2023asdl}.
+However, the details of these implementations are often not well-documented, making them hard to extend, e.g.\,adding support for new layers, or adding features like eigen-value correction~\cite{george2018fast}.
+We claim that achieving a bug-free KFAC implementation is non-trivial, and our understanding is still evolving.
 
-Should answer the following questions:
-\begin{itemize}
-\item Why do we need this tutorial?
-\item Why is this not a Jupyter notebook?
-\item What do we gain by explaining KFAC bottom-up?
-\item What ML framework do we use and why?
-\item What are we \emph{not} doing (e.g.\,building an optimizer)?
-\end{itemize}
+\paragraph{Goals.}
+This is an attempt to bundle the scattered knowledge about KFAC into a single document, explain all the technicalities and pitfalls, and present tests to ensure bug-free implementations.
+Our goal with this tutorial is to explain, from scratch, how to obtain a KFAC implementation that is easy to build on, allowing newcomers to fully grasp the concept, and providing experienced practitioners a code base to build on.
+We use PyTorch~\cite{paszke2019pytorch} and rely on its modular interface (\texttt{torch.nn} modules), which is familiar to most deep learning practitioners.
+The tutorial's goals are the following:
+\begin{enumerate}
+  % Explain the 'C' in KFAC
+\item \textbf{[Basics] Provide a self-contained introduction to curvature matrices.}
+  To understand KFAC, we first need to understand the objects it aims to approximate, namely curvature matrices of neural network loss functions.
+  These curvature matrices are all based on the Hessian, which gives rise to the curvature if we Taylor-expand the loss up to quadratic order.
+  We will introduce common approximations of the Hessian, like the generalized Gauss-Newton (GGN), Fisher, and empirical Fisher (EF), and how to work with them through autodiff (\cref{sec:basics}).
+  This establishes the basis of our tutorial, and serves as foundation to test our KFAC implementation.
+  See \cref{sec:cheatsheet-basics} for a compact summary.
 
-We use PyTorch~\cite{paszke2019pytorch} and implement everything using \texttt{torch.nn} rather than a functional formulation as we feel that many deep learning practitioners are more familiar with this style.
-There could be a JAX or functorch version, too.
+  % Explain the 'KF' in KFAC
+\item \textbf{[Intuition] Show how Kronecker products naturally emerge in curvature matrices.} Doing so provides a motivation for using Kronecker-factorization as `natural' structure to approximate it, which is what KFAC does (\cref{sec:kfac-overview}).
 
-\begin{itemize}
-\item KFAC approximates the Fisher, which is an outer product of gradients. The gradients involve the output-parameter Jacobian of a weight, which has Kronecker structure,
-  \begin{align}
-    \jac_{\mW}(\mW \vx) = \vx^{\top} \otimes \mI\,.
-  \end{align}
-  This implies that the Fisher contains terms of the following form, where $\bullet$ is a placeholder for some matrix,
-  \begin{align}
-    \left(
-    \vx^{\top}\otimes \mI
-    \right)^{\top}
-    \bullet
-    \left(
-    \vx^{\top}\otimes \mI
-    \right)\,.
-  \end{align}
+  % Explain the 'A' in KFAC
+\item \textbf{[Code] Explain how to implement and test KFAC.} Present the different flavours of KFAC, and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-expand-linear}).
+\end{enumerate}
+\paragraph{Scope \& limitations:} To make this tutorial pedagogically valuable while providing a different experience than just reading the original papers introducing KFAC, we had to make certain compromises.
+Understanding and implementing KFAC in all its different variations quickly becomes daunting.
+Here is a rough breakdown of the degrees of freedom:
+\begin{center}
 
-\item The goal is to build up to an abstract general formulation of KFAC.
-  Given a compute graph which uses the operations $\vx, \mW \mapsto \mW x$, potentially in multiple places, define a Kronecker approximation of the Fisher.
-  Also to show the different degrees of freedom: treating weights \& biases jointly/separately, using reduce versus expand approximation, and treating weight tying, i.e.
-  multi-usage of $\mW$.
-
-\end{itemize}
-TODO Should mention somewhere that many of the provided examples are already discussed in Felix's PhD thesis~\cite{dangel2023backpropagation}.
-
-\paragraph{KFAC flavours} There are various degrees of freedom that induce different KFAC flavours:
+  \begin{tabular}[!h]{cc}
+    \textbf{Degree of freedom}
+    &
+      \textbf{Choices}
+    \\
+    Which software framework should we use?
+    &
+      $
+      \begin{Bmatrix}
+        \text{PyTorch}
+        \\
+        \text{JAX}
+      \end{Bmatrix}
+      $
+    \\
+    & $\times$
+    \\
+    Which neural network layers should we discuss?
+    &
+      $
+      \begin{Bmatrix}
+        \text{fully-connected layers}
+        \\
+        \text{convolutional layers}
+        \\
+        \text{recurrent layers}
+        \\
+        \text{attention layers}
+      \end{Bmatrix}
+      $
+    \\
+    & $\times$
+    \\
+    Which curvature matrices should we discuss?
+    &
+      $
+      \begin{Bmatrix}
+        \text{Hessian}
+        \\
+        \text{GGN}
+        \\
+        \text{Fisher (type-I/II, empirical)}
+      \end{Bmatrix}
+      $
+    \\
+    & $\times$
+    \\
+    Which flattening convention should we choose?
+    &
+      $
+      \begin{Bmatrix}
+        \cvec\,\text{(used by literature)}
+        \\
+        \rvec\,\text{(used by implementations)}
+      \end{Bmatrix}
+      $
+    \\
+    & $\times$
+    \\
+    How should we handle weight sharing?
+    &
+      $
+      \begin{Bmatrix}
+        \text{expand}
+        \\
+        \text{reduce}
+      \end{Bmatrix}
+      $
+  \end{tabular}
+\end{center}
+We decided to center this tutorial around the original work from~\citet{martens2015optimizing} that corresponds to
 \begin{align*}
-  \begin{array}{c}
-    \begin{Bmatrix}
-      \text{PyTorch}
-      \\
-      \text{JAX}
-    \end{Bmatrix}
-    \\
-    \text{(software framework)}
-  \end{array}
+  \begin{Bmatrix}
+    \text{fully-connected layers}
+  \end{Bmatrix}
   \times
-  \begin{array}{c}
-    \begin{Bmatrix}
-      \rvec
-      \\
-      \cvec
-    \end{Bmatrix}
-    \\
-    \text{(flattening convention)}
-  \end{array}
+  \begin{Bmatrix}
+    \text{type-I Fisher}
+  \end{Bmatrix}
   \times
-  \begin{array}{c}
-    \begin{Bmatrix}
-      \text{MC (type-I Fisher)}
-      \\
-      \text{type-II Fisher}
-      \\
-      \text{empirical Fisher}
-    \end{Bmatrix}
-    \\
-    \text{(target curvature)}
-  \end{array}
+  \begin{Bmatrix}
+    \cvec
+  \end{Bmatrix}
   \times
-  \begin{array}{c}
-    \begin{Bmatrix}
-      \text{expand}
-      \\
-      \text{reduce}
-    \end{Bmatrix}
-    \\
-    \text{(how weight sharing is handled)}
-  \end{array}
-  \times
-  \begin{array}{c}
-    \begin{Bmatrix}
-      \text{fully-connected}
-      \\
-      \text{convolutions}
-    \end{Bmatrix}
-    \\
-    \text{(layers)}
-  \end{array}
+  \begin{Bmatrix}
+    \text{expand}
+  \end{Bmatrix}\,.
 \end{align*}
-The original work from~\citet{martens2015optimizing} uses
+However, to provide some additional value, this document aims to provide an introduction to the following flavours:
 \begin{align*}
-  \text{cvec} \times \text{MC (type-I Fisher)} \times \text{expand} \times \text{fully-connected}\,.
-\end{align*}
-\paragraph{Version 1.0} This document aims to provide an introduction to the following flavours:
-\begin{align*}
-  \text{PyTorch}
+  \begin{Bmatrix}
+    \text{PyTorch}
+  \end{Bmatrix}
+  \times
+  \begin{Bmatrix}
+    \text{fully-connected}
+  \end{Bmatrix}
+  \times
+  \begin{Bmatrix}
+    \text{Hessian}
+    \\
+    \text{GGN}
+    \\
+    \text{Fisher (type-I/II, empirical)}
+  \end{Bmatrix}
   \times
   \begin{Bmatrix}
     \rvec
@@ -105,18 +143,11 @@ The original work from~\citet{martens2015optimizing} uses
   \end{Bmatrix}
   \times
   \begin{Bmatrix}
-    \text{MC (type-I Fisher)}
-    \\
-    \text{type-II Fisher}
-    \\
-    \text{empirical Fisher}
-  \end{Bmatrix}
-  \times
-  \text{expand}
-  \times
-  \text{fully-connected}
+    \text{expand}
+  \end{Bmatrix}\,.
 \end{align*}
-This allows us to (i) highlight challenges when translating math to code, (ii) pointing out various connections between the curvature matrices and KFAC, and (iii) produce a working, tested, version of the original KFAC paper with slight generalizations.
+This allows us to (i) highlight challenges when translating math to code, (ii) point out various connections between curvature matrices and KFAC, and (iii) produce a working, tested, version of the original KFAC paper with slight generalizations.
+A more fully-featured KFAC implementation is provided by the \texttt{curvlinops} library~\cite{dangel2025position}.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
