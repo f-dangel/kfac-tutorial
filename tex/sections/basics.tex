@@ -2,20 +2,30 @@
 \codeblock{basics/reduction_factors}
 \switchcolumn[0]
 
-\subsection{Empirical Risk Minimization}
+This tutorial is meant to be self-contained.
+Therefore, we will start with an extensive introduction to KFAC-relevant concepts.
+This allows us to build the code functionality we will later need to verify our implementation.
+
+\paragraph{Roadmap.} First, we introduce the empirical risk (`the loss', \cref{subsec:empirical-risk-minimization}) whose curvature KFAC approximates, and neural networks (\cref{subsec:deep-neural-networks}).
+One recurring theme in our discussion will be that the loss and neural net have probabilistic interpretations in most deep learning settings: Minimizing the empirical risk corresponds to maximum likelihood estimation where the neural net models a likelihood (\cref{subsec:probabilistic-interpretation}).
+Next, since curvature information is based on the Hessian which contains second-order partial derivatives, we will talk about first- and second-order derivatives, and how to compute with them using PyTorch's automatic differentiation (\cref{subsec:derivatives}).
+We conclude with an introduction to all curvature matrices relevant to our discussion (\cref{subsec:curvature-matrices}).
+These include the Hessian, generalized Gauss-Newton (GGN) matrix and different flavours of the Fisher information matrix which follows from the probabilistic interpretation from \cref{subsec:probabilistic-interpretation}.
+
+\subsection{Empirical Risk Minimization}\label{subsec:empirical-risk-minimization}
 \input{sections/basics_empirical_risk.tex}
 
 \switchcolumn[1]
 \codeblock{basics/forward_pass}
 \switchcolumn[0]
 
-\subsection{Deep neural networks}
+\subsection{Deep Neural Networks}\label{subsec:deep-neural-networks}
 \input{sections/basics_neural_networks.tex}
 
-\subsection{Probabilistic interpretation}
+\subsection{Probabilistic Interpretation}\label{subsec:probabilistic-interpretation}
 \input{sections/basics_probabilistic_interpretation.tex}
 
-\subsection{Derivatives \& Automatic Differentiation}
+\subsection{Derivatives \& Automatic Differentiation}\label{subsec:derivatives}
 
 \begin{caveat}
   In deep learning, we often work with matrices, or higher-dimensional tensors.
@@ -42,7 +52,7 @@
 \input{sections/basics_linearization.tex}
 
 \switchcolumn[0]*
-\subsection{Curvature Matrices in Deep Learning}
+\subsection{Curvature Matrices in Deep Learning}\label{subsec:curvature-matrices}
 
 The previous section introduced Jacobians, Hessians, partial linearizations and the resulting generalized Gauss-Newton (GGN) objects in the language of automatic differentiation for arbitrary functions.
 Here, we will switch gears and quickly walk through how these matrices look like in the context of deep learning.

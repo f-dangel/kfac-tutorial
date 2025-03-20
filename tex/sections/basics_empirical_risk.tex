@@ -1,57 +1,55 @@
-We consider supervised learning with a neural network $f: \gX \times \Theta \to \gF$ that maps a given input $\vx \in \gX$ from an input domain $\gX$ to a prediction $f(\vx, \vtheta) \in \gF$ in a prediction domain $\gF$ using parameters $\vtheta \in \Theta$ from a parameter space $\Theta$.
+We consider supervised learning with a neural network $f: \gX \times \Theta \to \gF$ that maps a given input $\vx \in \gX$ from a domain $\gX$ to a prediction $f(\vx, \vtheta) \in \gF$ in a prediction space $\gF$ using parameters $\vtheta \in \Theta$ from a parameter space $\Theta$.
 Predictions are scored with a criterion function $c: \gF \times \gY \to \sR$ that compares the prediction to the true target $\vy \in \gY$ from a label space $\gY$, producing a single number called the loss on datum $(\vx, \vy)$.
-For a data set $\sD = \{(\vx_n, \vy_n) \mid n=1, \dots, N\}$ of collected labelled examples, we evaluate the per-datum criteria and accumulate them into the total loss, using an accumulation factor $R \in \sR$ (common choices are $\nicefrac{1}{N}, 1, \nicefrac{1}{N \dim(\gY)}$),
+
+For a data set $\sD = \{(\vx_n, \vy_n) \mid n=1, \dots, N\}$ of collected labelled examples, we evaluate the per-datum criteria and accumulate them into the total loss, using an accumulation factor $R \in \sR$,
 \begin{align}\label{eq:empirical_risk}
   \begin{split}
-    \gL(\vtheta; \sD) & = R \sum_{n=1}^N \ell_n(\vtheta)
+    \gL_{\sD}(\vtheta) & = R \sum_{n=1}^N \ell_n(\vtheta)
     \\
-                      & = R \sum_{n=1}^N c(f(\vx_n, \vtheta), \vy_n)\,.
+                       & = R \sum_{n=1}^N c(f(\vx_n, \vtheta), \vy_n)\,.
   \end{split}
 \end{align}
-One goal of training is to find the parameters $\vtheta$ that reduce the empirical risk $\gL(\vtheta; \sD)$, while avoiding overfitting to the training data.
+Common choices for $R$ are $\nicefrac{1}{N}, 1, \nicefrac{1}{N \dim(\gY)}$; see \cref{basics/reduction_factors} for a function that computes $R$.
+The goal of training is to find the parameters $\vtheta$ that reduce the empirical risk $\gL_{\sD}(\vtheta)$ without overfitting to the training data.
 
-This abstraction into neural network, criterion, and reduction will become useful later.
-Below, we relate it to the PyTorch implementations of loss functions used for regression and classification.
+\Cref{eq:empirical_risk} disentangles `the loss' into three components: the neural network $f$, the criterion function $c$, and the reduction factor $R$.
+Before we discuss neural networks (\cref{subsec:deep-neural-networks}), let's look at two common criterion functions and their reduction constants; square loss (regression) and softmax cross-entropy loss (classification):
 
-\begin{example}[Square loss, \Cref{reduction_factors}]\label{ex:square_loss}
-  For least squares regression, with vector-valued targets ($\gY = \sR^C = \gF$), PyTorch's \texttt{torch.nn.MSELoss} uses the following criterion function and reduction constant:
+\begin{example}[Square loss, \Cref{basics/reduction_factors}]\label{ex:square_loss}
+  For least squares regression with vector-valued targets ($\gY = \sR^C = \gF$), the criterion and reduction factor of PyTorch's \texttt{nn.MSELoss} are
   \begin{align*}
-    c(\vf, \vy)
-    =
-    \frac{1}{2}\sum_{c=1}^C [\vf - \vy]_c^2
-  \end{align*}
-  and
-  \begin{align*}
+    &c(\vf, \vy)
+      =
+      \frac{1}{2}\sum_{c=1}^C [\vf - \vy]_c^2\,,
+    \\
     R
-    =
-    \begin{cases}
-      2                     & \text{\texttt{reduction="sum"}}
-      \\
-      \frac{2}{N \dim(\gY)} & \text{\texttt{reduction="mean"}}
-    \end{cases}
+    &=
+      \begin{cases}
+        2                     & \text{\texttt{reduction="sum"}}
+        \\
+        \frac{2}{N \dim(\gY)} & \text{\texttt{reduction="mean"}}
+      \end{cases}
   \end{align*}
-  where $\dim(\gY) = C$ in the vector case, but $\gY = \gF$ could also be matrix or tensor spaces in a more general setup.
+  where $\dim(\gY) = C$ in the vector case, but $\gY = \gF$ could also be a matrix or tensor space.
 \end{example}
 
-\begin{example}[Cross-entropy loss, \Cref{reduction_factors}]\label{ex:cross_entropy_loss}
-  For classification, with categorical targets ($\gY = \{1, \dots, C\}$ and $\gF = \sR^C$), PyTorch's \texttt{torch.nn.CrossEntropyLoss} uses the following criterion function and reduction constant:
+\begin{example}[Cross-entropy loss, \Cref{basics/reduction_factors}]\label{ex:cross_entropy_loss}
+  For classification, with categorical targets ($\gY = \{1, \dots, C\}$ and $\gF = \sR^C$), PyTorch's \texttt{nn.CrossEntropyLoss} uses the following criterion function and reduction factor
   \begin{align*}
-    c(\vf, y)
-    =
-    - \log([\softmax(\vf)]_y)
-  \end{align*}
-  and
-  \begin{align*}
+    &c(\vf, y)
+      =
+      - \log([\softmax(\vf)]_y)\,,
+    \\
     R
-    =
-    \begin{cases}
-      1                     & \text{\texttt{reduction="sum"}}
-      \\
-      \frac{1}{N \dim(\gY)} & \text{\texttt{reduction="mean"}}
-    \end{cases}
+    &=
+      \begin{cases}
+        1                     & \text{\texttt{reduction="sum"}}
+        \\
+        \frac{1}{N \dim(\gY)} & \text{\texttt{reduction="mean"}}
+      \end{cases}
   \end{align*}
-  with $\softmax(\vf)_i = \nicefrac{\exp([\vf]_i)}{\sum_{j=1}^C \exp([\vf]_{j})}$.
-  For the vector case $\dim(\gY) = 1$ but $\gY, \gF$ could also be compatible matrix or tensor spaces in a more general setup where we aim to classify sequences of categorical labels.
+  with $[\softmax(\vf)]_i = \nicefrac{\exp([\vf]_i)}{\sum_{j=1}^C \exp([\vf]_{j})}$.
+  For the vector case $\dim(\gY) = 1$, but $\gY, \gF$ could also be compatible matrix or tensor spaces in a more general setup where we aim to classify sequences of categorical labels.
 \end{example}
 %%% Local Variables:
 %%% mode: latex
