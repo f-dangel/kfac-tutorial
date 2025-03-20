@@ -25,24 +25,24 @@
 
 \columnratio{0.42}
 \begin{paracol}{2}
-  \section{Basics}
+  \section{Basics}\label{sec:basics}
   \input{sections/basics.tex}
-
   \switchcolumn[0]*
 \end{paracol}
-
 \clearpage
+
 \begin{paracol}{1}
-  \section{Cheatsheet: Basics}
+  \section{Cheatsheet: Basics}\label{sec:cheatsheet-basics}
   \input{sections/cheatsheet_basics.tex}
 \end{paracol}
 \clearpage
 
 \begin{paracol}{2}
-  \section{KFAC---An Overview}
+  \section{KFAC---An Overview}\label{sec:kfac-overview}
   \input{sections/kfac_overview.tex}
+  \clearpage
 
-  \section{KFAC-expand for Linear Layers}
+  \section{KFAC-expand for Linear Layers}\label{sec:kfac-expand-linear}
   \input{sections/kfac_linear_expand.tex}
 
   % \section{KFAC for Convolution Layers}
@@ -60,32 +60,20 @@
   % \codeblock{kfac_tests/reduce_shallow_cnn}
   % \switchcolumn[0]
 \end{paracol}
-
 \clearpage
 
 \begin{paracol}{1}
-  \section{Cheatsheet: KFAC}
+  \section{Cheatsheet: KFAC}\label{sec:kfac-cheatsheet}
   \input{sections/cheatsheet_kfac.tex}
   \end{paracol}
 \clearpage
 
-
 \begin{paracol}{1}
-  \section{Outlook}
+  \section{Outlook}\label{sec:outlook}
   \input{sections/outlook.tex}
-
 \end{paracol}
-
 \clearpage
 
-\begin{paracol}{2}
-  \section{Other aspects}
-  \subsection{Weight tying, RNNs, PINNs}
-  \subsection{Unnormalized densities}
-  \subsection{KFAC for diffusion models}
-\end{paracol}
-
-\clearpage
 \input{sections/references.tex}
 
 \appendix

@@ -1,33 +1,36 @@
 \begin{tikzpicture}[ultra thick, node distance=3cm]
   % define style statement nodes
-  \tikzstyle{box} = [rectangle, align=center, minimum height=2.5ex, rounded corners, draw=black]
+  \tikzstyle{box} = [rectangle, align=center, minimum height=2.5ex, rounded corners, draw=black, fill=VectorGray!50!white, inner sep=5pt]
   \tikzstyle{answer} = [minimum height=2.5ex, fill=white, align=center]
 
   \node [circle, fill=black] (start) {};
   \node [anchor=south] at (start.north) {Start};
 
-  \node [box, below=of start] (check-basics) {I know derivatives (Jacobians, Hessians)\\ and the maximum likelihood interpretation\\ of empirical risk minimization};
+  \node [box, below=1cm of start] (check-basics) {I know derivatives (Jacobians, Hessians)\\ and the maximum likelihood interpretation\\ of empirical risk minimization};
   \draw[-{LaTeX}] (start) -- (check-basics);
 
-  \node [box, below right=of check-basics] (read-basics) {Read the basics (Section ??)};
-  \node [box, below=of check-basics] (read-cheatsheet) {Read the cheatsheet (Section ??)};
+  \node [box, below right=of check-basics] (read-basics) {Read the basics (\cref{sec:basics})};
+  \node [box, below=of check-basics] (read-cheatsheet) {Read the cheatsheet (\cref{sec:cheatsheet-basics})};
   \draw[-{LaTeX}] (check-basics) to[out=270, in=90] node [midway, answer] {yes} (read-cheatsheet);
   \draw[-{LaTeX}] (check-basics) to[out=270, in=90] node [midway, answer] {no} (read-basics);
   \draw[-{LaTeX}] (read-basics) to[out=0, in=0] (check-basics);
 
-  \node [box, below=of read-cheatsheet] (scaffold) {Scaffold (Section ??)};
+  \node [box, below=of read-cheatsheet] (scaffold) {Scaffold (\cref{sec:kfac-overview})};
   \draw[-{LaTeX}] (read-cheatsheet) to node [midway, answer] {Looks good, give \\ me an overview\\ of KFAC} (scaffold);
   \draw[-{LaTeX}] (read-cheatsheet) to [out=315, in=225] node [midway, answer] {I did not understand \\ some of the concepts \\ or notation} (read-basics);
 
-  \node[box, below=of scaffold] (kfac-cheatsheet) {Read KFAC cheatsheet (Section ??)};
-  \node[box, below right=of scaffold] (kfac-details) {KFAC details (Sections ??, ??, ??};
+  \node[box, below=of scaffold] (kfac-cheatsheet) {Read KFAC cheatsheet (\cref{sec:kfac-cheatsheet})};
+  \node[box, below right=of scaffold] (kfac-details) {KFAC details (\cref{sec:kfac-expand-linear})};
   \draw[-{LaTeX}] (scaffold) to[out=315, in=135] node [midway, answer] {Give me all \\ the details} (kfac-details);
   \draw[-{LaTeX}] (scaffold) to[out=270, in=90] node [midway, answer] {I just want the \\ one page summary} (kfac-cheatsheet);
   \draw[-{LaTeX}] (kfac-details) to[out=270, in=0] (kfac-cheatsheet);
 
-  \node[circle, fill=black, below=of kfac-cheatsheet] (end) {};
+  \node[box, below=of kfac-cheatsheet] (outlook) {Future plans (\cref{sec:outlook})};
+  \draw[-{LaTeX}] (kfac-cheatsheet) to node [midway, answer] {What's next?} (outlook);
+
+  \node[circle, fill=black, below=1cm of outlook] (end) {};
   \node[anchor=north] at (end.south) {End};
-  \draw[-{LaTeX}] (kfac-cheatsheet) -- (end);
+  \draw[-{LaTeX}] (outlook) -- (end);
 \end{tikzpicture}
 %%% Local Variables:
 %%% mode: LaTeX

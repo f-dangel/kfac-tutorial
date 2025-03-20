@@ -117,21 +117,6 @@ The original work from~\citet{martens2015optimizing} uses
   \text{fully-connected}
 \end{align*}
 This allows us to (i) highlight challenges when translating math to code, (ii) pointing out various connections between the curvature matrices and KFAC, and (iii) produce a working, tested, version of the original KFAC paper with slight generalizations.
-
-\paragraph{Plan for version 1.1}
-\begin{itemize}
-\item JAX version
-\item How to define Fisher matrices for neural networks with $>2$d outputs
-\item KFAC-expand for convolutions \cite{grosse2016kroneckerfactored}
-\item KFAC-reduce for convolutions \cite{eschenhagen2023kroneckerfactored}
-\item KFAC for linear layers with weight sharing \cite{eschenhagen2023kroneckerfactored}
-\end{itemize}
-
-\paragraph{Ideas for version 2.0}
-\begin{itemize}
-  \item KFAC for RNNs \cite{martens2018kroneckerfactored}
-    \item KFAC for PINNs \cite{dangel2024kroneckerfactored}
-\end{itemize}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

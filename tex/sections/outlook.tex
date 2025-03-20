@@ -1,5 +1,20 @@
 This contains a list of further resources and topics that might be discussed in later versions:
 
+\paragraph{Plan for version 1.1}
+\begin{itemize}
+\item JAX version
+\item How to define Fisher matrices for neural networks with $>2$d outputs
+\item KFAC-expand for convolutions \cite{grosse2016kroneckerfactored}
+\item KFAC-reduce for convolutions \cite{eschenhagen2023kroneckerfactored}
+\item KFAC for linear layers with weight sharing \cite{eschenhagen2023kroneckerfactored}
+\end{itemize}
+
+\paragraph{Ideas for version 2.0}
+\begin{itemize}
+  \item KFAC for RNNs \cite{martens2018kroneckerfactored}
+    \item KFAC for PINNs \cite{dangel2024kroneckerfactored}
+\end{itemize}
+
 \paragraph{KFAC-reduce} becomes relevant in scenarios where weight sharing occurs, and the shared dimension is explicitly reduced (e.g., summed or averaged) during the forward pass. Unlike KFAC-expand, which treats shared dimensions as independent by flattening them into a batch dimension, KFAC-reduce adjusts for this reduction by aggregating inputs and gradients across the shared dimension before forming Kronecker factors.
 
 This distinction is important for models such as convolutional networks, attention mechanisms, or architectures with sequence inputs, where reductions over spatial or temporal dimensions are common. KFAC-reduce addresses the failure of KFAC-expand to capture the correct curvature structure in such cases, ensuring a well-motivated approximation even when the shared dimension is collapsed during computation. For a detailed treatment and the derivation of KFAC-reduce, see \citet{eschenhagen2023kroneckerfactored}.
