@@ -13,8 +13,10 @@ Common choices for $R$ are $\nicefrac{1}{N}, 1, \nicefrac{1}{N \dim(\gY)}$; see 
 The goal of training is to find the parameters $\vtheta$ that reduce the empirical risk $\gL_{\sD}(\vtheta)$ without overfitting to the training data.
 
 \Cref{eq:empirical_risk} disentangles `the loss' into three components: the neural network $f$, the criterion function $c$, and the reduction factor $R$.
-Before we discuss neural networks (\cref{subsec:deep-neural-networks}), let's look at two common criterion functions and their reduction constants; square loss (regression) and softmax cross-entropy loss (classification):
+The most common loss functions are square loss for regression and softmax cross-entropy loss for classification.
+We show their criterion and reduction factors in \cref{ex:square_loss,ex:cross_entropy_loss}).
 
+\switchcolumn[1]
 \begin{example}[Square loss, \Cref{basics/reduction_factors}]\label{ex:square_loss}
   For least squares regression with vector-valued targets ($\gY = \sR^C = \gF$), the criterion and reduction factor of PyTorch's \texttt{nn.MSELoss} are
   \begin{align*}
@@ -51,6 +53,14 @@ Before we discuss neural networks (\cref{subsec:deep-neural-networks}), let's lo
   with $[\softmax(\vf)]_i = \nicefrac{\exp([\vf]_i)}{\sum_{j=1}^C \exp([\vf]_{j})}$.
   For the vector case $\dim(\gY) = 1$, but $\gY, \gF$ could also be compatible matrix or tensor spaces in a more general setup where we aim to classify sequences of categorical labels.
 \end{example}
+\switchcolumn[0]
+
+\begin{caveat}
+  Implementations of loss functions mix the concepts of criterion and reduction.
+  This is often fine, but sometimes makes it difficult to translate to new loss functions without accidentally forgetting a factor.
+  By keeping both concepts separate, we reduce the chance of introducing scaling bugs.
+\end{caveat}
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

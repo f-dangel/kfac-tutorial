@@ -5,7 +5,7 @@ These operations are called vector-Jacobian products (VJPs) and Jacobian-vector 
 Machine learning libraries like JAX and PyTorch offer routines for computing Jacobians, VJPs, and JVPs.
 However, their interface is functional.
 Here, we provide an alternative implementation which accepts nodes of a computation graph rather than functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
-We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, i.e.\, a linear layer.
+We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, \ie  a linear layer.
 These Jacobians exhibit Kronecker structure, which is the foundation for the `K' in KFAC.
 We also verify this structure numerically.
 Crucially, the Kronecker structure changes depending on the flattening convention.
@@ -35,7 +35,7 @@ The more general Jacobian of a tensor-to-tensor function can be indexed with com
 \end{definition}
 For $M=N=1$, the general Jacobian reduces to the Jacobian of a vector-to-vector function from \Cref{def:vector_jacobian}.
 
-\paragraph{Multiplication} In practise, this general Jacobian can be prohibitively large and therefore one must almost always work with it in a matrix-free fashion, i.e.\, through VJPs and JVPs.
+\paragraph{Multiplication} In practise, this general Jacobian can be prohibitively large and therefore one must almost always work with it in a matrix-free fashion, \ie  through VJPs and JVPs.
 
 \switchcolumn[1]*
 \codeblock{basics/jacobian_products}
@@ -52,7 +52,7 @@ For $M=N=1$, the general Jacobian reduces to the Jacobian of a vector-to-vector 
     [\tJ_{\tA}\tB]_{i_1, \dots, i_M, j_1, \dots, j_N}\,.
   \end{align*}
 \end{definition}
-For $M=N=1$, $\tV, \tU \to \vv, \vu$ are column vectors, $\tJ_{\tA}\tB \to \jac_{\va}\vb$ is a matrix, and the VJP is $\vu^{\top} = \vv^{\top} (\jac_{\va}\vb)$ or $\vu = (\jac_{\va}\vb)^{\top} \vv$, i.e.\,multiplication with the transpose Jacobian.
+For $M=N=1$, $\tV, \tU \to \vv, \vu$ are column vectors, $\tJ_{\tA}\tB \to \jac_{\va}\vb$ is a matrix, and the VJP is $\vu^{\top} = \vv^{\top} (\jac_{\va}\vb)$ or $\vu = (\jac_{\va}\vb)^{\top} \vv$, \ie multiplication with the transpose Jacobian.
 
 VJPs are at the heart of reverse-mode automatic differentiation, aka backpropagation (this is why $\tU$ is often called the \emph{pull-back} of $\tV$ through $f$).
 Therefore, they are easy to implement with standard functionality.

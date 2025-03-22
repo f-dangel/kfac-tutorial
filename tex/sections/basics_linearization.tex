@@ -47,7 +47,7 @@ In deep learning, we will often face the situation where $f = g \circ h, \tA \ma
 This means the Hessian of $f$ can be indefinite; but for algorithms we require a positive definite approximation to the Hessian.
 We can obtain that by considering the partially linearized function $\bar{f} = g \circ \lin_{\tA_0}(h)$, whose Hessian is positive semi-definite. The Hessian of this partially linearized function is called the generalized Gauss-newton (GGN) matrix.
 
-Let's stick to our one-dimensional example for a moment, i.e.\,let $f(x) = (g \circ h)(x) \in \sR$. If we use the chain rule twice, we obtain the following expression for the Hessian:
+Let's stick to our one-dimensional example for a moment, \ie let $f(x) = (g \circ h)(x) \in \sR$. If we use the chain rule twice, we obtain the following expression for the Hessian:
 \begin{align*}
   \hess_x (g \circ h)(x) =
   \jac_x h(x) \cdot \hess_{h(x)} g(h(x)) \cdot \jac_x h(x)
@@ -123,7 +123,7 @@ We first provide the definition of the GGN in the matrix and tensor case, before
     (\hess_{\vb} c)
     (\jac_{\va} \vb)\,,
   \end{align*}
-  i.e.\,the second composite's Hessian, left- and right-multiplied with the first composite's Jacobian.
+  \ie the second composite's Hessian, left- and right-multiplied with the first composite's Jacobian.
 \end{definition}
 
 \switchcolumn[1]*
@@ -216,7 +216,7 @@ We first provide the definition of the GGN in the matrix and tensor case, before
   \end{align*}
   where $\bar{f} = g \circ \lin_{\tA_0}(h)$.
 
-  We can express this tensor as a tensor contraction between the Jacobians and Hessians of the two composites, i.e.\,
+  We can express this tensor as a tensor contraction between the Jacobians and Hessians of the two composites, \ie 
   \begin{align*}
     [\tG_{\tA} f(\tA)]_{i_1, \ldots, i_N, j_1, \ldots, j_N}
     \\

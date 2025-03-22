@@ -18,7 +18,6 @@ These include the Hessian, generalized Gauss-Newton (GGN) matrix and different f
 \switchcolumn[1]
 \codeblock{basics/forward_pass}
 \switchcolumn[0]
-
 \subsection{Deep Neural Networks}\label{subsec:deep-neural-networks}
 \input{sections/basics_neural_networks.tex}
 
@@ -101,7 +100,7 @@ We will often use the shorthands $c_n, f_n, \ell_n$ for the per-datum criteria, 
   \vtheta           & \mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta) = R \sum_{n=1}^N c_n(f_n(\vtheta))
 \end{align*}
 where $R$ is the reduction factor. Common values for $R$ are $\nicefrac{1}{N}, 1$ and $\nicefrac{1}{N \dim(\gF)}$.
-For the purpose of this text, $\sD$ can be any collection of data points, e.g.\,the full data set or a mini-batch.
+For the purpose of this text, $\sD$ can be any collection of data points, \eg\,the full data set or a mini-batch.
 
 \subsubsection{The Hessian}\label{sec:basics_dl_hessian}
 \input{sections/basics_dl_hessian.tex}

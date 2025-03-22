@@ -2,7 +2,7 @@
 Its applications range from optimization~\cite{martens2015optimizing,grosse2016kroneckerfactored,eschenhagen2023kroneckerfactored,benzing2022gradient,petersen2023isaac} to Bayesian deep learning~\cite{daxberger2021laplace}, training data attribution with influence functions~\cite{grosse2023studying,bae2024training}, and model pruning~\cite{wang2019eigendamage} and merging~\cite{tam2024merging}.
 The intuition behind KFAC is easy to understand: it approximates curvature information in the form of Kronecker-factored matrices that are cheap to store and compute with.
 There exist several packages that compute KFAC~\cite{botev2022kfac-jax,dangel2020backpack,osawa2023asdl}.
-However, the details of these implementations are often not well-documented, making them hard to extend, e.g.\,adding support for new layers, or adding features like eigen-value correction~\cite{george2018fast}.
+However, the details of these implementations are often not well-documented, making them hard to extend, \eg\,adding support for new layers, or adding features like eigen-value correction~\cite{george2018fast}.
 We claim that achieving a bug-free KFAC implementation is non-trivial, and our understanding is still evolving.
 
 \paragraph{Goals.}

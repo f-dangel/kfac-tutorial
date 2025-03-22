@@ -61,30 +61,30 @@
     \begin{itemize}
       \item KFAC-expand for linear layers in an MLP (no weight sharing) and assuming a dataset with only a single data point:
         \begin{itemize}
-          \item KFAC-expand-type-II coincides with the GGN, i.e.,
+          \item KFAC-expand-type-II coincides with the GGN, \ie,
             \begin{align*}
               \kfac^{\text{II}}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}.
             \end{align*}
-          \item KFAC-expand-MC converges to the GGN, i.e.,
+          \item KFAC-expand-MC converges to the GGN, \ie,
             \begin{align*}
               \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}.
             \end{align*}
-          \item KFAC-expand-empirical coincides with the Empirical Fisher (EF), i.e.,
+          \item KFAC-expand-empirical coincides with the Empirical Fisher (EF), \ie,
             \begin{align*}
               \kfac^{\text{E}}_{\text{exp}}(\vec\tilde{\mW}^{(l)}) = \ef^{\vec}_{\tilde{\mW}^{(l)}}\gL_{\sD}.
             \end{align*}
         \end{itemize}
       \item KFAC-expand for regression with a Deep Linear Network (no weight sharing and no nonlinear layers).
         \begin{itemize}
-          \item KFAC-expand-type-II coincides with the GGN, i.e.,
+          \item KFAC-expand-type-II coincides with the GGN, \ie,
             \begin{align*}
               \kfac^{\text{II}}_{\text{exp}}(\vec \tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
             \end{align*}
-          \item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$, i.e., 
+          \item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$, \ie, 
             \begin{align*}
               \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec \tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
             \end{align*}
-          \item KFAC-expand-empirical does \emph{not} equal the empirical Fisher, i.e.,
+          \item KFAC-expand-empirical does \emph{not} equal the empirical Fisher, \ie,
             \begin{align*}
               \kfac_{\text{exp}}^{\text{E}}(\vec \tilde{\mW}^{(l)})
               \neq

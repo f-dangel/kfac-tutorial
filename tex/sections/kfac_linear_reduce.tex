@@ -1,5 +1,5 @@
-\par{Roadmap: } This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (i.e. a \texttt{torch.nn.Linear}). 
-Our discussion will heavily rely on regression settings with deep linear networks, i.e.\,MLPs that consist of dense layers without any non-linearities.
+\par{Roadmap: } This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (\ie a \texttt{torch.nn.Linear}). 
+Our discussion will heavily rely on regression settings with deep linear networks, \ie MLPs that consist of dense layers without any non-linearities.
 We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
 
 We will start with the KFAC-expand approximation, which corresponds to the seminal KFAC approximation proposed by~\citet{martens2015optimizing}. It was introduced for standard MLP settings where the linear layers do not exhibit weight sharing (and therefore no reductions over weight-shared axes).
@@ -87,7 +87,7 @@ The expectation approximation in KFAC is the following:
 \end{align}
 Instead of summing Kronecker products, we first sum the individual factors, then take their Kronecker product and divide by the number of summands. The scaling is by convention absorbed into the gradient-based Kronecker factor.
 
-Our discussion will heavily rely on regression settings with deep linear networks, i.e.\,MLPs that consist of dense layers without any non-linearities.
+Our discussion will heavily rely on regression settings with deep linear networks, \ie MLPs that consist of dense layers without any non-linearities.
 We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
 
 We will start with the KFAC-expand approximation, which corresponds to the seminal KFAC approximation proposed by~\citet{martens2015optimizing}. It was introduced for standard MLP settings where the linear layers do not exhibit weight sharing (and therefore no reductions over weight-shared axes).
@@ -328,7 +328,7 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
           }{\textcolor{VectorOrange}{N}}
       \end{split}
       \intertext{In words, we sum the outer products on the left and right of the Kronecker product independently and divide by the number of outer products in the term containing the gradient vectors.
-      In expectation notation (expectation meaning averaging over all values of $n$, i.e.\,$\E_n[\bullet_n] = \nicefrac{1}{N} \sum_{n=1}^N \bullet_n$), we can write this approximation more conveniently as}
+      In expectation notation (expectation meaning averaging over all values of $n$, \ie $\E_n[\bullet_n] = \nicefrac{1}{N} \sum_{n=1}^N \bullet_n$), we can write this approximation more conveniently as}
       \begin{split}
         &\E_n \left[ \vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top} \right]
         \\
@@ -339,7 +339,7 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       \end{split}
     \end{align}
   \end{subequations}
-  i.e.\,`pull' the expectation into the Kronecker factors.
+  \ie `pull' the expectation into the Kronecker factors.
   If $\vx$ and $\vg$ were independent, this approximation would be exact.
 \end{definition}
 
@@ -489,7 +489,7 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
 
 When does the approximation in \Cref{eq:expectation_approximation} become exact?
 There are two cases, one of which is relatively obvious.
-Generally speaking, the approximation becomes exact whenever one of $\{\va_n\}$or $\{\vg_n\}$ are data-independent, i.e.\,do not depend on $n$.
+Generally speaking, the approximation becomes exact whenever one of $\{\va_n\}$or $\{\vg_n\}$ are data-independent, \ie do not depend on $n$.
 
 
 \switchcolumn[1]*
@@ -497,7 +497,7 @@ Generally speaking, the approximation becomes exact whenever one of $\{\va_n\}$o
 \switchcolumn[0]
 
 \subsubsection{Test Case: Data Set Size 1}
-One obvious case is whenever the summation over $n$ disappears, i.e.\,our data set contains only a single data point (or $N$ identical data).
+One obvious case is whenever the summation over $n$ disappears, \ie our data set contains only a single data point (or $N$ identical data).
 
 \begin{test}[KFAC-expand for linear layers in an MLP (no weight sharing), one data point, \Cref{kfac_tests/expand_mlp_batch_size_1}]\label{test:kfac_expand_linear_no_weight_sharing_batch_size_1}
   Consider a multi-layer perceptron
@@ -525,8 +525,8 @@ One obvious case is whenever the summation over $n$ disappears, i.e.\,our data s
     \end{align*}
   \end{itemize}
 \end{test}
-This test is useful for checking functionality related to the criterion function, i.e.\,the backpropagated vectors $\blacktriangle_{n,c}$
-It can further be generalized: We can replace the activation functions with arbitrary layers (e.g.\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers remain vector-shape.
+This test is useful for checking functionality related to the criterion function, \ie the backpropagated vectors $\blacktriangle_{n,c}$
+It can further be generalized: We can replace the activation functions with arbitrary layers (\eg\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers remain vector-shape.
 These changes do not alter the structure of the GGN/Fisher/EF for the linear layers.
 
 \switchcolumn[1]*
@@ -608,12 +608,12 @@ This implies the following limit in which KFAC becomes exact (first proposed in 
   \end{align*}
   because its backpropagated vector $\blacktriangle_{n,c}$ depends on $\vf_n$ and therefore on $n$.
 \end{test}
-We can generalize this test further and allow for arbitrary operations that operate on an input in a linear fashion, e.g. convolutions, reshapes, padding, average pooling, as long as the input to a dense layer remains vector-valued.
+We can generalize this test further and allow for arbitrary operations that operate on an input in a linear fashion, \eg convolutions, reshapes, padding, average pooling, as long as the input to a dense layer remains vector-valued.
 We cannot pick non-linear layers like ReLU, sigmoid, max-pooling, or normalization, as their output-input Jacobian is input-dependent.
 
 \subsection{KFAC-expand with Weight Sharing}
 
-What happens if the input to our neural network is not a single vector, but a collection of vectors (i.e.\,a matrix)? Assume a linear layer is processing a sequence of vectors $\mX_n =
+What happens if the input to our neural network is not a single vector, but a collection of vectors (\ie a matrix)? Assume a linear layer is processing a sequence of vectors $\mX_n =
 \begin{pmatrix} \vx_{n,1} & \dots & \vx_{n,S} \end{pmatrix}$ into a sequence of output vectors $\mZ_n =
 \begin{pmatrix} \vz_{n,1} & \dots & \vz_{n,S} \end{pmatrix}$ for a datum $n$ where each $\vz_{n,s} = \mW \vx_{n,s}$.
 We say that these vectors \emph{share} the same weight.
@@ -683,7 +683,7 @@ Note that the matrix $\vec\mG_{n,c} (\vec\mG_{n,c})^{\top}$ is $S D_{\text{out}}
   =
   \frac{1}{S} \mG_{n,c} \mG_{n,c}^{\top}
 \end{align*}
-i.e.\,we average the diagonal blocks of size $S \times S$.
+\ie we average the diagonal blocks of size $S \times S$.
 Using this Kronecker approximation of the backpropagated vector's self-outer product allows us to simplify the curvature matrix into
 \begin{align*}
   \mC(\cvec\mW)
@@ -710,7 +710,7 @@ This is the next test case for KFAC.
 If each shared dimension is processed independently, we can treat it just like a batch dimension.
 This is the case if we use an MLP that consists of dense layers and element-wise activation functions.
 The test in \Cref{kfac_tests/expand_deep_linear_regression} includes such a scenario where $S > 1$.
-Note however that in practise we want to combine the features in a sequence (e.g.\,as done in the attention layer).
+Note however that in practise we want to combine the features in a sequence (\eg\,as done in the attention layer).
 But for a simple MLP, the shared axis is just treated like a batch axis, which motivates treating it as such in the KFAC-expand approximation.
 
 \begin{test}[KFAC-expand for regression with deep linear networks with weight sharing, \Cref{kfac_tests/expand_deep_linear_regression}]

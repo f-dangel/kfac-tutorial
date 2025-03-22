@@ -101,7 +101,7 @@ In the following, we will only consider the block diagonal approximation of this
     \vzero & \cdots & \vzero & \ggn_L^{\vec} \gL
   \end{pmatrix}\,,
 \end{align*}
-i.e., individual blocks $\{ \ggn_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)\}_{k=1}^L$.
+\ie, individual blocks $\{ \ggn_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)\}_{k=1}^L$.
 
 \paragraph{The GGN as a self-outer product}
 Let us look at the GGN contributed by a single datum and suppress the index $_n$ for now, as well as the reduction factor $R$.
@@ -138,7 +138,7 @@ In the following, we will not look further into $\mV^{\vec}$; see~\cite{dangel20
 \end{example}
 
 \begin{example}[Symmetric Hessian decomposition of softmax cross-entropy loss, \Cref{hessian_factorizations}]\label{ex:crossentropyloss_hessian_factorization}
-  The Hessian's symmetric factorization is \citep[e.g.][]{papyan2019measurements}
+  The Hessian's symmetric factorization is \citep[\eg][]{papyan2019measurements}
   \begin{align*}
     \mS^{\vec} = \diag(\sqrt{\vp}) - \vp \sqrt{\vp}^{\top}
   \end{align*}
@@ -152,7 +152,7 @@ In the following, we will not look further into $\mV^{\vec}$; see~\cite{dangel20
   using the fact that $\vp^{\top} \vone = 1 = \sqrt{\vp}^{\top} \sqrt{\vp}$.
   This expression equals the Hessian from \Cref{ex:square_loss_hessian}.
 \end{example}
-Note that the Hessian factorization for both the square loss and the softmax cross-entropy loss do not depend on the label, i.e., the second argument of the criterion function.
+Note that the Hessian factorization for both the square loss and the softmax cross-entropy loss do not depend on the label, \ie, the second argument of the criterion function.
 We will make use of this property in the next section to connect the GGN with the Fisher matrix for regression and classification tasks.
 
 %%% Local Variables:

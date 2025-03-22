@@ -57,7 +57,7 @@ Most of the memory and computational gains of Kronecker factorization arise from
 \end{bmatrix} \in \R^{n_1m_1 \times n_2m_2}
 \end{align*}
 in terms of operations on the individual factors $\mA$ and $\mB$. 
-This drastically reduces memory requirements, as we only need to store and handle these smaller matrices (i.e., $\mathcal{O}(n_1n_2 + m_1m_2)$) rather than the full Kronecker product (i.e. $\mathcal{O}(n_1n_2m_1m_2)$). For key matrix operations, we have:
+This drastically reduces memory requirements, as we only need to store and handle these smaller matrices (\ie, $\mathcal{O}(n_1n_2 + m_1m_2)$) rather than the full Kronecker product (\ie $\mathcal{O}(n_1n_2m_1m_2)$). For key matrix operations, we have:
 
 \paragraph{Matrix-vector product}
 Let $\vv \in \R^{n_2m_2}$, then we have

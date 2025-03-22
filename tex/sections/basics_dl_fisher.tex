@@ -6,14 +6,14 @@
 In Section ??
 we have demonstrated that a neural network almost always models a likelihood for the labels given the inputs using parameters.
 This perspective provides a new way to compare two models $f_1 \coloneq f(\bullet, \vtheta_1), f_2 \coloneq f(\bullet, \vtheta_{2})$ where $\vtheta_2 = \vtheta_1 + \Delta \vtheta$.
-Instead of assessing their dissimilarity by their parameters' dissimilarity, e.g.\,using the Euclidean distance measure $d^2(f_1, f_2) = \left\lVert \vtheta_2 - \vtheta_1 \right\rVert_2^2 = \left\lVert \Delta \vtheta \right\rVert_2^2$, we could instead use the KL-divergence of the probability densities represented by the two networks, $d^2(f_1, f_2) = \mathrm{KL}(p(\rvx, \rvy \mid \vtheta_1) \mid\mid p(\rvx, \rvy \mid \vtheta_2))$.
+Instead of assessing their dissimilarity by their parameters' dissimilarity, \eg\,using the Euclidean distance measure $d^2(f_1, f_2) = \left\lVert \vtheta_2 - \vtheta_1 \right\rVert_2^2 = \left\lVert \Delta \vtheta \right\rVert_2^2$, we could instead use the KL-divergence of the probability densities represented by the two networks, $d^2(f_1, f_2) = \mathrm{KL}(p(\rvx, \rvy \mid \vtheta_1) \mid\mid p(\rvx, \rvy \mid \vtheta_2))$.
 % $\mathrm{KL}(r(\rvy \mid f(\vx, \vtheta_1)) \mid\mid r(\rvy \mid f(\vx, \vtheta_2)))$.
 As $p(\rvx, \rvy \mid \vtheta) = p(\rvy \mid \rvx, \vtheta)p_{\sD}(\rvx)$, one can show that
 \begin{align*}
     & \mathrm{KL}(p(\rvx, \rvy \mid \vtheta_1) \mid\mid p(\rvx, \rvy \mid \vtheta_2))                               \\
   = & \E_{p_{\sD}(\rvx)} [\mathrm{KL}(p(\rvy \mid \rvx, \vtheta_1) \mid\mid p(\rvy \mid \rvx, \vtheta_2))].
 \end{align*}
-For general pairs $(\vtheta_1, \vtheta_2)$, the KL divergence is not a valid distance measure though, e.g.\,it is not symmetric w.r.t.\,its arguments.
+For general pairs $(\vtheta_1, \vtheta_2)$, the KL divergence is not a valid distance measure though, \eg\,it is not symmetric w.r.t.\,its arguments.
 However, for small $\Delta \vtheta$, the KL divergence can be locally approximated by a quadratic Taylor series.
 Assuming flattened parameter vectors, the Hessian showing up in this approximation is the Fisher information matrix and it implies a proper metric inside a small neighbourhood,
 \begin{align*}
@@ -136,7 +136,7 @@ Let's apply the chain rule for the gradient, substitute the empirical distributi
  \end{aligned}
 \end{align*}
 
-\paragraph{Monte-Carlo approximation of the Fisher:} In practise, we need to replace the expectation over $r(\rvy \mid \vf_n)$ with an estimator, e.g.\,a Monte-Carlo approximation with $M$ sampled labels $\tilde{\vy}_{n,1}, \dots, \tilde{\vy}_{n, M} \stackrel{\text{i.i.d}}{\sim} r(\rvy \mid \vf_n)$ for the prediction of datum $n$.
+\paragraph{Monte-Carlo approximation of the Fisher:} In practise, we need to replace the expectation over $r(\rvy \mid \vf_n)$ with an estimator, \eg\,a Monte-Carlo approximation with $M$ sampled labels $\tilde{\vy}_{n,1}, \dots, \tilde{\vy}_{n, M} \stackrel{\text{i.i.d}}{\sim} r(\rvy \mid \vf_n)$ for the prediction of datum $n$.
 
 \begin{definition}[Monte-Carlo-approximated Type-I Fisher (\Cref{mc_fishers})]\label{def:mc_fisher}%
   The Monte-Carlo-approximated type-I Fisher matrix of the likelihood $\log r(\rvy \mid f(\vx_n, \vtheta))$,

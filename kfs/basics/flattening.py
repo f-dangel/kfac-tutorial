@@ -52,7 +52,7 @@ def cvec(
     after = [f"s{i}" for i in range(end_dim + 1, t.ndim)]
     flipped = active[::-1]
 
-    # build equation, e.g. "s0 a0 a1 s2 -> s0 a1 a0 s2"
+    # build equation, \eg "s0 a0 a1 s2 -> s0 a1 a0 s2"
     in_equation = " ".join(before + active + after)
     out_equation = " ".join(before + flipped + after)
     equation = f"{in_equation} -> {out_equation}"
