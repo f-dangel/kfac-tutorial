@@ -57,7 +57,7 @@ def vec_hess(
     and $\text{\Cref{def:rvec_hessian}}$.
 
     Args:
-        f: The function whose rvec- or cvec-Hessian is computed.
+        f: The function whose rvec/vec-Hessian we compute.
         x: Variable w.r.t. which the rvec- or cvec-Hessian is
             taken. If x is a tuple, the mixed cvec-Hessian is
             computed.

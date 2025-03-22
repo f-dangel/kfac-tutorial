@@ -25,14 +25,10 @@ These include the Hessian, generalized Gauss-Newton (GGN) matrix and different f
 \input{sections/basics_probabilistic_interpretation.tex}
 
 \subsection{Derivatives \& Automatic Differentiation}\label{subsec:derivatives}
-
-\begin{caveat}
-  In deep learning, we often work with matrices, or higher-dimensional tensors.
-  We want to use matrix linear algebra expressions to avoid using heavy index notation.
-  This can be achieved by flattening all tensors back into vectors and re-using definitions of derivatives from the vector case.
-  However, we must be careful when translating the results back to the tensor format, as the translation process depends on the flattening convention.
-  Classically, the mathematical derivations prefer a \emph{different} flattening scheme than the one used in deep learning libraries.
-\end{caveat}
+Let's talk about derivatives, which play a fundamental role in our goal to understand curvature matrices.
+All of them are based on the Hessian, which emerges in a second-order Taylor expansion, and contains the second-order derivatives.
+Here, we will build up to the Hessian, and how to compute with it using PyTorch's automatic differentiation.
+For simplicity, we will fully rely on PyTorch's backpropagation and neglect other modes like forward-mode automatic differentiation.
 
 \switchcolumn[0]*
 \subsubsection{Flattening}
@@ -42,12 +38,12 @@ These include the Hessian, generalized Gauss-Newton (GGN) matrix and different f
 \subsubsection{Jacobians, JVP, VJPs}
 \input{sections/basics_jacobians.tex}
 
-\switchcolumn[0]*
+\switchcolumn[0]
 \subsubsection{Hessians, HVPs}
 \input{sections/basics_hessians.tex}
 
-\switchcolumn[0]*
-\subsubsection{Partial Linearization, Generalized Gauss-Newtons, GGNVPs}\label{sec:partial_linearization}
+\switchcolumn[0]
+\subsubsection{Partial Linearization, Generalized Gauss-Newtons (GGNs), GGNVPs}\label{sec:partial_linearization}
 \input{sections/basics_linearization.tex}
 
 \switchcolumn[0]*

@@ -13,7 +13,7 @@ As $p(\rvx, \rvy \mid \vtheta) = p(\rvy \mid \rvx, \vtheta)p_{\sD}(\rvx)$, one c
     & \mathrm{KL}(p(\rvx, \rvy \mid \vtheta_1) \mid\mid p(\rvx, \rvy \mid \vtheta_2))                               \\
   = & \E_{p_{\sD}(\rvx)} [\mathrm{KL}(p(\rvy \mid \rvx, \vtheta_1) \mid\mid p(\rvy \mid \rvx, \vtheta_2))].
 \end{align*}
-For general pairs $(\vtheta_1, \vtheta_2)$, the KL divergence is not a valid distance measure though, \eg\,it is not symmetric w.r.t.\,its arguments.
+For general pairs $(\vtheta_1, \vtheta_2)$, the KL divergence is not a valid distance measure though, \eg\,it is not symmetric \wrt its arguments.
 However, for small $\Delta \vtheta$, the KL divergence can be locally approximated by a quadratic Taylor series.
 Assuming flattened parameter vectors, the Hessian showing up in this approximation is the Fisher information matrix and it implies a proper metric inside a small neighbourhood,
 \begin{align*}

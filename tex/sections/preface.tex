@@ -12,7 +12,7 @@ We use PyTorch~\cite{paszke2019pytorch} and rely on its modular interface (\text
 The tutorial's goals are the following:
 \begin{enumerate}
   % Explain the 'C' in KFAC
-\item \textbf{[Basics] Provide a self-contained introduction to curvature matrices.}
+\item \textbf{[Basics] Provide a self-contained introduction to curvature matrices (the `C' in KFAC).}
   To understand KFAC, we first need to understand the objects it aims to approximate, namely curvature matrices of neural network loss functions.
   These curvature matrices are all based on the Hessian, which gives rise to the curvature if we Taylor-expand the loss up to quadratic order.
   We will introduce common approximations of the Hessian, like the generalized Gauss-Newton (GGN), Fisher, and empirical Fisher (EF), and how to work with them through autodiff (\cref{sec:basics}).
@@ -20,10 +20,12 @@ The tutorial's goals are the following:
   See \cref{sec:cheatsheet-basics} for a compact summary.
 
   % Explain the 'KF' in KFAC
-\item \textbf{[Intuition] Show how Kronecker products naturally emerge in curvature matrices.} Doing so provides a motivation for using Kronecker-factorization as `natural' structure to approximate it, which is what KFAC does (\cref{sec:kfac-overview}).
+\item \textbf{[Intuition] Show how Kronecker products naturally emerge in curvature matrices (the `KF' in KFAC).}
+  Doing so provides a motivation for using Kronecker-factorization as `natural' structure to approximate it, which is what KFAC does (\cref{sec:kfac-overview}).
 
   % Explain the 'A' in KFAC
-\item \textbf{[Code] Explain how to implement and test KFAC.} Present the different flavours of KFAC, and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-expand-linear}).
+\item \textbf{[Code] Explain how to implement and test KFAC (the `A' in KFAC).}
+  Present the different flavours of KFAC, and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-expand-linear}).
 \end{enumerate}
 \paragraph{Scope \& limitations:} To make this tutorial pedagogically valuable while providing a different experience than just reading the original papers introducing KFAC, we had to make certain compromises.
 Understanding and implementing KFAC in all its different variations quickly becomes daunting.

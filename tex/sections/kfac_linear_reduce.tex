@@ -1,4 +1,4 @@
-\par{Roadmap: } This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (\ie a \texttt{torch.nn.Linear}). 
+\par{Roadmap: } This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (\ie a \texttt{torch.nn.Linear}).
 Our discussion will heavily rely on regression settings with deep linear networks, \ie MLPs that consist of dense layers without any non-linearities.
 We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
 
@@ -9,9 +9,9 @@ For more details on extensions such as KFAC-reduce see outlook or \citet{eschenh
   Consider a linear layer with weight $\mW \in \sR^{D_{\text{out}}\times D_{\text{in}}}$ and bias $\vb \in \sR^{D_{\text{out}}}$ inside a neural network.
   Further, assume the network's prediction feeds into a criterion function and we use a data set of $N$ points to compute an empirical risk (with a reduction factor $R$) whose curvature matrix $\mC(\vec \mW)$ we are interested in computing.
 
-  For each datum $n$, the layer processes a vector input $x_n \in \sR^{D {\text{in}}}$ into an output vector $\vz_{n} \in sR^{D_{\text{out}}}$ where 
+  For each datum $n$, the layer processes a vector input $x_n \in \sR^{D {\text{in}}}$ into an output vector $\vz_{n} \in sR^{D_{\text{out}}}$ where
   $$ \vz_{n} = \mW \vx_{n} + \vb$$.
-  Denote by $\mF_n \in \sR^{C \times}$ the network's prediction on datum $n$. 
+  Denote by $\mF_n \in \sR^{C \times}$ the network's prediction on datum $n$.
   For each vector $\blacktriangle_{n,c} \in \sR^{C \times S'}$ backpropagated by KFAC, define the errors arriving at the layer's output as $\vg_{n,c} = (\jac^{\vec}_{\vz_{n}} \mF_n)^{\top} \blacktriangle_{n,c} \in \sR^{D_{\text{out}}}$. These vectors do not depend on the flattening scheme because the contracted dimensions are summed out. We can group them into a matrix-values layer output gradient
   \begin{align*}
     \mG_{n,c}
@@ -26,10 +26,10 @@ For more details on extensions such as KFAC-reduce see outlook or \citet{eschenh
   However, the corresponding code and the main discussion focus on the case where they are treated separately.
 \end{setup}
 
-\begin{caveat} 
-  In some cases the linear layer operates on a sequence of $S$ input vectors. 
-  For the following presentation of KFAC-expand, this could be resolved via flattening the sequence dimension into the batch dimension. 
-  A more relevant discussion is in the context of a specific treatment of weight-sharing, which will we will only briefly discuss in the outlook section. 
+\begin{caveat}
+  In some cases the linear layer operates on a sequence of $S$ input vectors.
+  For the following presentation of KFAC-expand, this could be resolved via flattening the sequence dimension into the batch dimension.
+  A more relevant discussion is in the context of a specific treatment of weight-sharing, which will we will only briefly discuss in the outlook section.
   % The discussion of KFAC-expand naturally leads to an alternative setting where weight sharing dimensions are reduced during a forward pass; the so-called reduce setting.
   % For this setting, KFAC is not well motivated as it has no limit in which it becomes exact.
 \end{caveat}
@@ -142,7 +142,7 @@ The same equation holds if we treat weight and bias jointly, but we need to make
 \switchcolumn[0]
 
 \subsection{Tests}
-A cental question for implementing KFAC is on how to actual test the code. 
+A cental question for implementing KFAC is on how to actual test the code.
 
 When does this approximation become exact?
 Generally speaking, it becomes exact whenever one or both of the Kronecker factors in ??
@@ -150,7 +150,7 @@ does not depend on $n$.
 
 \begin{definition}[KFAC-expand for a linear layer, \Cref{kfac/expand_Linear}]\label{def:kfac_expand_linear}
   Consider a linear layer inside a neural network from \Cref{setup:linear_layer}.
-  The KFAC-expand approximation of a curvature matrix w.r.t.\,the layer's weights is given by
+  The KFAC-expand approximation of a curvature matrix \wrt the layer's weights is given by
   \begin{subequations}\label{eq:kfac_expand_linear}
     \begin{align}
       \begin{split}
@@ -179,7 +179,7 @@ does not depend on $n$.
 
 \begin{definition}[KFAC-reduce approximation for a linear layer with weight sharing, \Cref{kfac/reduce_Linear}]\label{def:kfac_reduce_linear}
   Consider a linear layer inside a neural network from \Cref{setup:linear_layer}.
-  The KFAC-reduce approximation for a curvature matrix w.r.t.\,the layer's weights is given by
+  The KFAC-reduce approximation for a curvature matrix \wrt the layer's weights is given by
   \begin{subequations}\label{eq:kfac_reduce_linear}
     \begin{align}
       \begin{split}
@@ -250,7 +250,7 @@ Comments on \Cref{def:kfac_reduce_linear,def:kfac_expand_linear}:
 \end{itemize}
 
 \subsection{Algebraic Structure of a Curvature Matrix}
-To try to get an intuition for the approximations introduced in the previous sections, let's take a closer look at the equation for a curvature matrix w.r.t.\,a linear layer inside a neural network from \Cref{setup:linear_layer},
+To try to get an intuition for the approximations introduced in the previous sections, let's take a closer look at the equation for a curvature matrix \wrt a linear layer inside a neural network from \Cref{setup:linear_layer},
 \begin{align*}
   &\mC( \vec \mW)
   \\
@@ -275,7 +275,7 @@ To try to get an intuition for the approximations introduced in the previous sec
     (\vec \blacktriangle_{n,c})^{\top}
     (\jac_{\vz_{n,s}}^{\vec}\mF_n)
     (\jac_{\mW}^{\vec}\vz_{n,s})
-    \intertext{where we simply extracted the summation over the shared dimension by taking Jacobians w.r.t.\,the vectors in a sequence.
+    \intertext{where we simply extracted the summation over the shared dimension by taking Jacobians \wrt the vectors in a sequence.
     Let's introduce the shortcut $\vg_{n,s,c} = (\jac_{\vz_{n,s}}^{\vec}\mF_n)^{\top} (\vec \blacktriangle_{n,c})$ for the gradient arriving at the layer's output for each vector of the sequence.
     It does not depend on $\vec$.}
   &=
@@ -450,7 +450,7 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       [\vg_n]_i [\vg_n]_j - [\mB]_{i,j}
       \right)^2 \,.
   \end{align*}
-  Taking the derivative w.r.t.\,$\mB$ and setting it to zero yields
+  Taking the derivative \wrt $\mB$ and setting it to zero yields
   \begin{align*}
     &\frac{\partial \left(
       \sum_{n=1}^N
@@ -572,7 +572,7 @@ These changes do not alter the structure of the GGN/Fisher/EF for the linear lay
 
 The more subtle and interesting testing scenario where the KFAC approximation becomes exact is for deep linear networks and square loss.
 In this case $\vg_{n,c}$ does not depend on $n$.
-To see this, let's look at the definition of $\vg_{n,c}$ which depends on the backpropagated vector $\blacktriangle_{n,c}$ and the Jacobian of the prediction w.r.t.\,the layer's output $\jac_{\vz_n} \vf_n$.
+To see this, let's look at the definition of $\vg_{n,c}$ which depends on the backpropagated vector $\blacktriangle_{n,c}$ and the Jacobian of the prediction \wrt the layer's output $\jac_{\vz_n} \vf_n$.
 For square loss, $\blacktriangle_{n,c}$ often does not depend on $n$: For type-2, it is simply a column of the identity matrix, and for MC, it is simply a normally distributed random number.
 If we further restrict all layers of our neural network to be linear layers all prediction-intermediate Jacobians are constant and therefore independent of $n$.
 This implies the following limit in which KFAC becomes exact (first proposed in \cite{bernacchia2018exact}).
@@ -773,9 +773,9 @@ TODO Describe how this Kronecker structure affects the KFAC approximation
 
 
 \paragraph{Why are deep linear networks great?}
-Deep linear networks are great because each layer's output-input Jacobian, and therefore the Jacobian of the output w.r.t.\,any intermediate feature, is constant and therefore data-independent.
-For a curvature matrix of structure ??, this means that the data dependency only enters in two places: (i) in the vectors $\blacktriangle_{n,c}$ that are generated for backpropagation, and (ii) in the Jacobian of a layer output w.r.t.\,its weight.
-Consider a deep linear network $f = f^{(L)} \circ \ldots \circ f^{(1)}$ with $L$ layers with weights $\mW^{(l)}$ and bias $\vb^{(l)}$. For an arbitrary intermediate $\vx^{(l)}$ (the output of layer $l$), the Jacobian of the output w.r.t.\,the weight of layer $l$ is given by
+Deep linear networks are great because each layer's output-input Jacobian, and therefore the Jacobian of the output \wrt any intermediate feature, is constant and therefore data-independent.
+For a curvature matrix of structure ??, this means that the data dependency only enters in two places: (i) in the vectors $\blacktriangle_{n,c}$ that are generated for backpropagation, and (ii) in the Jacobian of a layer output \wrt its weight.
+Consider a deep linear network $f = f^{(L)} \circ \ldots \circ f^{(1)}$ with $L$ layers with weights $\mW^{(l)}$ and bias $\vb^{(l)}$. For an arbitrary intermediate $\vx^{(l)}$ (the output of layer $l$), the Jacobian of the output \wrt the weight of layer $l$ is given by
 \begin{align*}
   \jac_{\vx^{(l)}} f(\vx)
   =

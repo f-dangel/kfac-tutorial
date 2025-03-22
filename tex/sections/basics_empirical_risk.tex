@@ -55,7 +55,7 @@ We show their criterion and reduction factors in \cref{ex:square_loss,ex:cross_e
 \end{example}
 \switchcolumn[0]
 
-\begin{caveat}
+\begin{caveat}[Scaling]
   Implementations of loss functions mix the concepts of criterion and reduction.
   This is often fine, but sometimes makes it difficult to translate to new loss functions without accidentally forgetting a factor.
   By keeping both concepts separate, we reduce the chance of introducing scaling bugs.

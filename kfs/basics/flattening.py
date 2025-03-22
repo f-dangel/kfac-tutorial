@@ -65,6 +65,7 @@ def cvec(
 
 
 if __name__ == "__main__":
+    # verify $\text{\Cref{ex:flattening}}$
     A = Tensor(
         [
             [1, 2],
