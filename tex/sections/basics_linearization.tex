@@ -308,7 +308,7 @@ One obtains this form by following through the same steps as above, but for a ve
  We also see that the GGN is positive semi-definite, as it is a scaled outer product of Jacobians.
 
  \paragraph{Comparison of Hessian and GGN.}
- As expected, the Rosenbrock function's Hessian, evaluated at $\hat{\vx}$ is different from the GGN:
+ As expected, the Rosenbrock function's Hessian, evaluated at $\hat{\vx}$, is different from the GGN:
   \begin{align*}
     &\hess_{\vx} f_{\alpha}(\vx)|_{\vx = \hat{\vx}}
       \\
@@ -321,13 +321,18 @@ One obtains this form by following through the same steps as above, but for a ve
   \end{align*}
 \end{example}
 
+\paragraph{Generalization to tensor case.} The above example illustrated the GGN for a vector-to-vector-to-scalar function.
+We will spend the remaining part of this section to generalize the GGN to tensor-to-tensor-to-scalar functions.
+Note that we already generalized all ingredients (linearization from \Cref{def:tensor_linearization}, the Jacobian tensor from \Cref{def:general_jacobian}, and the Hessian tensor from \Cref{def:general_hessian}) to that scenario.
+All we have to do is put them together.
+After that, we will see a tensor case example of the GGN that will be extremely relevant for our KFAC journey.
 
-\switchcolumn[1]*
+\switchcolumn[1]
 \codeblock{basics/ggns}
 \switchcolumn[0]
 
 \begin{setup}[Composite tensor-to-tensor-to-scalar function]\label{setup:composite_tensor_to_tensor_to_scalar_function}
-  Let the tensor-to-scalar function
+  Let the tensor-to-scalar map
   \begin{align*}
     f: \sR^{A_1 \times \ldots \times A_N} & \to \sR
     \\
@@ -335,64 +340,65 @@ One obtains this form by following through the same steps as above, but for a ve
   \end{align*}
   be the composite of a tensor-to-tensor function $h$ and a tensor-to-scalar function $g$, that is
   \begin{align*}
-    f = g \circ h: & \sR^{A_1 \times \ldots \times A_N} \to \sR^{B_1 \times \ldots \times B_M}  \to \sR
+    f = g \circ h: & \sR^{A_1 \times \ldots \times A_N} \to \sR^{B_1 \times \ldots \times B_M}  \to \sR\!\!
     \\
                    & \tA \mapsto \tB = h(\tA) \mapsto c = g(\tB)\,.
   \end{align*}
 \end{setup}
 
-\begin{definition}[Generalized Gauss-Newton (GGN) tensor (\Cref{ggns})]\label{def:general_ggn}%
-  The GGN tensor of a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function}, $\tG_{\tA} f(\tA) \in \sR^{A_1 \times \ldots \times A_N \times A_1 \times \ldots \times A_N}$ is the Hessian of the partially linearized function $\bar{f} = g \circ \lin_{\tA_0}(h)$, evaluated at the anchor point $\tA_0 = \tA$.
+\begin{definition}[Generalized Gauss-Newton (GGN) tensor (\Cref{basics/ggns})]\label{def:general_ggn}%
+  The GGN tensor of a tensor-to-tensor-to-scalar map $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function}, $\tG_{\tA} f(\tA) \in \sR^{A_1 \times \ldots \times A_N \times A_1 \times \ldots \times A_N}$ is the Hessian of the partially linearized function $\bar{f} = g \circ \lin_{\tA_0}(h)$, evaluated at the anchor point $\tA = \tA_0$.
   \begin{align*}
     \tG_{\tA} f(\tA)
     =
-    \tH_{\tA} \bar{f}(\tA)|_{\tA_0 = \tA}\,.
+    \tH_{\tA} \bar{f}(\tA)|_{\tA = \tA_0}\,.
   \end{align*}
   where $\bar{f} = g \circ \lin_{\tA_0}(h)$.
 
-  We can express this tensor as a tensor contraction between the Jacobians and Hessians of the two composites, \ie
+  Similar to the vector case (\Cref{def:vector_ggn}), we can express this tensor as a contraction between the Jacobians and Hessians of the two composites, \ie
   \begin{align*}
     [\tG_{\tA} f(\tA)]_{i_1, \ldots, i_N, j_1, \ldots, j_N}
     \\
     =
     \textcolor{VectorPink}{\sum_{k_1, \dots, k_M}}
     \textcolor{VectorBlue}{\sum_{l_1, \dots, l_M}}
-    & [\jac_{\tA} \tB]_{\textcolor{VectorPink}{k_1, \dots, k_M}, i_1, \dots, i_N}
+    & [\jac_{\tA} \tB]_{\textcolor{VectorPink}{k_1, \dots, k_M}, i_1, \dots, i_N} \hspace{-1.3ex}
     \\
-    & [\hess_{\tB} c]_{\textcolor{VectorPink}{k_{1}, \ldots, k_{M}}, \textcolor{VectorBlue}{l_{1}, \ldots, l_{M}}}
+    & [\hess_{\tB} c]_{\textcolor{VectorPink}{k_{1}, \ldots, k_{M}}, \textcolor{VectorBlue}{l_{1}, \ldots, l_{M}}} \hspace{-1.3ex}
     \\
-    & [\jac_{\tA} \tB]_{\textcolor{VectorBlue}{l_1, \ldots, l_M}, j_1, \ldots, j_N}\,.
+    & [\jac_{\tA} \tB]_{\textcolor{VectorBlue}{l_1, \ldots, l_M}, j_1, \ldots, j_N}\,. \hspace{-1.3ex}
   \end{align*}
 \end{definition}
-This expression seems daunting at first, so we will convert things back to matrix notation very soon.
-We will not use the linearization aspect explicitly in the computation, but instead rely on GGN-vector products which can be built from the previously introduced autodiff operations.
-Before doing that, let's introduce multiplication with the GGN:
 
-\switchcolumn[1]*
+\paragraph{GGN multiplication.}
+This expression is daunting, so we will convert things back to matrix notation soon.
+Before doing so, let's introduce multiplication with the GGN to work with it numerically:
+
+\switchcolumn[1]
 \codeblock{basics/ggn_product}
 \switchcolumn[0]
 
-\begin{definition}[GGN-vector-product (GGNVP, \Cref{ggn_product})]\label{def:ggnvp}%
-  Consider the GGN tensor of a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function,def:general_ggn}.
+\begin{definition}[GGN-vector-product (GGNVP, \Cref{basics/ggn_product})]\label{def:ggnvp}%
+  Consider the GGN tensor of a tensor-to-tensor-to-scalar map $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function,def:general_ggn}.
   The GGN-vector-product (GGNVP) $\tU \in \sR^{A_1 \times \ldots \times A_N}$ with a tensor $\tV \in \sR^{A_1 \times \ldots \times A_N}$ from the input domain is
   \begin{align*}
     & [\tU]_{i_1, \dots, i_N}
     \\
     & =
-      \sum_{j_1, \dots, j_N}
-      [\tG_{\tA} f(\tA)]_{i_1, \dots, i_N, j_1, \dots, j_N}
-      [\tV]_{j_1, \dots, j_N}\,,
+      \colored{\sum_{j_1, \dots, j_N}}
+      [\tG_{\tA} f(\tA)]_{i_1, \dots, i_N, \colored{j_1, \dots, j_N}}
+      [\tV]_{\colored{j_1, \dots, j_N}}\,,
   \end{align*}
-  and decomposes into a JVP, HVP, and JVP when applying the composition from \Cref{def:general_ggn}.
+  and decomposes into a JVP, HVP, and VJP when applying the composition from \Cref{def:general_ggn}.
 \end{definition}
-This is easiest to see for the vector-to-vector-to-scalar case where $\tA, \tB, \tU, \tV \to \va, \vb, \vu, \vv$ and $\vu = (\jac_{\va}\vb)^{\top} (\hess_{\vb} c) (\jac_{\va} \vb) \vv$, which can be written as a matrix chain and computed without explicitly building up any of the matrices in memory~\cite{schraudolph2002fast}.
+This is easiest to see for the vector-to-vector-to-scalar case where $\tA, \tB, \tU, \tV \to \va, \vb, \vu, \vv$ and the GGNVP becomes $\vu = (\jac_{\va}\vb)^{\top} (\hess_{\vb} c) (\jac_{\va} \vb) \vv$, which can be written as a matrix chain and computed without explicitly building up any of the matrices in memory~\cite{schraudolph2002fast}.
 
-\paragraph{Matricization} As for the Hessian and Jacobian, we can flatten both composite functions before applying the partial linearization and taking the Hessian to obtain the GGN.
+\paragraph{Matricization.} As for the Hessian and Jacobian, we can flatten both composite functions before applying the partial linearization and taking the Hessian to obtain the GGN.
 This is equivalent to matricizing the GGN tensor from \Cref{def:general_ggn}.
 And it is also equivalent to matricizing the Hessians and Jacobians in the general definition.
 
-\begin{definition}[$\cvec$ and $\rvec$ GGN matrices, \Cref{ggns}]\label{def:vec_ggns}
-  For a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function}, we define the $\cvec$ and $\rvec$ GGN matrices by flattening the composite functions before applying the partial linearization and taking the Hessian. This yields the flattened GGN matrices $\ggn^{\vec}_{\tA}f(\tA) \in \sR^{A_1 \cdots A_N \times A_1 \cdots A_N}$ where $\vec \in \{\cvec, \rvec\}$ which can be written as matrix chain
+\begin{definition}[$\cvec$- and $\rvec$-GGN matrices, \Cref{basics/ggns}]\label{def:vec_ggns}
+  For a tensor-to-tensor-to-scalar function $f$ from \Cref{setup:composite_tensor_to_tensor_to_scalar_function}, we define the $\cvec$- and $\rvec$-GGN matrices by flattening the composite functions before applying the partial linearization and taking the Hessian. This yields the flattened GGN matrices $\ggn^{\vec}_{\tA}f(\tA) \in \sR^{A_1 \cdots A_N \times A_1 \cdots A_N}$ where $\vec \in \{\cvec, \rvec\}$ which can be written as matrix chain
   \begin{align*}
     \ggn^{\vec}_{\tA} f(\tA)
     =
@@ -403,14 +409,15 @@ And it is also equivalent to matricizing the Hessians and Jacobians in the gener
   using the previously defined flattened Hessians (\Cref{def:cvec_hessian,def:cvec_hessian}) and Jacobians (\Cref{def:cvec_jacobian,def:rvec_jacobian}).
 \end{definition}
 
-Again, it is important to emphasize that the matrix GGN depends on the flattening scheme.
-To emphasize this point, we conclude this section with the following:
-
 \switchcolumn[1]*
 \codeblock{basics/ggns_linear_regression}
 \switchcolumn[0]
 
-\begin{example}[GGN of linear regression (\Cref{ggns_linear_regression})]
+\paragraph{Example.} Again, it is important to emphasize that the matrix GGN depends on the flattening scheme.
+To emphasize this point, we conclude this section with the following:
+
+
+\begin{example}[GGN of linear regression (\Cref{basics/ggns_linear_regression})]
   Consider the least squares objective
   \begin{align*}
     \gL(\mW) = \sum_n \ell_n(\mW)
@@ -419,7 +426,7 @@ To emphasize this point, we conclude this section with the following:
   on a data point labeled $n$, that is
   $f_n(\mW) = \mW \vx_n$ and $c_n(\vz) = \frac{1}{2}\left\lVert \vz - \vy_n \right\rVert^2_2$.
 
-  Using the shorthands $\vf_n \coloneq f_n(\mW)$ and $c_n \coloneq c_n(\vf_n)$, the matrix GGNs are given by
+  Using the shorthands $\vf_n \coloneq f_n(\mW)$ and $c_n \coloneq c_n(\vf_n)$, the matrix GGNs are
   \begin{align*}
     \ggn_{\mW}^{\vec}\gL(\mW)
     \coloneq
@@ -432,7 +439,7 @@ To emphasize this point, we conclude this section with the following:
     (\hess^{\vec}_{\vf_n} c_n)
     (\jac^{\vec}_{\mW} \vf_n)\,.
   \end{align*}
-  We can use the results from previous examples, specifically \Cref{jacobians_linear_layer,ex:square_loss_hessian}, to obtain the following expressions
+  We can use the results from previous examples, specifically the Jacobian of an affine map from \Cref{ex:linear_layer_jacobians}, and the square loss Hessian from \Cref{ex:square_loss_hessian}, to obtain
   \begin{align*}
     \ggn_{\mW}^{\cvec}\gL(\mW)
     & =
@@ -450,8 +457,14 @@ To emphasize this point, we conclude this section with the following:
       \right)
   \end{align*}
 \end{example}
-Two interesting observations about this result are (i) both GGNs are a Kronecker product (ii) whose order of factors depends on the flattening scheme we are using.
-This already hints at using a Kronecker product to approximate the exact GGN, which is what KFAC aims to do.
+Two interesting observations about this result are:
+\begin{itemize}
+\item Both GGNs are a Kronecker product.
+  This already hints at using a Kronecker product to approximate the exact GGN, which is what KFAC aims to do.
+
+\item The order of factors depends on the flattening scheme we are using.
+  Therefore, we always need to remind ourselves of the chosen scheme when working with the GGN.
+\end{itemize}
 
 
 %%% Local Variables:
