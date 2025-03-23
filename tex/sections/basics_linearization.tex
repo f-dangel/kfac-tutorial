@@ -96,10 +96,10 @@ Evaluating both equations at the anchor point (setting $x = x_0$) we see that th
       $\bar{f}_{\tA_0} = g \circ \lin_{\tA_0} h$\\%
     };
     \node[box, align=center] (D) at (5.5,-3) {%
-      $\tG_{\tA}f(\tA)|_{\tA_0 = \tA}$
+      $\tG_{\tA}f(\tA)|_{\tA = \tA_0}$
       \\
       $=$\\%
-      $\tH_{\tA} \bar{f}_{\tA_0}(\tA)|_{\tA_0 = \tA}$\\%
+      $\tH_{\tA} \bar{f}_{\tA_0}(\tA)|_{\tA = \tA_0}$\\%
     };
     \draw[-Stealth] (A.east) -- node[fill=white] {$\tH$} (B.west);
     \draw[-Stealth] (A.south) -- node[fill=white, align=center] {partially linearize $h$ \\
@@ -123,12 +123,12 @@ This commutative relationship is visualized in \Cref{fig:commutative-diagram-ggn
 Our next steps are to generalize the GGN to vector-valued functions that produce scalars, illustrate it on a toy problem, then develop the fully general formulation for tensor-valued functions along with the functionality to work with it in code.
 
 \switchcolumn[1]*
-  \begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{../kfs/plots/linearized_rosenbrock.pdf}
-    \caption{The 2d Rosenbrock function $f_{\alpha=10}$ (solid contour lines) and its convex approximation $\bar{f}_{\alpha=10} = g \circ \bar{h}_{\alpha=10}$ (dashed contour lines) around an anchor $\hat{\vx}$ (star) from partial linearization.
-      The convex approximation is a quadratic form with the GGN.}
-  \end{figure}\label{fig:2d-rosenbrock}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../kfs/plots/linearized_rosenbrock.pdf}
+  \caption{\textbf{The 2d Rosenbrock function} $f_{\alpha=10}$ (solid contour lines) and its convex approximation $\bar{f}_{\alpha=10} = g \circ \bar{h}_{\alpha=10}$ (dashed contour lines) around an anchor $\hat{\vx}$ (star) from partial linearization.
+    The convex approximation is a quadratic form with the GGN.}\label{fig:2d-rosenbrock}
+\end{figure}
 \switchcolumn[0]
 
 \paragraph{Vector case with basic example.}
@@ -166,7 +166,7 @@ Let's define it for the vector case and apply it to an example.
   \ie the second composite's Hessian, pulled back with the first composite's Jacobian.
 \end{definition}
 
-One obtains this form by following through the same steps as above, but for a vector-to-vector-to-scalar instead of a purely scalar function composition. \Cref{ex:ggn-rosenbrock} presents fully-worked out expressions of the GGN for the Rosenbrock function.
+One obtains this form by following through the same steps as above, but for a vector-to-vector-to-scalar instead of a purely scalar function composition. \Cref{ex:ggn-rosenbrock} presents fully-worked out expressions of Rosenbrock function's GGN.
 
 \begin{example}[GGN for the Rosenbrock function, \Cref{basics/ggn_rosenbrock}]\label{ex:ggn-rosenbrock}
   Consider the 2d Rosenbrock function $f_{\alpha}: \sR^2 \to \sR$ with
@@ -181,31 +181,31 @@ One obtains this form by following through the same steps as above, but for a ve
   Following \citet{brunet2010basics}, we express the Rosenbrock function as vector-to-vector-to-scalar function
   \begin{align*}
     f_{\alpha} &= g \circ h_{\alpha}: \sR^2 \to \sR^2 \to \sR
-    \shortintertext{with}
-    h_{\alpha}(\vx) &= \begin{pmatrix}
-      1 - x_1 \\
-      \sqrt{\alpha} (x_2 - x_1^2)
-    \end{pmatrix}
-    \shortintertext{and convex}
-    g(\vh) &= \vh^\top \vh\,,
+                 \shortintertext{with}
+                 h_{\alpha}(\vx) &= \begin{pmatrix}
+                   1 - x_1 \\
+                   \sqrt{\alpha} (x_2 - x_1^2)
+                 \end{pmatrix}
+                                   \shortintertext{and convex}
+                                   g(\vh) &= \vh^\top \vh\,,
   \end{align*}
   namely square loss.
 
-  \paragraph{Partial linearization.}
+  \paragraph{Linearization.}
   The Rosenbrock function is non-convex (see \Cref{fig:2d-rosenbrock} for contour lines) because $h_{\alpha}$ is non-convex.
   We want to convexify it by partial linearization.
   Linearizing $h_{\alpha}$ \wrt $\vx$ around an anchor $\hat{\vx}$ gives
   \begin{align*}
-    \bar{h}_{\alpha}(\vx) = h_{\alpha}(\hat{\vx}) + (\jac_{\hat{\vx}}h_{\alpha}(\hat{\vx})) (\vx - \hat{\vx})\,.
-  \end{align*}
-  with
-  \begin{align*}
-    \jac_{\vx}h_{\alpha}(\vx)
-    =
-    \begin{pmatrix}
-      -1                   & 0             \\
-      -2 \sqrt{\alpha} x_1 & \sqrt{\alpha}
-    \end{pmatrix}\,.
+    \bar{h}_{\alpha}(\vx)
+    &=
+      h_{\alpha}(\hat{\vx}) + (\jac_{\hat{\vx}}h_{\alpha}(\hat{\vx})) (\vx - \hat{\vx})
+      \shortintertext{with the Jacobian}
+      \jac_{\vx}h_{\alpha}(\vx)
+    &=
+      \begin{pmatrix}
+        -1                   & 0             \\
+        -2 \sqrt{\alpha} x_1 & \sqrt{\alpha}
+      \end{pmatrix}\,.
   \end{align*}
   Inserting all expressions, we have
   \begin{align*}
@@ -225,14 +225,13 @@ One obtains this form by following through the same steps as above, but for a ve
     =
     \begin{pmatrix}
       1 - x_1
-      % \\
-      % \sqrt{\alpha} (- \hat{x}_1^2 + 2 \hat{x}_1^2 - x_1 \hat{x}_1 +  x_2 )
       \\
-      \sqrt{\alpha} (\hat{x}_1 (\hat{x}_1 - x_1) +  x_2 )
+      2 \sqrt{\alpha} \hat{x}_1 \left( \frac{1}{2} \hat{x}_1 - x_1 \right) +  \sqrt{\alpha} x_2
     \end{pmatrix}
   \end{align*}
   Note that this function is indeed linear in $x_{1,2}$.
 
+  \paragraph{Partial linearization.}
   With $\bar{h}_{\alpha}(\vx)$, we can evaluate the partially linearized Rosenbrock function $\bar{f}_{\alpha} = g \circ \bar{h}_{\alpha}$ as
   \begin{align*}
     \bar{f}_{\alpha}(\vx)
@@ -241,55 +240,83 @@ One obtains this form by following through the same steps as above, but for a ve
     \\
     &=
       (1 - x_1)^2
-      \\
+    \\
     &\phantom{= }+
-      \alpha (\hat{x}_1 (\hat{x}_1 - x_1) +  x_2 )^2
+      \alpha \left[ 2 \hat{x}_1 \left(\frac{1}{2} \hat{x}_1 - x_1 \right) +  x_2 \right]^2
     \\
-    % &= 1 - 2x_1 + x_1^2 + \alpha \hat{x}_1^2 (\hat{x}_1 - x_1)^2
-    % \\
-    % &\phantom{= }+ 2 \alpha \hat{x}_1 (\hat{x}_1 - x_1) x_2 + \alpha x_2^2
-    % \\
-    % &= 1 - 2x_1 + x_1^2 + \alpha \hat{x}_1^4 - 2 \alpha \hat{x}_1^3 x_1 + \alpha \hat{x}_1^2 x_1^2
-    % \\
-    % &\phantom{= }+ 2 \alpha \hat{x}_1^2 x_2 - 2 \alpha \hat{x}_1 x_1 x_2 + \alpha x_2^2
-    % \\
-    &= 1 - 2x_1 + x_1^2 + \alpha \hat{x}_1^4 - 2 \alpha \hat{x}_1^3 x_1 + \alpha \hat{x}_1^2 x_1^2
+    &= 1 - 2x_1 + x_1^2 + \alpha [ 2 \hat{x}_1^4 - 4 \hat{x}_1^3 x_1
     \\
-    &\phantom{= }+ 2 \alpha \hat{x}_1^2 x_2 - 2 \alpha \hat{x}_1 x_1 x_2 + \alpha x_2^2
+    &\phantom{= }+ 4 \hat{x}_1^2 x_1^2 - 2 \hat{x}_1^2 x_2 - 4 \hat{x}_1 x_1 x_2 + x_2^2 ]\,.
   \end{align*}
 
   \paragraph{GGN via linearize-then-differentiate.}
-  The Hessian of $f_{\alpha}$ is
+  The Rosenbrock's GGN is the Hessian of its partial linearization, evaluated at $\vx = \hat{\vx}$
   \begin{align*}
-    \begin{pmatrix}
-      2 + 2 \alpha \hat{x}_1^2 & -2 \alpha \hat{x}_1
+    \ggn_{\hat{\vx}} f_{\alpha}(\hat{\vx})
+    &=
+      \hess_{\vx} \bar{f}_{\alpha}(\vx)|_{\vx=\hat{\vx}}
+    \\
+    &=
+      2
+      \begin{pmatrix}
+        1 + 4 \alpha \hat{x}_1^2 & - 2\alpha \hat{x}_1
+        \\
+        - 2\alpha \hat{x}_1 & \alpha
+      \end{pmatrix}\,.
+  \end{align*}
+
+  \paragraph{GGN via differentiate-then-linearize.}
+  Let's double-check our result by evaluating the GGN in \cref{def:vector_ggn}, which follows by differentiating twice, then neglecting non-linearities of $h_{\alpha}$,
+  \begin{align*}
+    \ggn_{\hat{\vx}} f_{\alpha}(\hat{\vx})
+    =&
+       (\jac_{\vx} h_{\alpha}(\vx) )^{\top}|_{\vx = \hat{\vx}}
+    \\
+     &\hess_{h_{\alpha}(\vx)} g(h_{\alpha}(\vx)) |_{h_{\alpha}(\vx) = h_{\alpha}(\hat{\vx})}
+    \\
+     &\jac_{\vx} h_{\alpha}(vx) |_{\vx = \hat{\vx}}\,.
+       \shortintertext{Using the Rosenbrock's Jacobian from above, and the square loss Hessian from \Cref{ex:square_loss_hessian} which is proportional to the identity, yields}
+       =&
+          2
+          (\jac_{\vx} h_{\alpha}(\vx) )^{\top}|_{\vx = \hat{\vx}}
+    \\
+     &
+       \jac_{\vx} h_{\alpha}(\vx) |_{\vx = \hat{\vx}}
+    \\
+    =&
+       2
+       \begin{pmatrix}
+         -1                   & -2 \sqrt{\alpha} x_1 \\
+         0 & \sqrt{\alpha}
+       \end{pmatrix}
+    \\
+     &
+       \begin{pmatrix}
+         -1                   & 0             \\
+         -2 \sqrt{\alpha} x_1 & \sqrt{\alpha}
+       \end{pmatrix}
+    \\
+    =&
+       2
+       \begin{pmatrix}
+         1 + 4 \alpha \hat{x}_1^2 & - 2\alpha \hat{x}_1
+         \\
+         - 2\alpha \hat{x}_1 & \alpha
+       \end{pmatrix}\,.
+  \end{align*}
+  This is the same expression we obtained with the linearize-then-differentiate approach.
+ We also see that the GGN is positive semi-definite, as it is a scaled outer product of Jacobians.
+
+ \paragraph{Comparison of Hessian and GGN.}
+ As expected, the Rosenbrock function's Hessian, evaluated at $\hat{\vx}$ is different from the GGN:
+  \begin{align*}
+    &\hess_{\vx} f_{\alpha}(\vx)|_{\vx = \hat{\vx}}
       \\
-      -2 \alpha \hat{x}_1 & \alpha
-    \end{pmatrix}
-  \end{align*}
-
-
-  To form the GGN of $f_{\alpha} = c \circ g_{\alpha}$ at $\vx = \hat{\vx}$, we take the Hessian of $f_{\alpha}' = c \circ g_{\alpha}^{\text{lin}}$, and evaluate it at $\vx = \hat{\vx}$,
-  \begin{align*}
-    & (\hess_{\vx} f_{\alpha}'(\vx))|_{x=x'}
-    \\
-    = & 2 (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}^{\top}
-        (\jac_{\vx} g_{\alpha}(\vx))|_{x=x'}
-    \\
-    = & 2
-        \begin{pmatrix}
-          1 + 4\alpha x_1^2 & -2 \alpha x_1 \\
-          -2 \alpha x_1     & \alpha
-        \end{pmatrix}\,.
-  \end{align*}
-  This matrix is PSD because it is an outer product of two matrices.
-  It is also different from the Hessian matrix
-  \begin{align*}
-    \hess_{\vx} f_{\alpha}(\vx)
-    =
+    &=
+    2
     \begin{pmatrix}
-      2 + 12 \alpha x_1^2 - 4 \alpha x_2 & -4 \alpha x_1 \\
-      -4 \alpha x_1                      & 2 \alpha
+      1 + 6 \alpha \hat{x}_1^2 - 2 \alpha \hat{x}_2 & -2 \alpha \hat{x}_1 \\
+      -2 \alpha \hat{x}_1                      & \alpha
     \end{pmatrix}\,.
   \end{align*}
 \end{example}

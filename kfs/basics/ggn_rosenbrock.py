@@ -97,15 +97,15 @@ if __name__ == "__main__":
     # compute Hessian
     H = hess(value, x)
 
-    H_manual = Tensor(
+    H_manual = 2 * Tensor(
         [
             [
-                2
-                + 12 * alpha * x[0] ** 2
-                - 4 * alpha * x[1],
-                -4 * alpha * x[0],
+                1
+                + 6 * alpha * x[0] ** 2
+                - 2 * alpha * x[1],
+                -2 * alpha * x[0],
             ],
-            [-4 * alpha * x[0], 2 * alpha],
+            [-2 * alpha * x[0], alpha],
         ]
     )
     assert allclose(H, H_manual)
