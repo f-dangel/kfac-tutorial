@@ -75,7 +75,7 @@ def backpropagated_vectors_type2(
         A list of backpropagated vectors. Each vector has
         the same shape as `predictions` and the number of
         vectors is equal `predictions.shape[1:].numel()`,
-        \ie dim(F). Vectors contain columns of the loss
+        i.e. dim(F). Vectors contain columns of the loss
         function's symmetric Hessian decomposition.
 
     Raises:
