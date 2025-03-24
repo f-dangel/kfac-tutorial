@@ -17,7 +17,7 @@ Ideally, we want to minimize the risk over that distribution,
 However, $p_{\text{data}}$ is intractable.
 Therefore, we draw a finite collection of samples into a data set
 \begin{align*}
-  \sD = \{ (\vx_n, \vy_n) \mid (\vx_n, \vy_n) \stackrel{\text{i.i.d.}}{\sim} p_{\text{data}}(\vx, \vy) \}\,.
+  \sD = \{ (\vx_n, \vy_n) \mid (\vx_n, \vy_n) \stackrel{\text{\iid}}{\sim} p_{\text{data}}(\vx, \vy) \}\,.
 \end{align*}
 Then, we can replace the intractable data-generating process $p_{\text{data}}$ with the tractable empirical distribution $p_{\sD}(\rvx, \rvy)$ implied by the data.
 It consists of a uniformly weighted sum of delta peaks around the collected data points,

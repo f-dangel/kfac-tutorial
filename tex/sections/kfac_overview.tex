@@ -213,7 +213,7 @@ By a similar derivation, this leads to the pseudo-gradient
   %\\
   &= \nabla_{\vf_n}  c(\vf_n, \tilde{\vy}_{n,m})
 \end{align*}
-where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \vf = \vf_n)$ is a sample from the model's predictive distribution (see ?? for a reminder).
+where $\tilde{\vy}_{n,m} \stackrel{\text{\iid}}{\sim} r(\rvy \mid \vf = \vf_n)$ is a sample from the model's predictive distribution (see ?? for a reminder).
 The number of Monte Carlo samples, $M$, controls the number of backpropgations:
 \begin{itemize}
  \item For \emph{computational efficiency}, choosing $M~<~\dim(\gF)$ makes sense becuause this reduces the number of backpropagations from $\dim(\gF)$ (as in the Type-II case) to $M$.

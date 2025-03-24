@@ -46,22 +46,57 @@ For simplicity, we will fully rely on PyTorch's backpropagation and neglect othe
 \subsubsection{Partial Linearization, Generalized Gauss-Newtons (GGNs), GGNVPs}\label{sec:partial_linearization}
 \input{sections/basics_linearization.tex}
 
-\switchcolumn[0]*
+\switchcolumn[0]
 \subsection{Curvature Matrices in Deep Learning}\label{subsec:curvature-matrices}
 
-The previous section introduced Jacobians, Hessians, partial linearizations and the resulting generalized Gauss-Newton (GGN) objects in the language of automatic differentiation for arbitrary functions.
-Here, we will switch gears and quickly walk through how these matrices look like in the context of deep learning.
+We introduced Jacobians, Hessians, partial linearizations and the resulting generalized Gauss-Newton (GGN) in the language of automatic differentiation for arbitrary functions.
+Let's switch gears and apply these concepts to deep learning.
 
-\switchcolumn[1]
-\codeblock{basics/hessian_factorizations}
+\switchcolumn[1]*
+\begin{figure}[!h]
+  \centering
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    $\cvec$\vspace{1ex}
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_hessian.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    $\rvec$\vspace{1ex}
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_hessian.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_hessian_bda.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_hessian_bda.pdf}
+  \end{minipage}
+  \caption{\textbf{The Hessian of a neural net exhibits block structure.}
+    We visualize the Hessian and its block-diagonal approximation using different flattening schemes.
+    We use synthetic data ($N=100$) on an MLP with three fully-connected layers (5-4-4-3) and ReLU activations and square loss.
+    Blocks correspond to second-order derivatives \wrt weights and biases of the different layers, yielding a $6 \times 6$ block structure.
+    Hessian blocks are visually highlighted with white lines.
+    The left column uses $\cvec$-flattening, the right column $\rvec$-flattening.
+    Plots produced with \repofile{plots/synthetic_hessian}.
+  }\label{fig:hessian-block-structure}
+\end{figure}
 \switchcolumn[0]
 
-\paragraph{Parameter list/tuple format:} One new aspect we have to deal with is that ML libraries like PyTorch represent parameters as lists/tuples of variables.
-We consider a neural network $f(\vtheta, x): \Theta \times \gX \to \gF$ with parameters in list/tuple-format,
+\paragraph{Parameter list/tuple format.} One new aspect we have to deal with is that ML libraries like PyTorch represent parameters as lists/tuples of variables, each of which are associated to a different layer.
+This layer structure in the parameters gives rise to a block structure in the Jacobians, Hessians (see \Cref{fig:hessian-block-structure} for an example), and GGNs.
+In the context of KFAC, we will focus on specific blocks.
+
+Typically, a neural net $f(\vtheta, \vx): \Theta \times \gX \to \gF$ has parameters in list/tuple-format,
 \begin{align*}
   \vtheta = (\vtheta^{(1)}, \vtheta^{(2)}, \ldots, \vtheta^{(L)}),
 \end{align*}
-where each $\vtheta^{(i)}$ is an arbitrary tensor. To be able to use matrix expressions, we will often consider the concatenation of flattened vectors,
+where each $\vtheta^{(l)}$ is an arbitrary parameter tensor.
+To be able to use matrix expressions, we will often consider the concatenation of flattened parameters,
 \begin{align*}
   \vec(\vtheta)
   =
@@ -74,40 +109,39 @@ where each $\vtheta^{(i)}$ is an arbitrary tensor. To be able to use matrix expr
   \in \sR^D
   \,,
 \end{align*}
-where $\vec \in \{ \rvec, \cvec \}$ is one of the previously described flattening operations.
-This convention allows $\vec$ to handle parameters in list/tuple format, and is a simple generalization which applies the original definition to each element of the list/tuple and concatenates all flattened items.
-However, in code we will still work with the list/tuple format.
+with $\vec \in \{ \rvec, \cvec \}$ one of the previously described flattening operations (\Cref{def:cvec,def:rvec}).
+This convention generalizes $\vec$ to handle parameters in list/tuple format by applying the original definition to each element and concatenating the results.
+In code we will still work with the list/tuple format.
 
-\paragraph{Empirical risk:} We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ independent and identically distributed (i.i.d.)\,samples.
-The inputs are processed by the neural network $f: \Theta \times \gX \to \gF$ and the resulting predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, such as mean-squared or softmax cross-entropy loss.
-For a datum $n$, we define the per-datum loss as:
+\paragraph{Recap: Empirical risk and shorthands.}
+We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ independent and identically distributed (\iid) samples.
+The inputs are processed by a neural net $f: \Theta \times \gX \to \gF$ and their predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, like square loss (\Cref{ex:square_loss}) or softmax cross-entropy loss (\Cref{ex:cross_entropy_loss}).
+For each datum $n$, we define its prediction function $\vf_n: \Theta \to \gF, \vtheta \mapsto \vf_n(\vtheta) = f(\vtheta, \vx_n)$ and its criterion function $c_n: \gF \to \sR, \vf \mapsto c(\vf, \vy_n)$.
+Combining both, we obtain the per-datum loss function (\wrt the net's parameters),
 \begin{align*}
-  (\ell_n: \Theta \to \sR) = (c_n \circ f_n: \Theta \to \gF \to \sR)
-  \\
-  \ell_n(\vtheta) = c_n(f_n(\vtheta))
+  (\ell_n: \Theta \to \sR) = (c_n \circ \vf_n: \Theta \to \gF \to \sR)
 \end{align*}
-where $c_n(\bullet) \coloneq c(\bullet, \vy_n)$ and $f_n(\bullet) \coloneq f(\bullet, \vx_n)$.
-We will often use the shorthands $c_n, f_n, \ell_n$ for the per-datum criteria, predictions, and losses, respectively.
+We will often use the shorthands $c_n, \vf_n, \ell_n$ for the function values (rather than functions) of the per-datum criteria, predictions, and losses.
 
-\paragraph{Reduction factor:} The per-datum losses $\{\ell_1, \dots, \ell_N\}$ are accumulated into a single scalar which yields the empirical risk
+We accumulate the per-datum losses $\{\ell_1, \dots, \ell_N\}$ into a single scalar, which yields the empirical risk
 \begin{align*}
-  \gL_{\sD}: \Theta & \mapsto \sR
-  \\
-  \vtheta           & \mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta) = R \sum_{n=1}^N c_n(f_n(\vtheta))
+  \gL_{\sD}: \Theta \to \sR,
+  \qquad
+  \vtheta \mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta)\,,
 \end{align*}
-where $R$ is the reduction factor. Common values for $R$ are $\nicefrac{1}{N}, 1$ and $\nicefrac{1}{N \dim(\gF)}$.
-For the purpose of this text, $\sD$ can be any collection of data points, \eg\,the full data set or a mini-batch.
+where $R$ is the reduction factor (see \Cref{eq:empirical_risk} for details).
+For the purpose of this text, $\sD$ can be any collection of data points, \eg the full data set or a mini-batch.
 
 \subsubsection{The Hessian}\label{sec:basics_dl_hessian}
 \input{sections/basics_dl_hessian.tex}
 
-\subsubsection{The Generalized Gauss-Newton (GGN)}
+\subsubsection{The Generalized Gauss-Newton}
 \input{sections/basics_dl_ggn.tex}
 
 \subsubsection{The Fisher}\label{sec:fisher}
 \input{sections/basics_dl_fisher.tex}
 
-\subsubsection{The Connection between GGN \& Fisher}
+\subsubsection{The Connection between GGN \& Fisher}\label{subsec:connection-ggn-fisher}
 The GGN, type-I and type-II Fisher can all be written as weighted sum over matrices sandwiched between the per-sample Jacobians (remember that we can mentally set $-\log r(\rvy \mid \vf_n) = c(\vf_n, \rvy)$ for square and softmax cross-entropy loss):
 \begin{align*}
   \mG(\vtheta)

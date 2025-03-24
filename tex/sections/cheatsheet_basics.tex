@@ -67,7 +67,7 @@
     &r(\ry \mid f(\rvx, \vtheta)) = \gC( \ry \mid \vsigma = \softmax(\vf))
   \end{align*}
 
-\item Hessian, generalized Gauss-Newton, type-II/I Fishers ($\vf_n \coloneq f(\vx_n, \vtheta)$, $\rvf = f(\rvx, \vtheta)$, $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \rvf = \vf_n)$)
+\item Hessian, generalized Gauss-Newton, type-II/I Fishers ($\vf_n \coloneq f(\vx_n, \vtheta)$, $\rvf = f(\rvx, \vtheta)$, $\tilde{\vy}_{n,m} \stackrel{\text{\iid}}{\sim} r(\rvy \mid \rvf = \vf_n)$)
   \begin{align*}
     \hess_{\vtheta} \gL_{\sD}(\vtheta)
     &= R \sum_{n=1}^N \hess_{\vtheta} c(\vf_n, \vy_n)

@@ -409,15 +409,8 @@ And it is also equivalent to matricizing the Hessians and Jacobians in the gener
   using the previously defined flattened Hessians (\Cref{def:cvec_hessian,def:cvec_hessian}) and Jacobians (\Cref{def:cvec_jacobian,def:rvec_jacobian}).
 \end{definition}
 
-\switchcolumn[1]*
-\codeblock{basics/ggns_linear_regression}
-\switchcolumn[0]
-
-\paragraph{Example.} Again, it is important to emphasize that the matrix GGN depends on the flattening scheme.
-To emphasize this point, we conclude this section with the following:
-
-
-\begin{example}[GGN of linear regression (\Cref{basics/ggns_linear_regression})]
+\switchcolumn[1]
+\begin{example}[GGN of linear regression (\Cref{basics/ggns_linear_regression})]\label{ex:ggn-linear-regression}
   Consider the least squares objective
   \begin{align*}
     \gL(\mW) = \sum_n \ell_n(\mW)
@@ -446,7 +439,7 @@ To emphasize this point, we conclude this section with the following:
       \left(
       \sum_n \vx_n \vx_n^{\top}
       \right)
-      \otimes \mI
+      \otimes \mI\,,
     \\
     \ggn_{\mW}^{\rvec}\gL(\mW)
     & =
@@ -454,10 +447,18 @@ To emphasize this point, we conclude this section with the following:
       \otimes
       \left(
       \sum_n \vx_n \vx_n^{\top}
-      \right)
+      \right)\,.
   \end{align*}
 \end{example}
-Two interesting observations about this result are:
+\switchcolumn[0]
+
+\switchcolumn[1]
+\codeblock{basics/ggns_linear_regression}
+\switchcolumn[0]
+
+\paragraph{Example.} Again, it is important to emphasize that the matrix GGN depends on the flattening scheme.
+To emphasize this point, we conclude this section by studying the GGN of linear regression (\Cref{ex:ggn-linear-regression}).
+Two interesting observations about this example are:
 \begin{itemize}
 \item Both GGNs are a Kronecker product.
   This already hints at using a Kronecker product to approximate the exact GGN, which is what KFAC aims to do.
@@ -465,8 +466,6 @@ Two interesting observations about this result are:
 \item The order of factors depends on the flattening scheme we are using.
   Therefore, we always need to remind ourselves of the chosen scheme when working with the GGN.
 \end{itemize}
-
-
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
