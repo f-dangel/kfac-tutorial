@@ -30,11 +30,11 @@ All of them are based on the Hessian, which emerges in a second-order Taylor exp
 Here, we will build up to the Hessian, and how to compute with it using PyTorch's automatic differentiation.
 For simplicity, we will fully rely on PyTorch's backpropagation and neglect other modes like forward-mode automatic differentiation.
 
-\switchcolumn[0]*
+\switchcolumn[0]
 \subsubsection{Flattening}
 \input{sections/basics_flattening.tex}
 
-\switchcolumn[0]*
+\switchcolumn[0]
 \subsubsection{Jacobians, JVP, VJPs}
 \input{sections/basics_jacobians.tex}
 
@@ -141,45 +141,49 @@ $\sD$ can be any collection of data points, \eg the full data set or a mini-batc
 \subsubsection{The Fisher}\label{sec:fisher}
 \input{sections/basics_dl_fisher.tex}
 
-\subsubsection{The Connection between GGN \& Fisher}\label{subsec:connection-ggn-fisher}
-The GGN, type-I and type-II Fisher can all be written as weighted sum over matrices sandwiched between the per-sample Jacobians (remember that we can mentally set $-\log r(\rvy \mid \vf_n) = c(\vf_n, \rvy)$ for square and softmax cross-entropy loss):
+\subsubsection{Connection between GGN \& Fisher}\label{subsec:connection-ggn-fisher}
+The GGN, type-I, and type-II Fisher are all weighted sums of matrices sandwiched between the per-sample Jacobians (remember that we can mentally set $-\log r(\rvy \mid \vf_n) = c(\vf_n, \rvy)$ for square and softmax cross-entropy loss):
 \begin{align*}
   \mG(\vtheta)
-   & =
-  R \sum_n
-  \begin{aligned}[t]
-     & (\jac_{\vtheta}\vf_n)^\top                           \\
-     & \textcolor{VectorBlue}{\hess_{\vf_n}c(\vf_n, \vy_n)} \\
-     & \jac_{\vtheta}\vf_n
-  \end{aligned}
+  & =
+    R \sum_n
+    \begin{aligned}[t]
+      & (\jac_{\vtheta}\vf_n)^\top                           \\
+      & \textcolor{VectorBlue}{\hess_{\vf_n}c(\vf_n, \vy_n)} \\
+      & \jac_{\vtheta}\vf_n\,,
+    \end{aligned}
   \\
   \mF^{\text{II}}(\vtheta)
-   & =
-  R \sum_n
-  \begin{aligned}[t]
-     & (\jac_{\vtheta}\vf_n)^\top                                                                 \\
-     & \textcolor{VectorPink}{\E_{r(\rvy \mid \vf_n)}[-\hess_{\vf_n} \log( r(\rvy \mid \vf_n)) ]} \\
-     & \jac_{\vtheta}\vf_n
-  \end{aligned}
+  & =
+    R \sum_n
+    \begin{aligned}[t]
+      & (\jac_{\vtheta}\vf_n)^\top                                                                 \\
+      & \textcolor{VectorPink}{\E_{r(\rvy \mid \vf_n)}[-\hess_{\vf_n} \log( r(\rvy \mid \vf_n)) ]} \\
+      & \jac_{\vtheta}\vf_n\,,
+    \end{aligned}
   \\
   \mF^{\text{I}}(\vtheta)
-   & =
-  R \sum_n
-  \begin{aligned}[t]
-     & (\jac_{\vtheta}\vf_n)^\top                          \\
-     & \textcolor{VectorTeal}{\E_{r(\rvy \mid \vf_n)}[
+  & =
+    R \sum_n
     \begin{aligned}[t]
-       & -\nabla_{\vf_n} \log( r(\rvy \mid \vf_n))           \\
-       & (-\nabla_{\vf_n} \log( r(\rvy \mid \vf_n)))^{\top}]
-    \end{aligned}} \\
-     & \jac_{\vtheta}\vf_n
-  \end{aligned}
+      & (\jac_{\vtheta}\vf_n)^\top
+      \\
+      & \colored[VectorTeal]{\E_{r(\rvy \mid \vf_n)}[}
+      \\
+      &\begin{aligned}[t]
+        &\quad \colored[VectorTeal]{-\nabla_{\vf_n} \log( r(\rvy \mid \vf_n))}
+        \\
+        &\quad \colored[VectorTeal]{(-\nabla_{\vf_n} \log( r(\rvy \mid \vf_n)))^{\top}]}
+      \end{aligned}
+      \\
+      & \jac_{\vtheta}\vf_n\,.
+    \end{aligned}
 \end{align*}
-In previous sections, we already showed that for square loss and softmax cross-entropy the criterion function's Hessian $\hess_\vf c(\vf, \vy) = -\hess_{\vf} \log( r(\rvy = \vy \mid \vf)$ does not depend on the value of the target random variable $\rvy$!
+In previous sections, we showed that for square loss and softmax cross-entropy the criterion function's Hessian $\hess_\vf c(\vf, \vy) = -\hess_{\vf} \log( r(\rvy = \vy \mid \vf)$ does not depend on the value of the target random variable $\rvy$!
 Therefore, the expectation in the type-II Fisher effectively disappears and we are free to set $\rvy = \vy_n$ because this does not change the Hessian.
-This means the type-II Fisher is equivalent to the GGN for square loss and softmax cross-entropy.
-Note that we cannot drop the expectation in the type-I Fisher, though.\footnote{This is precisely why we needed a separate definition for the Monte-Carlo-approximated type-I Fisher,
-as it yields different values from the type-II Fisher even for the square and softmax cross-entropy losses.}
+This means the type-II Fisher and GGN are equivalent for these losses.
+Note that we cannot drop the expectation in the type-I Fisher, though.\footnote{This is precisely why we needed a separate definition for the Monte Carlo-approximated type-I Fisher,
+  as it yields different values from the type-II Fisher even for the square and softmax cross-entropy losses.}
 But from the equivalence of type-I and type-II Fisher, we know that it also equals the GGN in the above scenarios.
 
 \subsubsection{The Empirical Fisher (EF)}\label{sec:emp_fisher}

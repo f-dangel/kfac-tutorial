@@ -75,8 +75,10 @@ We are now very close to writing down the explicit connection between empirical 
 The last remaining step is to connect the model's likelihood $r(\rvy \mid f(\rvx, \vtheta))$ with the criterion function $c(f(\vx, \vtheta), \vy)$ from empirical risk minimization.
 It turns out that empirical risk minimization with square loss (\cref{ex:square_loss}) corresponds to maximum likelihood estimation (or equivalently, negative log-likelihood minimization) of a Gaussian distribution over the labels (\cref{ex:square_loss_probabilistic}).
 Similarly, classification with softmax cross-entropy criterion amounts to maximum likelihood estimation where the neural net parameterizes a categorical distribution (\cref{ex:cross_entropy_loss_probabilistic}).
-The neural network's interpretation as likelihood allows using probabilistic concepts to measure similarity for comparing two neural networks.
-This will be useful when we define the Fisher information matrix (\cref{sec:fisher}), a commonly used curvature matrix.
+\Cref{basics/label_sampling} provides functions sample labels from these distributions.
+
+The neural net's interpretation as likelihood allows using probabilistic concepts to measure similarity for comparing two networks.
+This will be useful when we define the Fisher information matrix (\cref{sec:fisher}), a common curvature matrix.
 
 \switchcolumn[1]
 \begin{example}[Probabilistic interpretation of the square loss]\label{ex:square_loss_probabilistic}
@@ -123,6 +125,8 @@ This will be useful when we define the Fisher information matrix (\cref{sec:fish
     p(\ry \mid \rvx, \vtheta)    & = \gC(\ry \mid \vsigma = \softmax(f(\vx, \vtheta)))\,.
   \end{align*}
 \end{example}
+
+\codeblock{basics/label_sampling}
 \switchcolumn[0]
 %%% Local Variables:
 %%% mode: latex

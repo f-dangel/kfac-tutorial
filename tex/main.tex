@@ -7,6 +7,12 @@
 
 \begin{document}
 
+% By default, paracol defines all counters to be local per column.
+% The following makes it use a single global counter for figures.
+% See https://tex.stackexchange.com/a/304466 for details.
+\globalcounter{figure}
+\globalcounter{example}
+
 \onecolumn
 \input{preamble/metadata.tex} % Creates title
 
