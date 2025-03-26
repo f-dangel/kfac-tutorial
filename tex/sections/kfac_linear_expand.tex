@@ -49,17 +49,14 @@ For more complex layer types and cases involving weight-sharing, we provide an a
 
 We now derive the KFAC-expand approximation for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW\vx$, supressing layer indices for simplicity. Following convention in the literature, we assume column-major ($\cvec$-flattening) and use the output-parameter jacobian of a linear layer. The Generalized Gauss-Newton (GGN) matrix for this layer is given by
 \begin{align*}
-  \ggn_{\mW} \gL_{\sD}
-  =
-    R
-    \sum_n &\sum_c
-    (\jac^{\cvec}_{\mW}\vz_n)^{\top}
-    (\jac^{\cvec}_{\vz_n}\vf_n)^{\top}
-    \blacktriangle_{n,c} \\
-    \times
-    &\blacktriangle_{n,c}^{\top}
-    (\jac^{\cvec}_{\vz_n}\vf_n)
-    (\jac^{\cvec}_{\mW}\vz_n)
+  \ggn_{\mW} &\gL_{\sD} \\
+  &\begin{aligned}=
+    R \sum_n \sum_c &(\jac^{\cvec}_{\mW}\vz_n)^{\top} \\
+    &(\jac^{\cvec}_{\vz_n}\vf_n)^{\top}
+    \blacktriangle_{n,c} \blacktriangle_{n,c}^{\top}
+    (\jac^{\cvec}_{\vz_n}\vf_n) \\
+    &(\jac^{\cvec}_{\mW}\vz_n)
+  \end{aligned}
 \end{align*}
 We recall that the Jacobian of a linear layer's output with respect to its weights is:
 $$ \jac^{\cvec}_{\mW}\vz_n = \left(\vx_n \otimes \mI_{D_{\text{out}}}\right)^{\top}\, $$
@@ -77,13 +74,17 @@ Defining the layer output gradient as $$\vb_{n,c} \coloneq (\jac^{\cvec}_{\vz_n}
   (\jac^{\cvec}_{\mW}\vz_n)^{\top}
   \vb_{n,c} \vb_{n,c}^{\top}
   (\jac^{\cvec}_{\mW}\vz_n) \\
-  &= R \sum_n \sum_c (\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \\
-  & \qquad \qquad \qquad \times\vb_{n,c}^{\top}
-  (\vx_n \otimes \mI_{D_{\text{out}}})^{\top} \\
-  &= R \sum_n \sum_c (\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \\
-  & \qquad \qquad \qquad \times \left((\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \right)^{\top} \\
-  &= R \sum_n \sum_c \left( \vx_n \otimes \vb_{n,c} \right)
-  \left( \vx_n \otimes \vb_{n,c} \right)^{\top} \\
+  &\begin{aligned}
+  = R \sum_n \sum_c &(\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \\
+  & \vb_{n,c}^{\top} (\vx_n \otimes \mI_{D_{\text{out}}})^{\top} 
+  \end{aligned}\\
+  &\begin{aligned}
+  = R \sum_n \sum_c &(\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \\
+  &\left[(\vx_n \otimes \mI_{D_{\text{out}}}) \vb_{n,c} \right]^{\top}
+  \end{aligned}\\
+  &\begin{aligned}
+  = R \sum_n \sum_c &\left( \vx_n \otimes \vb_{n,c} \right)\left( \vx_n \otimes \vb_{n,c} \right)^{\top}
+  \end{aligned}\\
   &= R \sum_n \sum_c \left( \vx_n \otimes \vb_{n,c} \right)
   \left( \vx_n^{\top} \otimes \vb_{n,c}^{\top} \right) \\
   &= R \sum_n \sum_c \left(\vx_n \vx_n^{\top}\right) \otimes \left(\vb_{n,c} \vb_{n,c}^{\top}\right).
@@ -331,21 +332,18 @@ and the backpropagated vectors, regardless of their specifc type, are stored in 
 \end{align*}
 Then, the curvature matrix takes the form:
 \begin{align*}
-  \mC(&\cvec \mW)
-  \\
-  &=
-    R
-    \sum_n \sum_c \sum_s
-    (\jac^{\cvec}_{\mW}\vz_{n,s})^{\top}\cvec\vg_{n,c,s}\\
- &\quad \times(\cvec\vg_{n,c,s})^{\top}
-   (\jac^{\cvec}_{\mW}\vg_{n,c,s}) \\
- &=
-   R
-   \sum_n \sum_c (\mX_n \otimes \mI_{\vz_n}) \cvec \mG_{n,c}
- \\
- &\quad \times
- (\cvec \mG_{n,c})^{\top}
-   (\mX_n^{\top} \otimes \mI_{\vz_n}).
+  \mC(&\cvec \mW) \\
+  &\begin{aligned}
+  =R\sum_n \sum_c \sum_s
+    &(\jac^{\cvec}_{\mW}\vz_{n,s})^{\top} \\
+    &\cvec\vg_{n,c,s} (\cvec\vg_{n,c,s})^{\top} \\
+    &\jac^{\cvec}_{\mW}\vg_{n,c,s}
+  \end{aligned}\\
+ &\begin{aligned}
+  = R \sum_n \sum_c &(\mX_n \otimes \mI_{\vz_n}) \\
+  &\cvec \mG_{n,c}(\cvec \mG_{n,c})^{\top} \\
+  &(\mX_n^{\top} \otimes \mI_{\vz_n}).
+  \end{aligned}
 \end{align*}
 A key observation is that the matrix $\vec\mG_{n,c} (\vec\mG_{n,c})^{\top}$ has dimensions $S D_{\text{out}} \times S D_{\text{out}}$ and does not simplify into a single Kronecker product.
 
