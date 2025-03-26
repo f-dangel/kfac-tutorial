@@ -98,16 +98,16 @@ By applying the chain rule to split the Jacobian at the layer output $\vx^{(i)} 
 \end{align*}
 Substituting this back, the curvature matrix becomes
 \begin{align*}
-  \mC(\vtheta^{(i)}) =& R \sum_n \sum_{c}
-  (\jac_{\vtheta^{(i)}} \vx^{(i)}_n)^{\top}
-  (\jac_{\vx_n^{(i)}} \vf_n)^{\top}
-  \blacktriangle_{n,c} \\
-  &\times \blacktriangle_{n,c}^{\top}
-  (\jac_{\vx_n^{(i)}} \vf_n)
-  (\jac_{\vtheta^{(i)}} \vx^{(i)}_n).
+  \mC(\vtheta&^{(i)}) \\ =& R \sum_n \sum_{c}
+  &&(\jac_{\vtheta^{(i)}} \vx^{(i)}_n)^{\top} \\
+  & &&(\jac_{\vx_n^{(i)}} \vf_n)^{\top}
+  \blacktriangle_{n,c}
+  \blacktriangle_{n,c}^{\top}
+  (\jac_{\vx_n^{(i)}} \vf_n) \\
+  & &&(\jac_{\vtheta^{(i)}} \vx^{(i)}_n).
 \end{align*}
 The Kronecker structure emerges naturally in the output-parameter Jacobian $\jac_{\vtheta^{(i)}} \vx_n^{(i)}$ of a layer.
-We have already seen this in the previous chapter, such as in the output-weight Jacobian of a linear layer, where the Kronecker structure arises explicitly (\Cref{jacobians_linear_layer}), with one of the Kronecker factors given by the layer input $\vx^{(i-1)}_n$.
+We have already seen this in the previous chapter, such as in the output-weight Jacobian of a linear layer, where the Kronecker structure arises explicitly (cf. \Cref{ex:linear_layer_jacobians}), with one of the Kronecker factors given by the layer input $\vx^{(i-1)}_n$.
 
 Assuming a Kronecker-product structure of the form:
 $$ a \otimes b := (\jac_{\vtheta^{(i)}} \vx^{(i)}_n)^{\top}
@@ -138,8 +138,8 @@ In summary, we identify the following dependencies of the Kronecker factors $\mA
 \subsection{Algorithmic outline}
 
 From the previous section, we already gained an overview of the shared structure of KFAC across different curvature approximations, with the primary variation arising in the grad-output-based Kronecker factors.
-Here, we summarize the the common computational scaffold, with the accompanying code snippet implementing the shared computations (Steps 1 and 2).
-A complete example derivation, including Steps 3–5, is provided in the next section for the Generalized Gauss-Newton (GGN) together with potential test cases to verify the implementation numerically.
+Here, we summarize the common computational scaffold, with the accompanying code snippet implementing the shared computations (Steps 1 and 2).
+A complete example derivation, including Steps 3–5, is provided in the next section for the Generalized Gauss-Newton (GGN) together with potential test cases to verify the implementation numerically (cf. \Cref{sec:kfac-expand-linear}).
 
 \paragraph{Step 1:} Perform a forward pass to compute $\{\vf_n\}_n $, storing the layer inputs $\{\vx_n^{(i-1)} \}_n$ and outputs $\{\vx_n^{(i)}\}_n$ of all layers $i$ for which a KFAC approximation is defined.
 
@@ -161,13 +161,12 @@ The computational scaffold can be flexibly adapted to various curvature matrices
 
 \paragraph{Generalized-Gauss Newton (GGN)}
 The GGN is given by\begin{align*}
-\ggn_{\vtheta}\gL_{\sD}(\vtheta)
+\ggn_{\vtheta}&\gL_{\sD}(\vtheta) \\
 &= R \sum_{n=1}^N
-  \jac_{\vtheta} \vf_n^{\top}
-  \left(
-  \hess_{\vf_n} c(\vf_n, \vy_n)
-  \right)
-  \jac_{\vtheta} \vf_n.
+  \left[\jac_{\vtheta} \vf_n\right]^{\top}
+  \left[\hess_{\vf_n} c(\vf_n, \vy_n)
+  \right]
+  \left[\jac_{\vtheta} \vf_n\right].
 \end{align*}
 Using the symmetric decomposition
 $$\mS_n \mS_n^{\top} = \hess_{\vf_n} c(\vf_n, \vy_n),$$ we identify for the backprograted vector
@@ -179,14 +178,9 @@ Thus, we end up backpropagating each column of the Hessian decomposition $\mS_n$
 \paragraph{Type-II Fisher}
 For convex loss functions, the Type-II Fisher curvature matrix coincides with the GGN. It is defined as
 \begin{align*}
-\fisher^{\text{II}}_{\vtheta}&\gL_{\sD}(\vtheta) \\
-=& \lim_{M \to \infty}
-  \frac{R}{M} \sum_{n=1}^N
-  \jac_{\vtheta} \vf_n^{\top}
-  \left[
-  \hess_{\vf_n} c(\vf_n, \tilde{\vy}_{n,m})
-  \right]
-  \jac_{\vtheta} \vf_n.
+\fisher^{\text{II}}_{\vtheta} \gL_{\sD}(\vtheta) = \lim_{M \to \infty} \frac{R}{M} \sum_{n=1}^N & \left(\jac_{\vtheta} \vf_n\right)^{\top} \\
+&\hess_{\vf_n} c(\vf_n, \tilde{\vy}_{n,m}) \\
+&\jac_{\vtheta} \vf_n.
 \end{align*}
 Using the same decomposition as in the GGN case, we obtain:
 \begin{align*}
@@ -196,15 +190,19 @@ Using the same decomposition as in the GGN case, we obtain:
 \paragraph{MC-sampled Type-I Fisher}
 The Type-I Fisher, approximated via Monte Carlo (MC) sampling, is given by:
 \begin{align*}
-\fisher^{\text{I}}_{\vtheta} &\gL_{\sD}(\vtheta) \\
-=& \lim_{M \to \infty}
-  \frac{R}{M} \sum_{n=1}^N
-  \jac_{\vtheta} \vf_n^{\top}
-  \big[
-  \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n,m}) \\
-& \times (\nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n,m}))^{\top}
-\big]
-\jac_{\vtheta} \vf_n.
+&\fisher^{\text{I}}_{\vtheta}\gL_{\sD}(\vtheta) \\
+&\begin{aligned}
+= \lim_{M \to \infty} \frac{R}{M} \sum_{n=1}^N
+  &\left( \jac_{\vtheta} \vf_n\right)^{\top} \\
+  &
+\begin{aligned}
+  \big[ 
+  &\nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n,m}) \\
+  &\nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n,m})^{\top}
+  \big] 
+\end{aligned} \\
+  &\jac_{\vtheta} \vf_n.
+\end{aligned}
 \end{align*}
 By a similar derivation, this leads to the pseudo-gradient
 \begin{align*}
@@ -213,7 +211,7 @@ By a similar derivation, this leads to the pseudo-gradient
   %\\
   &= \nabla_{\vf_n}  c(\vf_n, \tilde{\vy}_{n,m})
 \end{align*}
-where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \vf = \vf_n)$ is a sample from the model's predictive distribution (see ?? for a reminder).
+where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \vf = \vf_n)$ is a sample from the model's predictive distribution (see \Cref{sec:fisher} for a reminder).
 The number of Monte Carlo samples, $M$, controls the number of backpropgations:
 \begin{itemize}
  \item For \emph{computational efficiency}, choosing $M~<~\dim(\gF)$ makes sense becuause this reduces the number of backpropagations from $\dim(\gF)$ (as in the Type-II case) to $M$.
@@ -225,12 +223,11 @@ The number of Monte Carlo samples, $M$, controls the number of backpropgations:
 The empirical Fisher replaces the expectation approximation in the Type-I Fisher with a single-sample estimate:
 \begin{align*}
   \fisher_\vtheta^{\text{emp}} &\gL_{\sD}(\vtheta) \\
-  =&R \sum_{n=1}^N
-      \jac_{\vtheta} \vf_n^{\top}
-      \big[
-      \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n}) \\
-  &\times (\nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n}))^{\top}
-    \big] \jac_{\vtheta} \vf_n.
+  &\begin{aligned}= R \sum_{n=1}^N
+      &\jac_{\vtheta} \vf_n^{\top} \\
+      & \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n}) \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_n ))^{\top} \\
+      &\jac_{\vtheta} \vf_n.
+  \end{aligned}
 \end{align*}
 The pseudo-gradient reduces then to
 \begin{align*}
@@ -243,6 +240,92 @@ This is essentially the same target as when computing the empirical risk, which 
 
 % \item Input-only: Two concurrent works have recently proposed to completely remove the backpropagations of KFAC to compute $\mB^{(i)}$, and instead set $\mB^{(i)} = \mI$.
 %   In this case, we do not need to generate vectors for backpropagation.
+
+\begin{figure}[t!]
+  \centering
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    \textbf{FULL}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    \textbf{KFAC}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+     GGN ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_ggn_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    GGN ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_ggn_kfac.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+     GGN ($\rvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_ggn_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    GGN ($\rvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_ggn_kfac.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    MC-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_mcfisher_100_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    MC-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_mcfisher_100_kfac.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    MC-Fisher ($\rvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_mcfisher_100_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    MC-Fisher ($\rvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_mcfisher_100_kfac.pdf}
+  \end{minipage}
+  \\  
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    Emp-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_empfisher_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    Emp-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_empfisher_kfac.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    Emp-Fisher ($\rvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_empfisher_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    Emp-Fisher ($\rvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_empfisher_kfac.pdf}
+  \end{minipage}
+    \caption{Visualization of full curvatures (GGN, MC-sampled Fisher and Empirical Fisher) and their corresponding KFAC approximation using different flattening schemes. All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss. For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples. This follows the setup in \Cref{fig:various_synthetic_fisher}.}
+\end{figure}
 
 %%% Local Variables:
 %%% mode: latex
