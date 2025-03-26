@@ -33,7 +33,7 @@ def compute_backpropagated_vectors(
         loss_func: The loss function.
         fisher_type: The type of Fisher approximation.
             Can be `'type-2'`, `'mc=1'` (with an arbitrary
-            number instead of `1`), or `'input_only'`.
+            number instead of `1`), `'emp'` or `'input_only'`.
         predictions: A batch of model predictions.
         labels: A batch of labels.
 
@@ -52,6 +52,10 @@ def compute_backpropagated_vectors(
         mc_samples = int(fisher_type.replace("mc=", ""))
         return backpropagated_vectors_mc(
             loss_func, predictions, labels, mc_samples
+        )
+    elif fisher_type == "emp":
+        return backpropagated_vectors_emp(
+            loss_func, predictions, labels
         )
     elif fisher_type == "input_only":
         return []
@@ -168,3 +172,39 @@ def backpropagated_vectors_mc(
     # convert into list,
     # ith entry contains the ith sampled gradient
     return [s.squeeze(0) for s in S.split(1)]
+
+
+def backpropagated_vectors_emp(
+    loss_func: Module,
+    predictions: Tensor,
+    labels: Tensor,
+) -> List[Tensor]:
+    """Compute backpropagated vectors for KFAC empirical.
+
+    Args:
+        loss_func: The loss function.
+        predictions: A batch of model predictions.
+        labels: A batch of labels.
+
+    Returns:
+        A list of backpropagated vectors. Each vector is
+        equivalent to the gradient of the empirical risk
+        which are computed during the normal backward pass.
+    """
+    c_func = {
+        MSELoss: MSELoss_criterion,
+        CrossEntropyLoss: CrossEntropyLoss_criterion,
+    }[type(loss_func)]
+
+    S = []
+    for pred_n, y_n in zip(
+        predictions.split(1), labels.split(1)
+    ):
+        c_n = c_func(pred_n, y_n)
+        S.append(grad(c_n, pred_n)[0].detach())
+
+    # concatenate over data points
+    S = stack(S, dim=1)
+
+    # convert into list of single vector
+    return list(S)
