@@ -36,6 +36,7 @@ def test_run_snippets(snippet: str):
             "linearized_rosenbrock.py",
             "synthetic_hessian.py",
             "synthetic_fisher.py",
+            "synthetic_kfac.py",
         )
     ):
         cmd.append("--disable_tex")
