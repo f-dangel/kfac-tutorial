@@ -225,7 +225,7 @@ The empirical Fisher replaces the expectation approximation in the Type-I Fisher
   \fisher_\vtheta^{\text{emp}} &\gL_{\sD}(\vtheta) \\
   &\begin{aligned}= R \sum_{n=1}^N
       &\jac_{\vtheta} \vf_n^{\top} \\
-      & \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n}) \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_n ))^{\top} \\
+      & \nabla_{\vf_n} c(\vf_n, \tilde{\vy}_{n}) (\nabla_{\vf_n} c(\vf_n, \tilde{\vy}_n ))^{\top} \\
       &\jac_{\vtheta} \vf_n.
   \end{aligned}
 \end{align*}
@@ -324,7 +324,9 @@ This is essentially the same target as when computing the empirical risk, which 
     Emp-Fisher ($\rvec$)\vspace{1ex}
     \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_empfisher_kfac.pdf}
   \end{minipage}
-    \caption{Visualization of full curvatures (GGN, MC-sampled Fisher and Empirical Fisher) and their corresponding KFAC approximation using different flattening schemes. All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss. For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples. This follows the setup in \Cref{fig:various_synthetic_fisher}.}
+    \caption{Visualization of full curvatures (GGN, MC-sampled Fisher and Empirical Fisher) and their corresponding KFAC approximation using different flattening schemes. All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss. For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples. This follows the setup in \Cref{fig:hessian-block-structure}.
+    Plots produced with \repofile{plots/synthetic_kfac}.}
+    \label{fig:kfac-full-comparison}
 \end{figure}
 
 %%% Local Variables:
