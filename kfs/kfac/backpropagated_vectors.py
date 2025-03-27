@@ -197,14 +197,12 @@ def backpropagated_vectors_emp(
     }[type(loss_func)]
 
     S = []
-    for pred_n, y_n in zip(
-        predictions.split(1), labels.split(1)
-    ):
+    for pred_n, y_n in zip(predictions, labels):
         c_n = c_func(pred_n, y_n)
         S.append(grad(c_n, pred_n)[0].detach())
 
     # concatenate over data points
-    S = stack(S, dim=1)
+    S = stack(S, dim=0)
 
     # convert into list of single vector
-    return list(S)
+    return [S]
