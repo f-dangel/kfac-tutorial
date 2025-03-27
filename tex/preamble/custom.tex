@@ -79,35 +79,21 @@
   singlelinecheck=false,%
 }
 
-% \usepackage{minted}
-% \usemintedstyle{emacs}
-
-\newcommand{\repourl}{https://github.com/f-dangel/kfac-tutorial}
+% URL with branch/commit that should be used to reference the code
+\newcommand{\repourl}{https://github.com/f-dangel/kfac-tutorial/blob/main}
+\newcommand{\repofile}[1]{
+  % convert _ into \_ for LaTeX using \detokenize
+  \href{\repourl/kfs/#1.py}{\texttt{kfs/\detokenize{#1}.py}}
+}
 % Command to include code blocks and their output.
 % First argument is the filename inside the kfac_tutorial directory.
 % The listing can be referenced with that filename, too.
 \newcommand{\codeblock}[1]{
-  % convert _ into \_ for LaTeX
-  \def\filename{\detokenize{#1}}
-  % \inputminted[%
-  % fontsize=\scriptsize,%
-  % % obeytabs,%
-  % tabsize=0,%
-  % bgcolor=VectorGray!50,%
-  % texcomments=true,%
-  % ]{python}{../kfs/#1.py}
   \lstinputlisting[%
   language=python,%
-  caption=\href{\repourl/kfs/#1.py}{\texttt{kfs/\filename.py}},%
+  caption={\repofile{#1}},%
   label=#1,%
   ]{../kfs/#1.py}
-  % \vspace{-1.25\baselineskip}
-  % \lstinputlisting[%
-  % language=python,%
-  % numbers=none,%
-  % basicstyle=\bfseries\ttfamily\scriptsize,%
-  % title=\href{\repourl/tex/output/#1.txt}{Output:}\hfill,%
-  % ]{output/#1.txt}
 }
 
 % ===================================================================
@@ -133,23 +119,23 @@
   % innertopmargin=8pt,%
 }
 \theoremstyle{definition}
-\newmdtheoremenv[style=custom]{definition}{Definition}[section]
-\newmdtheoremenv[style=custom]{setup}{Setup}[section]
+\newmdtheoremenv[style=custom]{definition}{Definition}
+\newmdtheoremenv[style=custom]{setup}{Setup}
 \newmdtheoremenv[%
 style=custom,%
 linecolor=VectorOrange,%
 backgroundcolor=VectorOrange!10,%
-]{caveat}{Caveat}[section]
+]{caveat}{Caveat}
 \newmdtheoremenv[%
 style=custom,%
 linecolor=VectorTeal,%
 backgroundcolor=VectorTeal!10,%
-]{test}{Test}[section]
+]{test}{Test}
 \newmdtheoremenv[%
 style=custom,%
 linecolor=VectorTeal,%
 backgroundcolor=VectorTeal!10,%
-]{example}{Example}[section]
+]{example}{Example}
 
 % ===================================================================
 % FIGURES

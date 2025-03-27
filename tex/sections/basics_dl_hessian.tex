@@ -1,4 +1,40 @@
-Consider the empirical risk from above. The Hessian matrix \wrt to a flattening scheme $\vec$ is given by
+\switchcolumn[1]*
+\begin{figure}[!h]
+  \centering
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    $\cvec$\vspace{1ex}
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_ggn.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    $\rvec$\vspace{1ex}
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_ggn.pdf}
+  \end{minipage}
+  \\
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_ggn_bda.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.495\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_ggn_bda.pdf}
+  \end{minipage}
+  \caption{\textbf{The GGN of a neural net exhibits block structure.}
+    We visualize the GGN and its block-diagonal approximation using different flattening schemes.
+    We use synthetic data ($N=100$) on an MLP with three fully-connected layers (5-4-4-3) and ReLU activations and square loss.
+    The GGN blocks are visually highlighted with white lines.
+    The left column uses $\cvec$-flattening, the right column $\rvec$-flattening.
+    Plots produced with \repofile{plots/synthetic_fisher}
+    (this is not a typo; the Fisher and GGN are closely related as we will see in \Cref{subsec:connection-ggn-fisher}).
+  }\label{fig:ggn-block-structure}
+\end{figure}
+
+\switchcolumn[0]
+Consider the empirical risk from above.
+The Hessian matrix \wrt to a flattening scheme $\vec$ is
 \begin{align*}
   \hess_{\vtheta}^{\vec} \gL_{\sD}(\vtheta)
   =
@@ -6,61 +42,23 @@ Consider the empirical risk from above. The Hessian matrix \wrt to a flattening 
   \sum_{n=1}^N
   \hess_{\vtheta}^{\vec} \ell_n(\vtheta) \in \sR^{D \times D}\,.
 \end{align*}
-and contains the second-order partial derivatives of $\gL_{\sD}(\vtheta)$, that is
+It contains the second-order partial derivatives of $\gL_{\sD}(\vtheta)$ (\Cref{def:vector_hessian}), \ie
 \begin{align*}
-  [\hess_{\vtheta}^{\vec} \gL_{\sD}(\vtheta)]_{i,j}
+  [\hess_{\vtheta}^{\vec} \gL_{\sD}(\vtheta)]_{\colored{i},\colored[VectorPink]{j}}
   =
-  \frac{\partial^2 \gL_{\sD}(\vtheta)}{\partial [\vec(\vtheta)]_i \partial [\vec(\vtheta)]_j}\,.
+  \frac{\partial^2 \gL_{\sD}(\vtheta)}{\colored{\partial [\vec(\vtheta)]_i} \colored[VectorPink]{\partial [\vec(\vtheta)]_j}}\,.
 \end{align*}
 
-\switchcolumn[1]*
-\begin{figure}
-  \centering
-  \begin{minipage}[t]{0.495\linewidth}
-    \centering
-    $\cvec$\vspace{1ex}
-    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_hessian.pdf}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.495\linewidth}
-    \centering
-    $\rvec$\vspace{1ex}
-    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_hessian.pdf}
-  \end{minipage}
-  \\
-  \begin{minipage}[t]{0.495\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_cvec_hessian_bda.pdf}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.495\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_hessian_bda.pdf}
-  \end{minipage}
-  \caption{Visualization of the Hessian and its block-diagonal approximation using different flattening schemes.
-    Hessian blocks are visually highlighted with white lines.
-    Left column uses $\cvec$-flattening, right column uses $\rvec$-flattening.
-    The Hessian was evaluated on synthetic data ($N=100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss.
-  }
-\end{figure}
-
-\switchcolumn[0]
-
-Due to the tuple/list structure of $\vtheta$, the Hessian has a block structure.
-We first introduce the definitions
+\paragraph{Block structure.} Due to the tuple/list structure of $\vtheta$, the Hessian has a block structure (\Cref{fig:hessian-block-structure}).
+A block corresponding to parameters $\vtheta^{(k)}, \vtheta^{(l)}$ is
 \begin{align*}
-  [\hess_{\vtheta^{(k)}, \vtheta^{(l)}}^{\vec} \gL_{\sD}(\vtheta)]_{i,j}
+  [\hess_{\colored{\vtheta^{(k)}}, \colored[VectorPink]{\vtheta^{(l)}}}^{\vec} \gL_{\sD}]_{i,j}
   =
-  \frac{\partial^2 \gL_{\sD}(\vtheta)}{\partial [\vec\left(\vtheta^{(k)}\right)]_i \partial [\vec\left(\vtheta^{(l)}\right)]_j}\,
+  \frac{\partial^2 \gL_{\sD}}{\partial [\colored{\vec\left(\vtheta^{(k)}\right)}]_i \partial [\colored[VectorPink]{\vec\left(\vtheta^{(l)}\right)}]_j}\,
 \end{align*}
-and
-\begin{align*}
-  [\hess_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)]_{i,j}
-  =
-  \frac{\partial^2 \gL_{\sD}(\vtheta)}{\partial [\vec\left(\vtheta^{(k)}\right)]_i \partial [\vec\left(\vtheta^{(k)}\right)]_j}\,.
-\end{align*}
-Using the shorthands $\hess_{k,l}^{\vec} \gL \coloneq \hess_{\vtheta^{(k)}, \vtheta^{(l)}}^{\vec} \gL_{\sD}(\vtheta)$
-and $\hess_{k}^{\vec} \gL \coloneq \hess_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)$, we can write the Hessian as
+and we usually suppress repeated differentiation arguments, $\hess_{\vtheta^{(k)}}^{\vec} \coloneqq \hess_{\vtheta^{(k)}, \vtheta^{(k)}}^{\vec}$.
+With the shorthand $\hess_{k,l}^{\vec} \coloneq \hess_{\vtheta^{(k)}, \vtheta^{(l)}}^{\vec}$,
+the Hessian can be written in block form as
 \begin{align*}
   \hess_{\vtheta}^{\vec} \gL
   =
@@ -92,7 +90,7 @@ and $\hess_{k}^{\vec} \gL \coloneq \hess_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vthet
       \hess_L^{\vec} \gL
   \end{pmatrix}\,.
 \end{align*}
-In the following, we will only consider the block diagonal approximation of this matrix,
+For KFAC, we will only need the block diagonal approximation of this matrix,
 \begin{align*}
   \tilde{\hess}_{\vtheta}^{\vec} \gL
   =

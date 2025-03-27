@@ -131,45 +131,8 @@ which leads to a reversal in the order of the Kronecker factors $\mA$ and $\mB$.
 \end{definition}
 
 \subsection{Algebraic Structure of a Curvature Matrix}
-In the previous section, we observed that the curvature matrix at a linear layer is expressed as a sum of Kronecker products.
-To approximate this sum with a single Kronecker product, we followed the convention of summing over $n$ before applying the Kronecker product.
-This approximation is summarized in the following definition:
 
-\begin{definition}[KFAC's expectation approximation]
-  \label{def:kfac_exp_approx}
-  Consider two sets of $N$ vectors $\{\vx_{n}\}_{n=1}^N$ and $\{\vg_{n}\}_{n=1}^N$ where each $\vx_n$ is input-based and each $\vg_n$ is output-gradient-based.
-  KFAC approximates the sum of Kronecker products of their self-outer products by a single Kronecker product, using the following expectation approximation:
-  \begin{subequations}\label{eq:expectation_approximation}
-    \begin{align}
-      \begin{split}
-        &\sum_{n=1}^{\textcolor{VectorOrange}{N}} \vx_n\vx_n^{\top} \otimes \vg_n \vg_n^{\top}
-        \\
-        &\qquad\approx
-          \left( \sum_{n=1}^N \vx_n \vx_n^{\top} \right)
-          \otimes
-          \frac{
-          \left( \textcolor{VectorOrange}{\sum_n} \vg_n \vg_n^{\top} \right)
-          }{\textcolor{VectorOrange}{N}}.
-      \end{split}
-      \intertext{In words, we sum the outer products on the left and right of the Kronecker product independently and divide by the number of outer products in the term containing the gradient vectors.
-      In expectation notation (expectation meaning averaging over all values of $n$, \ie $\E_n[\bullet_n] = \nicefrac{1}{N} \sum_{n=1}^N \bullet_n$), we can write this approximation more conveniently as}
-      \begin{split}
-        &\E_n \left[ \vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top} \right]
-        \\
-        &\qquad\approx
-          \E_n \left[ \vx_n \vx_n^{\top} \right]
-          \otimes
-          \E_n \left[ \vg_n \vg_n^{\top} \right]\,,
-      \end{split}
-    \end{align}
-  \end{subequations}
-  \ie `pull' the expectation into the Kronecker factors.
-
-\end{definition}
-
-If $\vx$ and $\vg$ were independent in the above definition, then the approximation would be exact.
-Under reasonable assumption, it can be shown that this approximation satsifies an optimiality condition, making the convention a principled choice for reducing computational complexity while preserving essential curvature information.
-
+\switchcolumn[1]*
 \begin{example}[Justification for KFAC's expectation approximation]
   \label{ex:just_kfac_exp_approx}
   KFAC's expectation approximation can be derived from an optimality condition under specific assumptions to presevere a Kronecker structure.
@@ -314,7 +277,48 @@ Under reasonable assumption, it can be shown that this approximation satsifies a
   \end{align*}
   This is precisely the expectation approximation used in KFAC.
 \end{example}
+\switchcolumn[0]
 
+In the previous section, we observed that the curvature matrix at a linear layer is expressed as a sum of Kronecker products.
+To approximate this sum with a single Kronecker product, we followed the convention of summing over $n$ before applying the Kronecker product.
+This approximation is summarized in the following definition:
+
+\begin{definition}[KFAC's expectation approximation]
+  \label{def:kfac_exp_approx}
+  Consider two sets of $N$ vectors $\{\vx_{n}\}_{n=1}^N$ and $\{\vg_{n}\}_{n=1}^N$ where each $\vx_n$ is input-based and each $\vg_n$ is output-gradient-based.
+  KFAC approximates the sum of Kronecker products of their self-outer products by a single Kronecker product, using the following expectation approximation:
+  \begin{subequations}\label{eq:expectation_approximation}
+    \begin{align}
+      \begin{split}
+        &\sum_{n=1}^{\textcolor{VectorOrange}{N}} \vx_n\vx_n^{\top} \otimes \vg_n \vg_n^{\top}
+        \\
+        &\qquad\approx
+          \left( \sum_{n=1}^N \vx_n \vx_n^{\top} \right)
+          \otimes
+          \frac{
+          \left( \textcolor{VectorOrange}{\sum_n} \vg_n \vg_n^{\top} \right)
+          }{\textcolor{VectorOrange}{N}}.
+      \end{split}
+      \intertext{In words, we sum the outer products on the left and right of the Kronecker product independently and divide by the number of outer products in the term containing the gradient vectors.
+      In expectation notation (expectation meaning averaging over all values of $n$, \ie $\E_n[\bullet_n] = \nicefrac{1}{N} \sum_{n=1}^N \bullet_n$), we can write this approximation more conveniently as}
+      \begin{split}
+        &\E_n \left[ \vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top} \right]
+        \\
+        &\qquad\approx
+          \E_n \left[ \vx_n \vx_n^{\top} \right]
+          \otimes
+          \E_n \left[ \vg_n \vg_n^{\top} \right]\,,
+      \end{split}
+    \end{align}
+  \end{subequations}
+  \ie `pull' the expectation into the Kronecker factors.
+\end{definition}
+
+If $\vx$ and $\vg$ were independent in the above definition, then the approximation would be exact.
+Under reasonable assumption, it can be shown that this approximation satsifies an optimiality condition, making the convention a principled choice for reducing computational complexity while preserving essential curvature information.
+
+% NOTE This part is about weight sharing, which will not be in the first version.
+\begin{comment}
 Similarly, we can justify flattening an additional sequence dimension into the batch dimension when no additional reduction occurs along any axes in the neural network.
 
 To see this, consider a sequence of input vectors represented as a matrix-valued input
@@ -379,6 +383,7 @@ This result tells us that the optimal Kronecker approximation is again obtained 
 \end{align*}
 This equation highlighs that the sequence dimension (highlighted in \textcolor{VectorTeal}{teal}) is treated exactly like the batch dimension (highlighted in \textcolor{VectorOrange}{orange}) in KFAC's expectation approximation.
 Consequently, if no additional reduction occurs along the sequence dimension, it can be flattened into the batch dimension without affecting the approximation structure.
+\end{comment}
 
 \subsection{Tests}
 
@@ -387,7 +392,7 @@ This raises an important question: When does the approximation in \Cref{eq:expec
 In general, KFAC's expectation approximation becomes exact whenever one of $\{\va_n\}$ or $\{\vg_n\}$ is data-independent, \ie, does not depend on $n$.
 There are two notable cases where this happends, one of which is relatively obvious.
 
-\switchcolumn[1]*
+\switchcolumn[1]
 \codeblock{kfac_tests/expand_mlp_batch_size_1}
 \switchcolumn[0]
 
@@ -427,8 +432,7 @@ This test serves as a basic functionality check for KFAC, particularly regarding
 It can be further generalized by replacing the activation functions with arbitrary layers (\eg\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers maintain vector-shape.
 These modifications do not change the structure of the GGN, Fisher or Empirical Fisher matrices for the linear layers, meaning the test remains valid in these settings.
 
-
-\switchcolumn[1]*
+\switchcolumn[1]
 \codeblock{kfac_tests/expand_deep_linear_regression}
 \switchcolumn[0]
 

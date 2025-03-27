@@ -7,7 +7,7 @@
     \coloneqq \mA^{(i)} \otimes \mB^{(i)}
   \end{align*}
   with
-  \begin{itemize} 
+  \begin{itemize}
     \item $\mC(\vtheta^{(i)})
     = R \sum_n
     (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
@@ -25,10 +25,10 @@
       \item Softmax cross-entropy loss: $\blacktriangle_{n,c} =  \sqrt{[\softmax(\vf_n)]_c} (\onehot(c) - \softmax(\vf_n))$
       \end{itemize}
 
-    \item MC: $\blacktriangle_{n,m} = - \nabla_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \rvf = \vf_n)$ where $\tilde{\vy}_{n,m} \stackrel{\text{i.i.d.}}{\sim} r(\rvy \mid \rvf = \vf_n)$
+    \item MC: $\blacktriangle_{n,m} = - \nabla_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \rvf = \vf_n)$ where $\tilde{\vy}_{n,m} \stackrel{\text{\iid}}{\sim} r(\rvy \mid \rvf = \vf_n)$
       \begin{itemize}
-      \item Square loss: $\blacktriangle_{n,m} = \tilde{\vy}_{n,m} - \vf_n$ where $\vy_{n,m} \stackrel{\text{i.i.d.}}{\sim} \gN(\rvy \mid \vmu = \vf_n, \mSigma = \mI)$\\
-        $\Leftrightarrow \blacktriangle_{n,m} = \tilde{\vy}$ where $\tilde{\vy} \stackrel{\text{i.i.d.}}{\sim} \gN(\rvy \mid \mu = \vzero, \mSigma = \mI)$ (does not depend on $n$)
+      \item Square loss: $\blacktriangle_{n,m} = \tilde{\vy}_{n,m} - \vf_n$ where $\vy_{n,m} \stackrel{\text{\iid}}{\sim} \gN(\rvy \mid \vmu = \vf_n, \mSigma = \mI)$\\
+        $\Leftrightarrow \blacktriangle_{n,m} = \tilde{\vy}$ where $\tilde{\vy} \stackrel{\text{\iid}}{\sim} \gN(\rvy \mid \mu = \vzero, \mSigma = \mI)$ (does not depend on $n$)
         \item Softmax cross-entropy loss
       \end{itemize}
 
@@ -49,7 +49,7 @@
         \end{cases}\,
     \end{align*}
     with
-    \begin{align*} 
+    \begin{align*}
       \mA_{\text{exp}} = R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top} \in \sR^{D_{\text{in}} \times D_{\text{in}}}, \qquad
       \mB_{\text{exp}} &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}  \in \sR^{D_{\text{out}} \times D_{\text{out}}}
     \end{align*}
@@ -80,7 +80,7 @@
             \begin{align*}
               \kfac^{\text{II}}_{\text{exp}}(\vec \tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
             \end{align*}
-          \item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$, \ie, 
+          \item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$, \ie,
             \begin{align*}
               \lim_{M \to \infty} \kfac^{\text{MC}=M}_{\text{exp}}(\vec \tilde{\mW}^{(l)}) = \ggn^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
             \end{align*}
@@ -89,7 +89,7 @@
               \kfac_{\text{exp}}^{\text{E}}(\vec \tilde{\mW}^{(l)})
               \neq
               \ef^{\vec}_{\tilde{\mW}^{(l)}} \gL_{\sD}\,.
-            \end{align*}         
+            \end{align*}
         \end{itemize}
       \end{itemize}
     \end{itemize}
