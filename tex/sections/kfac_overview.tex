@@ -241,6 +241,7 @@ This is essentially the same target as when computing the empirical risk, which 
 % \item Input-only: Two concurrent works have recently proposed to completely remove the backpropagations of KFAC to compute $\mB^{(i)}$, and instead set $\mB^{(i)} = \mI$.
 %   In this case, we do not need to generate vectors for backpropagation.
 
+\switchcolumn[1]*
 \begin{figure}[t!]
   \centering
   \begin{minipage}[t]{0.485\linewidth}
@@ -265,6 +266,82 @@ This is essentially the same target as when computing the empirical risk, which 
     \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_ggn_kfac.pdf}
   \end{minipage}
   \\
+  % \begin{minipage}[t]{0.485\linewidth}
+  %   \centering
+  %    GGN ($\rvec$)\vspace{1ex}
+  %   \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_ggn_full.pdf}
+  % \end{minipage}
+  % \hfill
+  % \begin{minipage}[t]{0.485\linewidth}
+  %   \centering
+  %   GGN ($\rvec$)\vspace{1ex}
+  %   \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_ggn_kfac.pdf}
+  % \end{minipage}
+  % \\
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    MC-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_mcfisher_100_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    MC-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_mcfisher_100_kfac.pdf}
+  \end{minipage}
+  \\
+  % \begin{minipage}[t]{0.485\linewidth}
+  %   \centering
+  %   MC-Fisher ($\rvec$)\vspace{1ex}
+  %   \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_mcfisher_100_full.pdf}
+  % \end{minipage}
+  % \hfill
+  % \begin{minipage}[t]{0.485\linewidth}
+  %   \centering
+  %   MC-Fisher ($\rvec$)\vspace{1ex}
+  %   \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_mcfisher_100_kfac.pdf}
+  % \end{minipage}
+  % \\  
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    Emp-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_empfisher_full.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    Emp-Fisher ($\cvec$)\vspace{1ex}
+    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_empfisher_kfac.pdf}
+  \end{minipage}
+  % \\
+  % \begin{minipage}[t]{0.485\linewidth}
+  %   \centering
+  %   Emp-Fisher ($\rvec$)\vspace{1ex}
+  %   \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_empfisher_full.pdf}
+  % \end{minipage}
+  % \hfill
+  % \begin{minipage}[t]{0.485\linewidth}
+  %   \centering
+  %   Emp-Fisher ($\rvec$)\vspace{1ex}
+  %   \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_empfisher_kfac.pdf}
+  % \end{minipage}
+    \caption{Visualization of full curvatures (GGN, MC-sampled Fisher and Empirical Fisher) and their corresponding KFAC approximation using $\cvec$-flattening. All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss. For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples. This follows the setup in \Cref{fig:hessian-block-structure}. For KFAC we concatenate the weight and bias of each layer. 
+    Plots produced with \repofile{plots/synthetic_kfac}.}
+    \label{fig:kfac-full-comparison}
+\end{figure}
+
+\begin{figure}[t!]
+  \centering
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    \textbf{FULL}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.485\linewidth}
+    \centering
+    \textbf{KFAC}
+  \end{minipage}
+  \\
   \begin{minipage}[t]{0.485\linewidth}
     \centering
      GGN ($\rvec$)\vspace{1ex}
@@ -279,18 +356,6 @@ This is essentially the same target as when computing the empirical risk, which 
   \\
   \begin{minipage}[t]{0.485\linewidth}
     \centering
-    MC-Fisher ($\cvec$)\vspace{1ex}
-    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_mcfisher_100_full.pdf}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.485\linewidth}
-    \centering
-    MC-Fisher ($\cvec$)\vspace{1ex}
-    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_mcfisher_100_kfac.pdf}
-  \end{minipage}
-  \\
-  \begin{minipage}[t]{0.485\linewidth}
-    \centering
     MC-Fisher ($\rvec$)\vspace{1ex}
     \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_mcfisher_100_full.pdf}
   \end{minipage}
@@ -299,18 +364,6 @@ This is essentially the same target as when computing the empirical risk, which 
     \centering
     MC-Fisher ($\rvec$)\vspace{1ex}
     \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_mcfisher_100_kfac.pdf}
-  \end{minipage}
-  \\  
-  \begin{minipage}[t]{0.485\linewidth}
-    \centering
-    Emp-Fisher ($\cvec$)\vspace{1ex}
-    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_empfisher_full.pdf}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.485\linewidth}
-    \centering
-    Emp-Fisher ($\cvec$)\vspace{1ex}
-    \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_cvec_empfisher_kfac.pdf}
   \end{minipage}
   \\
   \begin{minipage}[t]{0.485\linewidth}
@@ -324,10 +377,13 @@ This is essentially the same target as when computing the empirical risk, which 
     Emp-Fisher ($\rvec$)\vspace{1ex}
     \includegraphics[width=0.8\linewidth]{../kfs/plots/synthetic_rvec_empfisher_kfac.pdf}
   \end{minipage}
-    \caption{Visualization of full curvatures (GGN, MC-sampled Fisher and Empirical Fisher) and their corresponding KFAC approximation using different flattening schemes. All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss. For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples. This follows the setup in \Cref{fig:hessian-block-structure}.
+    \caption{Visualization of full curvatures (GGN, MC-sampled Fisher and Empirical Fisher) and their corresponding KFAC approximation using $\rvec$-flattening. All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3, our notation considers applying the weight matrix and adding the bias as two layers, hence $L=6$) and square loss. For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples. This follows the setup in \Cref{fig:hessian-block-structure}. For KFAC we concatenate the weight and bias of each layer. 
     Plots produced with \repofile{plots/synthetic_kfac}.}
-    \label{fig:kfac-full-comparison}
+    \label{fig:rvec-kfac-full-comparison}
 \end{figure}
+
+\switchcolumn[0]
+
 
 %%% Local Variables:
 %%% mode: latex
