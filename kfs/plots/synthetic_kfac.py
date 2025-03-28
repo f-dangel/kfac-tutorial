@@ -1,4 +1,4 @@
-"""Visualize various curvature matrices and their KFAC approximation."""
+"""Visualize various full curvatures together with KFAC."""
 
 from argparse import ArgumentParser
 from functools import partial
