@@ -5,9 +5,8 @@ from functools import partial
 from os import path
 from typing import Dict, Tuple
 
-import torch
 from matplotlib import pyplot as plt
-from torch import Tensor, manual_seed
+from torch import Tensor, block_diag, kron, manual_seed
 from torch.nn import MSELoss
 from tueplots import bundles
 
@@ -46,27 +45,11 @@ def kfac_mat(
 
     for _, (A, B) in kfac.items():
         matrices.append(
-            torch.kron(A, B)
-            if vec == "cvec"
-            else torch.kron(B, A)
+            kron(A, B) if vec == "cvec" else kron(B, A)
         )
 
-    # Compute the total size of the output matrix
-    rows = sum(m.shape[0] for m in matrices)
-    cols = sum(m.shape[1] for m in matrices)
-    out = torch.zeros(
-        (rows, cols),
-        dtype=matrices[0].dtype,
-        device=matrices[0].device,
-    )
-
-    r, c = 0, 0
-    for m in matrices:
-        out[r : r + m.shape[0], c : c + m.shape[1]] = m
-        r += m.shape[0]
-        c += m.shape[1]
-
-    return out
+    # Construct dense block diagonal matrix
+    return block_diag(*matrices)
 
 
 if __name__ == "__main__":
@@ -157,7 +140,7 @@ if __name__ == "__main__":
                 X=X,
                 y=y,
             ),
-            "kfac": ("emp", "cvec"),
+            "kfac": ("empirical", "cvec"),
         },
         "rvec_empfisher": {
             "full": partial(
@@ -167,7 +150,7 @@ if __name__ == "__main__":
                 X=X,
                 y=y,
             ),
-            "kfac": ("emp", "rvec"),
+            "kfac": ("empirical", "rvec"),
         },
     }
 
@@ -178,9 +161,27 @@ if __name__ == "__main__":
         # compute curvature matrix tiles and combine them
         C = curv_mat(func, model, bda=False)
         C_rescaled = (C.detach().abs() + 1e-5).log10()
-        min_val = torch.min(C_rescaled).item()
-        max_val = torch.max(C_rescaled).item()
 
+        # compute kfac approximation
+        kfac = KFAC.compute(
+            model, loss_func, (X, y), fisher_type, "expand"
+        )
+        C_kfac = kfac_mat(kfac, vec)
+        C_kfac_rescaled = (
+            C_kfac.detach().abs() + 1e-5
+        ).log10()
+
+        # compute min and max over both matrices
+        min_val = min(
+            C_rescaled.min().item(),
+            C_kfac_rescaled.min().item(),
+        )
+        max_val = max(
+            C_rescaled.max().item(),
+            C_kfac_rescaled.max().item(),
+        )
+
+        # plot full curvature matrix
         fig, ax = plt.subplots()
         ax.imshow(
             C_rescaled,
@@ -207,15 +208,7 @@ if __name__ == "__main__":
         )
         plt.close(fig)
 
-        # compute kfac approximation
-        kfac = KFAC.compute(
-            model, loss_func, (X, y), fisher_type, "expand"
-        )
-        C_kfac = kfac_mat(kfac, vec)
-        C_kfac_rescaled = (
-            C_kfac.detach().abs() + 1e-5
-        ).log10()
-
+        # plot KFAC approximation
         fig, ax = plt.subplots()
         ax.imshow(
             C_kfac_rescaled,

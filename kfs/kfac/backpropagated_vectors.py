@@ -33,7 +33,7 @@ def compute_backpropagated_vectors(
         loss_func: The loss function.
         fisher_type: The type of Fisher approximation.
             Can be `'type-2'`, `'mc=1'` (with an arbitrary
-            number instead of `1`), `'emp'` or `'input_only'`.
+            number instead of `1`), `'empirical'` or `'input_only'`.
         predictions: A batch of model predictions.
         labels: A batch of labels.
 
@@ -53,8 +53,8 @@ def compute_backpropagated_vectors(
         return backpropagated_vectors_mc(
             loss_func, predictions, labels, mc_samples
         )
-    elif fisher_type == "emp":
-        return backpropagated_vectors_emp(
+    elif fisher_type == "empirical":
+        return backpropagated_vectors_empirical(
             loss_func, predictions, labels
         )
     elif fisher_type == "input_only":
@@ -174,7 +174,7 @@ def backpropagated_vectors_mc(
     return [s.squeeze(0) for s in S.split(1)]
 
 
-def backpropagated_vectors_emp(
+def backpropagated_vectors_empirical(
     loss_func: Module,
     predictions: Tensor,
     labels: Tensor,
@@ -202,7 +202,7 @@ def backpropagated_vectors_emp(
         S.append(grad(c_n, pred_n)[0].detach())
 
     # concatenate over data points
-    S = stack(S, dim=0)
+    S = stack(S)
 
     # convert into list of single vector
     return [S]
