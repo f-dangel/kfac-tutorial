@@ -33,7 +33,8 @@ def compute_backpropagated_vectors(
         loss_func: The loss function.
         fisher_type: The type of Fisher approximation.
             Can be `'type-2'`, `'mc=1'` (with an arbitrary
-            number instead of `1`), `'empirical'` or `'input_only'`.
+            number instead of `1`), `'empirical'` or
+            `'input_only'`.
         predictions: A batch of model predictions.
         labels: A batch of labels.
 
