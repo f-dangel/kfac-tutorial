@@ -68,7 +68,7 @@ def empfishervp(
         loss_func, labels
     )
 
-    for x, y in zip(inputs.split(1), labels.split(1)):
+    for x, y in zip(inputs, labels):
         pred_n = model(x)
 
         c_n = c_func(pred_n, y)

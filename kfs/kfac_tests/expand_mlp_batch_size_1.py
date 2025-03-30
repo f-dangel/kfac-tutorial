@@ -14,6 +14,7 @@ from torch.nn import (
     Tanh,
 )
 
+from kfs.basics.emp_fishers import vec_empfisher
 from kfs.basics.ggns import vec_ggn
 from kfs.kfac import KFAC
 from kfs.utils import report_nonclose
@@ -97,6 +98,27 @@ for idx, (L, phi, c, reduction) in enumerate(
         report_nonclose(G_cvec, kron(A, B), **tols)
         report_nonclose(G_rvec, kron(B, A), **tols)
 
-    # TODO compute the EF
+    # compute the EF
+    rvec_ef = [
+        vec_empfisher(
+            model, loss_func, X, y, (p, p), vec="rvec"
+        )
+        for p in params
+    ]
+    cvec_ef = [
+        vec_empfisher(
+            model, loss_func, X, y, (p, p), vec="cvec"
+        )
+        for p in params
+    ]
 
-    # TODO compute KFAC-empirical and compare
+    # compute KFAC-empirical and compare
+    kfac = KFAC.compute(
+        model, loss_func, (X, y), "empirical", "expand"
+    )
+    assert len(kfac) == len(rvec_ef) == len(cvec_ef) == L
+    for (A, B), e_cvec, e_rvec in zip(
+        kfac.values(), cvec_ef, rvec_ef
+    ):
+        report_nonclose(e_cvec, kron(A, B))
+        report_nonclose(e_rvec, kron(B, A))
