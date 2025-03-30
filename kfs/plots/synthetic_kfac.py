@@ -95,6 +95,13 @@ if __name__ == "__main__":
     output = model(X)
     loss = loss_func(output, y)
 
+    empirical_risk_setting = {
+        "model": model,
+        "loss_func": loss_func,
+        "X": X,
+        "y": y,
+    }
+
     curvature_funcs = {
         "cvec_ggn": {
             "full": partial(
@@ -111,10 +118,7 @@ if __name__ == "__main__":
         "cvec_mcfisher_100": {
             "full": partial(
                 cvec_mcfisher,
-                model=model,
-                loss_func=loss_func,
-                X=X,
-                y=y,
+                **empirical_risk_setting,
                 num_samples=100,
                 max_samples=max_num_mc_samples,
             ),
@@ -123,10 +127,7 @@ if __name__ == "__main__":
         "rvec_mcfisher_100": {
             "full": partial(
                 rvec_mcfisher,
-                model=model,
-                loss_func=loss_func,
-                X=X,
-                y=y,
+                **empirical_risk_setting,
                 num_samples=100,
                 max_samples=max_num_mc_samples,
             ),
@@ -134,21 +135,13 @@ if __name__ == "__main__":
         },
         "cvec_empfisher": {
             "full": partial(
-                cvec_empfisher,
-                model=model,
-                loss_func=loss_func,
-                X=X,
-                y=y,
+                cvec_empfisher, **empirical_risk_setting
             ),
             "kfac": ("empirical", "cvec"),
         },
         "rvec_empfisher": {
             "full": partial(
-                rvec_empfisher,
-                model=model,
-                loss_func=loss_func,
-                X=X,
-                y=y,
+                rvec_empfisher, **empirical_risk_setting
             ),
             "kfac": ("empirical", "rvec"),
         },
@@ -181,56 +174,33 @@ if __name__ == "__main__":
             C_kfac_rescaled.max().item(),
         )
 
-        # plot full curvature matrix
-        fig, ax = plt.subplots()
-        ax.imshow(
-            C_rescaled,
-            vmin=min_val,
-            vmax=max_val,
-            interpolation="none",
-            extent=(
+        imshow_kwargs = {
+            "vmin": min_val,
+            "vmax": max_val,
+            "interpolation": "none",
+            "extent": (
                 0.5,
                 num_params + 0.5,
                 num_params + 0.5,
                 0.5,
             ),
-        )
-        ax.set_xlabel("$j$")
-        ax.set_ylabel("$i$")
-        highlight_blocks(ax, param_dims)
-        plt.savefig(
-            path.join(
-                SAVEDIR,
-                f"synthetic_{name}_full.pdf",
-            ),
-            transparent=True,
-            bbox_inches="tight",
-        )
-        plt.close(fig)
+        }
 
-        # plot KFAC approximation
-        fig, ax = plt.subplots()
-        ax.imshow(
-            C_kfac_rescaled,
-            vmin=min_val,
-            vmax=max_val,
-            interpolation="none",
-            extent=(
-                0.5,
-                num_params + 0.5,
-                num_params + 0.5,
-                0.5,
-            ),
-        )
-        ax.set_xlabel("$j$")
-        ax.set_ylabel("$i$")
-        highlight_blocks(ax, param_dims)
-        plt.savefig(
-            path.join(
-                SAVEDIR,
-                f"synthetic_{name}_kfac.pdf",
-            ),
-            transparent=True,
-            bbox_inches="tight",
-        )
-        plt.close(fig)
+        # plot full curvature matrix and the KFAC matrix
+        for C, C_name in zip(
+            [C_rescaled, C_kfac_rescaled], ["full", "kfac"]
+        ):
+            fig, ax = plt.subplots()
+            ax.imshow(C, **imshow_kwargs)
+            ax.set_xlabel("$j$")
+            ax.set_ylabel("$i$")
+            highlight_blocks(ax, param_dims)
+            plt.savefig(
+                path.join(
+                    SAVEDIR,
+                    f"synthetic_{name}_{C_name}.pdf",
+                ),
+                transparent=True,
+                bbox_inches="tight",
+            )
+            plt.close(fig)
