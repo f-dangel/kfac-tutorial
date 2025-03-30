@@ -114,7 +114,7 @@ for idx, (L, phi, c, reduction) in enumerate(
 
     # compute KFAC-empirical and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "emp", "expand"
+        model, loss_func, (X, y), "empirical", "expand"
     )
     assert len(kfac) == len(rvec_ef) == len(cvec_ef) == L
     for (A, B), e_cvec, e_rvec in zip(
