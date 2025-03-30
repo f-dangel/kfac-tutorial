@@ -156,8 +156,7 @@ A complete example derivation, including Steps 3–5, is provided in the next se
 \switchcolumn[0]
 
 \subsection{Backpropagated Vectors}
-The computational scaffold can be flexibly adapted to various curvature matrices by modifying the choice of backpropageted vectors $\blacktriangle_{n,c}$ and the reduction factor $R$. Below, we summarize the different curvature definitions and their associated backpropagated vectors. For further background on each curvature, refer to Chapter 2.\footnote{Input-only: Two concurrent works have recently proposed to completely remove the backpropagations of KFAC to compute $\mB^{(i)}$, and instead set $\mB^{(i)} = \mI$. In this case, we do not need to generate vectors for backpropagation.
-}
+The computational scaffold can be flexibly adapted to various curvature matrices by modifying the choice of backpropageted vectors $\blacktriangle_{n,c}$ and the reduction factor $R$. Below, we summarize the different curvature definitions and their associated backpropagated vectors. For further background on each curvature, refer to Chapter 2.
 
 \paragraph{Generalized-Gauss Newton (GGN)}
 The GGN is given by\begin{align*}
@@ -233,9 +232,6 @@ The pseudo-gradient reduces then to
   &= \nabla_{\vf_n}  c(\vf_n, \vy_n).
 \end{align*}
 This is essentially the same target as when computing the empirical risk, which means we can compute the corresponding KFAC approximation by re-cycling the backward pass from the gradient computation.
-
-% \item Input-only: Two concurrent works have recently proposed to completely remove the backpropagations of KFAC to compute $\mB^{(i)}$, and instead set $\mB^{(i)} = \mI$.
-%   In this case, we do not need to generate vectors for backpropagation.
 
 \switchcolumn[1]*
 \begin{figure}[t!]
