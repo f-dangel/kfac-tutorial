@@ -11,8 +11,8 @@
 
   \node [box, below right=of check-basics] (read-basics) {Read the basics (\cref{sec:basics})};
   \node [box, below=of check-basics] (read-cheatsheet) {Read the cheatsheet (\cref{sec:cheatsheet-basics})};
-  \draw[-{LaTeX}] (check-basics) to[out=270, in=90] node [midway, answer] {yes} (read-cheatsheet);
-  \draw[-{LaTeX}] (check-basics) to[out=270, in=90] node [midway, answer] {no} (read-basics);
+  \draw[-{LaTeX}] (check-basics) to[out=270, in=90] node[midway, answer] {yes} (read-cheatsheet);
+  \draw[-{LaTeX}] (check-basics) to[out=270, in=90] node[midway, answer] {no} (read-basics);
   \draw[-{LaTeX}] (read-basics) to[out=0, in=0] (check-basics);
 
   \node [box, below=of read-cheatsheet] (scaffold) {Scaffold (\cref{sec:kfac-overview})};
