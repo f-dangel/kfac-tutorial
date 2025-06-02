@@ -22,3 +22,4 @@
 **.DS_Store
 tex/main.pdf
 **.el
+.aider*

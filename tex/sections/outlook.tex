@@ -1,38 +1,43 @@
-This contains a list of further resources and topics that might be discussed in later versions:
+\paragraph{Summary.} In this manuscript, we provided a detailed overview of the seminal KFAC curvature approximation from the ground up, in both math and code.
+In doing so, we first developed a collection of automatic differentiation utilities to access derivatives.
+They play a crucial role for computing curvature information and helped us make these concepts concrete for common operations used in deep learning, while serving as ground truth to verify our implementation.
+Building on these fundamentals, we motivated using Kronecker products to approximate curvature matrices in neural networks, and introduced the KFAC approximation for linear layers in the absence of weight sharing, as originally described by \citet{martens2015optimizing}, showed how to apply it to different curvature matrices, and highlighted tests to verify its correctness.
 
-\paragraph{Other layers.}
+\emph{We hope this tutorial is a helpful resource for both newcomers to the field that want to learn more about curvature matrices, their approximations, and common pitfalls, as well as experienced researchers who are seeking a pedagogical introduction and implementation they can use as a starting point to prototype their research idea.}
 
-\paragraph{Eigenvalue correction.} TODO
-
-\paragraph{Sequence-valued data.}
-How to define Fisher matrices for neural networks with $>2$d outputs?
-Mention how \cite{grosse2023studying} do it.
-Touch upon the point that there might be other choices.
-Say that we believe this is not fully understood and might need some additional research.
-
-\paragraph{Generalizing the implementation by accessing layer inputs/outputs via a graph tracing mechanism.}
-We use PyTorch's hook mechanism to intercept the forward pass and obtain the layer inputs (required for KFAC's input-based Kronecker factor) and outputs (required for KFAC's grad-output-based Kronecker factors).
-This limits the supported neural networks to models constructed with PyTorch's modular \texttt{nn} sub-module.
-This is okay because most architectures used in practise are indead implemented with \texttt{torch.nn.Module}s.
-An alternative way would be to symbolically trace the neural network's compute graph, \eg using PyTorch's \texttt{fx} library \cite{reed2022torch}, and modify it to return the necessary layer inputs and outputs in addition to the original return values.
-It seems that this is how KFAC-JAX \cite{botev2022kfac-jax} is implemented.
-This approach might be helpful, \eg to compute KFAC for physics-informed loss functions (see \citet{dangel2024kroneckerfactored} for details).
-These losses still allow KFAC to be applied, but their computation cannot be expressed as simple forward pass through the network.
-Instead, it involves multiple slightly different forward passes in Taylor arithmetic, for which the hook-based capturing mechanism breaks down, while a graph-tracing based approach would still be capable to identity all tensors that are processed by a single weight matrix.
-However, symbolic tracing has its own limitations.
-For instance, we cannot trace data-dependent control flow (think \texttt{if-else} conditions that depend on the value of intermediate tensors).
-\texttt{torch.fx} focusses on ease of use at the cost of generality.
-Overall, we think it would be interesting to look into this approach to implement KFAC, as it would allow to slightly generalize the supported function classes.
-
-\paragraph{KFAC-reduce} becomes relevant in scenarios where weight sharing occurs, and the shared dimension is explicitly reduced (\eg, summed or averaged) during the forward pass. Unlike KFAC-expand, which treats shared dimensions as independent by flattening them into a batch dimension, KFAC-reduce adjusts for this reduction by aggregating inputs and gradients across the shared dimension before forming Kronecker factors.
-
-This distinction is important for models such as convolutional networks, attention mechanisms, or architectures with sequence inputs, where reductions over spatial or temporal dimensions are common. KFAC-reduce addresses the failure of KFAC-expand to capture the correct curvature structure in such cases, ensuring a well-motivated approximation even when the shared dimension is collapsed during computation. For a detailed treatment and the derivation of KFAC-reduce, see \citet{eschenhagen2023kroneckerfactored}.
-
-\paragraph{Plan for future versions}
+\paragraph{Call for contributions \& future work.} Although we believe that we covered the most essential aspects of KFAC, this tutorial does not address many important, albeit advanced, topics related to KFAC.
+We invite anyone to contribute to this fully open-source effort (\href{\repourl}{\texttt{github.com/f-dangel/kfac-tutorial}}) to further improve the tutorial over time.
+Specifically, we think the following ideas are promising to include in future versions:
 \begin{itemize}
-\item JAX version
-\item KFAC-expand for convolutions \cite{grosse2016kroneckerfactored}
-\item KFAC-reduce for convolutions \cite{eschenhagen2023kroneckerfactored}
-\item KFAC for linear layers with weight sharing \cite{eschenhagen2023kroneckerfactored}
-\item KFAC for RNNs \cite{martens2018kroneckerfactored}
+\item \textbf{Eigenvalue-corrected KFAC (EKFAC).}
+  \citet{george2018fast} proposed the concept of eigenvalue correction to improve KFAC's approximation quality, and the resulting EKFAC has become the de-facto standard for KFAC's application to training data attribution of large language models with influence functions~\cite{grosse2023studying}.
+  The first step in computing EKFAC is to compute KFAC.
+  In the second step, we only keep the space spanned by the Kronecker factors, and introduce a diagonal scaling term (the ``eigenvalues''), whose value is determined by minimizing the Frobenius norm residual between the original curvature matrix and the corrected KFAC approximation.
+  This can be done cheaply.
+
+\item \textbf{KFAC for linear layers with weight sharing.}
+  We focused on explaining KFAC as introduced in the seminal paper by \citet{martens2015optimizing} which considers multi-layer perceptrons where each layer processes a single vector per datum (\ie no weight sharing).
+  However, modern neural networks like convolutional networks or transformers or graph neural networks, process sequence-valued data and therefore naturally exhibit weight sharing across spatial or temporal dimensions.
+  Depending on how the shared axis is treated when computing the loss, there exist two different KFAC approximations for linear layers with weight sharing, coined by \citet{eschenhagen2023kroneckerfactored}: KFAC-expand and KFAC-reduce.
+  KFAC-reduce becomes relevant in scenarios where weight sharing occurs, and the shared dimension is explicitly reduced (\eg, summed or averaged) during the forward pass.
+  Unlike KFAC-expand, which treats shared dimensions as independent by flattening them into a batch dimension, KFAC-reduce adjusts for this reduction by aggregating inputs and gradients across the shared dimension before forming Kronecker factors.
+  The formalization of \citet{eschenhagen2023kroneckerfactored} allows KFAC to be extended to transformers, convolutional networks (containing the originally proposed method from \citet{grosse2016kroneckerfactored}), and graph neural networks.
+  While we already introduced the \emph{expand} specifier in our implementation, we did not yet implement the \emph{reduce} specifier and its related tests.
+
+\item \textbf{Functional-style KFAC implementation.}
+  One essential step for computing KFAC is accessing the inputs and outputs of layers.
+  This is easy if the neural net consists entirely of \texttt{torch.nn.Module}s---and we assume this in our implementation---by using PyTorch's hook mechanism to intercept the forward pass and obtain the layer inputs (required for KFAC's input-based Kronecker factor) and outputs (required for KFAC's grad-output-based Kronecker factors).
+  This is okay because most architectures used in practise are indead implemented in modular fashion.
+
+  However, a functional-style implementation of KFAC, which had the ability to automatically trace and capture the inputs and outputs of linear operations inside a function representing the neural network (similar to KFAC's implementation in JAX \cite{botev2022kfac-jax}), would make KFAC accessible to libraries that adopt a functional style \citep[\eg][]{duffield2025scalable}.
+  Such a more general approach is also helpful to incorporate more recent extensions of KFAC, for instance to training Physics-informed neural networks \cite{dangel2024kroneckerfactored}, whose forward pass is done in Taylor mode arithmetic that differs from the standard forward pass and can therefore not be intercepted with module hooks.
+  We believe that a functional-style implementation of KFAC in PyTorch can be achieved using the tracing mechanism of \texttt{torch.fx} \cite{reed2022torch}, which provides a modifiable presentation of the computation graph.
 \end{itemize}
+
+\subsection*{Acknowledgements}
+TODO Thank students who gave feedback to the manuscript.
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../main"
+%%% End:
