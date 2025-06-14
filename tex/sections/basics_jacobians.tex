@@ -7,11 +7,11 @@ Machine learning libraries like JAX and PyTorch offer routines for computing Jac
 However, their interface is functional.
 Here, we provide an alternative implementation that accepts nodes of a computation graph rather than functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
 We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, \ie a linear layer.
-These Jacobians exhibit Kronecker structure, which is the foundation for the `K' in KFAC.
+These Jacobians exhibit a Kronecker structure, which is the foundation for the `K' in KFAC.
 We verify this structure numerically and observe how the flattening convention affects it.
 
 \begin{setup}[Vector-to-vector function]\label{setup:vector_to_vector_function}
-  Let function $f: \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$ denote a vector-to-vector function.
+  Let function $f\colon \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$ denote a vector-to-vector function.
 \end{setup}
 
 \begin{definition}[Jacobian of a vector-to-vector function]\label{def:vector_jacobian}
@@ -24,7 +24,7 @@ We verify this structure numerically and observe how the flattening convention a
 The more general Jacobian of a tensor-to-tensor function can be indexed with combined indices from the input and output domains:
 
 \begin{setup}[Tensor-to-tensor function]\label{setup:jacobians}
-  Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$ from a rank-$N$ tensor $\tA$ into a rank-$M$ tensor $\tB$.
+  Consider a tensor-to-tensor function $f\colon \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$ from a rank-$N$ tensor $\tA$ into a rank-$M$ tensor $\tB$.
 \end{setup}
 
 \begin{definition}[General Jacobian, \Cref{basics/jacobians}]\label{def:general_jacobian}
