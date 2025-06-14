@@ -1,5 +1,5 @@
-So far, we considered minimizing an empirical risk over a data set given an arbitrary criterion function $c$.
-Here, we take a step back and first describe empirical risk minimization as an approximation of minimizing the intractable population risk.
+So far, we have considered minimizing an empirical risk over a data set given an arbitrary criterion function $c$.
+Now, we take a step back and first describe empirical risk minimization as an approximation of minimizing the intractable population risk.
 This perspective connects to a probabilistic interpretation of empirical risk minimization as maximum likelihood estimation that will occur throughout the tutorial, \eg when we define the Fisher information matrix as curvature matrix (\cref{subsec:curvature-matrices}).
 
 \paragraph{Empirical risk as expectation.} Recall the empirical risk from \cref{eq:empirical_risk} which we minimize during training,
@@ -10,7 +10,7 @@ Why is it called an `empirical' risk?
 Because it can be expressed as expectation over an empirical distribution in the following sense:
 
 Assume there exists a data-generating process $p_{\text{data}}(\rvx, \rvy)$ over input-target pairs.
-Ideally, we want to minimize the risk over that distribution,
+Ideally, we want to minimize the risk over this distribution,
 \begin{align*}
   \argmin_{\vtheta} \E_{(\vx, \vy) \sim p_{\text{data}}(\rvx, \rvy)}[c(f(\vx, \vtheta), \vy)]\,.
 \end{align*}
@@ -19,7 +19,7 @@ Therefore, we draw a finite collection of samples into a data set
 \begin{align*}
   \sD = \{ (\vx_n, \vy_n) \mid (\vx_n, \vy_n) \stackrel{\text{\iid}}{\sim} p_{\text{data}}(\vx, \vy) \}\,.
 \end{align*}
-Then, we can replace the intractable data-generating process $p_{\text{data}}$ with the tractable empirical distribution $p_{\sD}(\rvx, \rvy)$ implied by the data.
+Then, we can replace the intractable data-generating process $p_{\text{data}}$ with the tractable empirical distribution $p_{\sD}(\rvx, \rvy)$ implied by data set $\sD$.
 It consists of a uniformly weighted sum of delta peaks around the collected data points,
 \begin{align*}
   p_{\sD}(\rvx, \rvy) = \frac{1}{N} \sum_{n=1}^N \delta(\rvx - \vx_n) \delta(\rvy - \vy_n)\,.
@@ -41,12 +41,12 @@ This turns risk minimization into a tractable task:
   }
   =& \argmin_{\vtheta} \gL_{\sD}(\vtheta)\,.
 \end{align*}
-So now we have shown that empirical risk minimization is minimizing a (scaled) expectation of the criterion $c$ over an empirical density $p_{\sD}(\rvx, \rvy)$.
+We have thus shown that empirical risk minimization is minimizing a (scaled) expectation of the criterion $c$ over an empirical density $p_{\sD}(\rvx, \rvy)$.
 
 \paragraph{The neural net parameterizes a likelihood.}
 Let's approach this from a probabilistic perspective now.
-Assume we want to learn $p_{\text{data}}(\rvx, \rvy) = p_{\text{data}}(\rvy \mid \rvx) p_{\text{data}}(\vx)$ using a parameterized density of the form $p(\rvx, \rvy \mid \vtheta) = p(\rvy \mid \rvx, \vtheta) p_{\text{data}}(\rvx)$ where $p_{\text{data}}(\rvx) = \int p_{\text{data}}(\rvx, \rvy) \mathrm{d}\rvy$ is the marginal density of the input data.
-Note that we model only the likelihood for the labels with parameters $\vtheta$.
+Assume we want to learn $p_{\text{data}}(\rvx, \rvy) = p_{\text{data}}(\rvy \mid \rvx) p_{\text{data}}(\vx)$ using a parameterized density of the form $p(\rvx, \rvy \mid \vtheta) = p(\rvy \mid \rvx, \vtheta) p_{\text{data}}(\rvx)$ where $p_{\text{data}}(\rvx) = \int p_{\text{data}}(\rvx, \rvy)\ \mathrm{d}\rvy$ is the marginal density of the input data.
+Note that we only model the likelihood of the labels with parameters $\vtheta$.
 
 One plausible approach to make $p$ resemble $p_{\text{data}}$ is to minimize their KL divergence,
 \begin{align*}
@@ -59,7 +59,7 @@ One plausible approach to make $p$ resemble $p_{\text{data}}$ is to minimize the
   Next, let's factorize our model distribution using its conditional and marginal densities and drop $p_{\text{data}}(\rvx)$ as it does not depend on $\vtheta$,
   }
   \Leftrightarrow & \argmin_{\vtheta} \E_{p_{\text{data}}(\rvx, \rvy)}[- \log( p(\rvy \mid \rvx, \vtheta))]\,.
-                    \intertext{To make this problem tractable, we need to replace the intractable data-generating process $p_{\text{data}}$ with the empirical distribution $p_{\sD}(\rvx, \rvy)$:}
+                    \intertext{To make this problem tractable, we need to replace the intractable data-generating process $p_{\text{data}}(\rvx, \rvy)$ with the empirical distribution $p_{\sD}(\rvx, \rvy)$ again:}
                     \approx         & \argmin_{\vtheta} \E_{p_{\sD}(\rvx, \rvy)}[- \log( p(\rvy \mid \rvx, \vtheta))].
   \\
   \intertext{Writing out the expectation, we obtain}
@@ -75,9 +75,9 @@ We are now very close to writing down the explicit connection between empirical 
 The last remaining step is to connect the model's likelihood $r(\rvy \mid f(\rvx, \vtheta))$ with the criterion function $c(f(\vx, \vtheta), \vy)$ from empirical risk minimization.
 It turns out that empirical risk minimization with square loss (\cref{ex:square_loss}) corresponds to maximum likelihood estimation (or equivalently, negative log-likelihood minimization) of a Gaussian distribution over the labels (\cref{ex:square_loss_probabilistic}).
 Similarly, classification with softmax cross-entropy criterion amounts to maximum likelihood estimation where the neural net parameterizes a categorical distribution (\cref{ex:cross_entropy_loss_probabilistic}).
-\Cref{basics/label_sampling} provides functions sample labels from these distributions.
+\Cref{basics/label_sampling} provides functions to sample labels from these distributions.
 
-The neural net's interpretation as likelihood allows using probabilistic concepts to measure similarity for comparing two networks.
+The neural net's interpretation as a likelihood allows using probabilistic concepts to measure similarity for comparing two networks.
 This will be useful when we define the Fisher information matrix (\cref{sec:fisher}), a common curvature matrix.
 
 \switchcolumn[1]

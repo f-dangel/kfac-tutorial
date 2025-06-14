@@ -8,7 +8,7 @@ starting with $\vx^{(0)} \leftarrow \vx$, ending in $\vx^{(L)} \leftarrow f(\vx,
 We refer to the hidden representations $\vx^{(l-1)}$ as the \emph{input to layer $l$}, and to $\vx^{(l)}$ as the \emph{output of layer $l$}.
 Some layers have empty parameters, e.g.\,activation, pooling, or dropout layers.
 
-To compute KFAC, we will need to access to inputs and outputs of certain layers.
+To compute KFAC, we will need access to the inputs and outputs of certain layers.
 We can obtain these by intercepting the neural net's forward pass using PyTorch's hook mechanism, see \Cref{basics/forward_pass}.
 %%% Local Variables:
 %%% mode: latex

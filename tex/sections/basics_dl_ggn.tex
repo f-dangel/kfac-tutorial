@@ -2,7 +2,7 @@
 \switchcolumn[0]
 
 \paragraph{Partially linearized empirical risk.}
-As previously described in \Cref{sec:partial_linearization}, the GGN matrix arises from partial linearization of a composite function.
+As previously described in \Cref{sec:partial_linearization}, the GGN matrix arises from the partial linearization of a composite function.
 We will now apply this to the per-datum loss functions $\ell_n = c_n \circ \vf_n$ in the empirical risk.
 Specifically, we will linearize the neural net predictions $\vf_n \to \bar{\vf}_n = \lin_{\vtheta_0}(\vf_n)$, then form the partially-linearized per-sample losses $\bar{\ell}_n = c_n \circ \bar{\vf}_n$.
 This gives rise to the partially linearized empirical risk $\bar{\gL}_{\sD}(\vtheta) = R \sum_{n=1}^{N} \bar{\ell}_n(\vtheta)$.
@@ -84,7 +84,7 @@ For KFAC, we only need its block diagonal matrix
 \ie, individual blocks $\{ \ggn_{\vtheta^{(k)}}^{\vec} \gL_{\sD}(\vtheta)\}_{k=1}^L$.
 
 \paragraph{The GGN as a self-outer product.}
-Let us look at one last aspect of the GGN which is convenient to relate it to other curvature matrices we are about to discuss.
+Let us look at one last aspect of the GGN, which makes it convenient to relate it to other curvature matrices we are about to discuss.
 Consider the loss contributed by a single datum and suppress the index $_n$ for now, as well as the reduction factor $R$.
 Its contribution to the GGN is
 \begin{align*}
@@ -107,10 +107,10 @@ With that, we can then write the upper expression as
   &=
     \mV^{\vec} {\mV^{\vec}}^{\top}\,.
 \end{align*}
-In words: we can express the GGN contribution of a single datum as a self-outer product.
+In words, we can express the GGN contribution of a single datum as a self-outer product.
 While we will not use $\mV^{\vec}$ (see \eg \citet{dangel2022vivit,ren2019efficient} for detailed discussions), we need the loss Hessian factorization ($\mS^{\vec}$) later.
 
-\Cref{ex:mseloss_hessian_factorization,ex:crossentropyloss_hessian_factorization} present the loss Hessian factorizations of square and softmax cross-entropy loss.
+\Cref{ex:mseloss_hessian_factorization,ex:crossentropyloss_hessian_factorization} present the loss Hessian factorizations of the square and softmax cross-entropy losses.
 One important insight for these two loss functions is that $\mS^{\vec}$ does not depend on the labels.
 We will use this in \Cref{subsec:connection-ggn-fisher} to connect the GGN with the Fisher for regression and classification.
 But first, let's introduce the Fisher.

@@ -1,18 +1,18 @@
 \par{Roadmap: } This chapter introduces the KFAC approximation for weights (or combined weight and bias) of fully-connected layers (\ie a \texttt{torch.nn.Linear}).
 Our discussion will heavily rely on regression settings with deep linear networks, \ie MLPs that consist of dense layers without any non-linearities.
-We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
+We think they are a great setup to understand the core approximations of KFAC and verify them numerically through rigorous tests.
 
 We will start with the KFAC-expand approximation, which corresponds to the seminal KFAC approximation proposed by~\citet{martens2015optimizing}. It was introduced for standard MLP settings where the linear layers do not exhibit weight sharing (and therefore no reductions over weight-shared axes).
-For more details on extensions such as KFAC-reduce see outlook or \citet{eschenhagen2023kroneckerfactored}.
+For more details on extensions such as KFAC-reduce, see the outlook or \citet{eschenhagen2023kroneckerfactored}.
 
 \begin{setup}[Linear layer inside a neural network]\label{setup:linear_layer}
   Consider a linear layer with weight $\mW \in \sR^{D_{\text{out}}\times D_{\text{in}}}$ and bias $\vb \in \sR^{D_{\text{out}}}$ inside a neural network.
-  Further, assume the network's prediction feeds into a criterion function and we use a data set of $N$ points to compute an empirical risk (with a reduction factor $R$) whose curvature matrix $\mC(\vec \mW)$ we are interested in computing.
+  Further, assume the network's prediction feeds into a criterion function, and we use a data set of $N$ points to compute an empirical risk (with a reduction factor $R$) whose curvature matrix $\mC(\vec \mW)$ we are interested in computing.
 
   For each datum $n$, the layer processes a vector input $x_n \in \sR^{D {\text{in}}}$ into an output vector $\vz_{n} \in sR^{D_{\text{out}}}$ where
   $$ \vz_{n} = \mW \vx_{n} + \vb$$.
   Denote by $\mF_n \in \sR^{C \times}$ the network's prediction on datum $n$.
-  For each vector $\blacktriangle_{n,c} \in \sR^{C \times S'}$ backpropagated by KFAC, define the errors arriving at the layer's output as $\vg_{n,c} = (\jac^{\vec}_{\vz_{n}} \mF_n)^{\top} \blacktriangle_{n,c} \in \sR^{D_{\text{out}}}$. These vectors do not depend on the flattening scheme because the contracted dimensions are summed out. We can group them into a matrix-values layer output gradient
+  For each vector $\blacktriangle_{n,c} \in \sR^{C \times S'}$ backpropagated by KFAC, define the errors arriving at the layer's output as $\vg_{n,c} = (\jac^{\vec}_{\vz_{n}} \mF_n)^{\top} \blacktriangle_{n,c} \in \sR^{D_{\text{out}}}$. These vectors do not depend on the flattening scheme because the contracted dimensions are summed out. We can group them into a matrix-valued layer output gradient
   \begin{align*}
     \mG_{n,c}
     =
@@ -27,16 +27,16 @@ For more details on extensions such as KFAC-reduce see outlook or \citet{eschenh
 \end{setup}
 
 \begin{caveat}
-  In some cases the linear layer operates on a sequence of $S$ input vectors.
+  In some cases, the linear layer operates on a sequence of $S$ input vectors.
   For the following presentation of KFAC-expand, this could be resolved via flattening the sequence dimension into the batch dimension.
-  A more relevant discussion is in the context of a specific treatment of weight-sharing, which will we will only briefly discuss in the outlook section.
+  A more relevant discussion is in the context of a specific treatment of weight-sharing, which we will only briefly discuss in the outlook section.
   % The discussion of KFAC-expand naturally leads to an alternative setting where weight sharing dimensions are reduced during a forward pass; the so-called reduce setting.
   % For this setting, KFAC is not well motivated as it has no limit in which it becomes exact.
 \end{caveat}
 
 \subsection{KFAC-expand}
 
-Let's consider the GGN for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW \vx$ (suppressing layer indices for simplicity). Let's also assume $\cvec$-flattening, as usually done by the literature and make use of the output-parameter Jacobian of a linear layer (remember Example ??)
+Let's consider the GGN for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW \vx$ (suppressing layer indices for simplicity). Let's also assume $\cvec$-flattening, as usually done by the literature, and make use of the output-parameter Jacobian of a linear layer (remember Example ??)
 \begin{align*}
   \ggn_{\mW} \gL_{\sD}
   &=
@@ -85,10 +85,10 @@ The expectation approximation in KFAC is the following:
   \left( \sum_n \vb_n \vb_n^{\top} \right)
   }{N}
 \end{align}
-Instead of summing Kronecker products, we first sum the individual factors, then take their Kronecker product and divide by the number of summands. The scaling is by convention absorbed into the gradient-based Kronecker factor.
+Instead of summing Kronecker products, we first sum the individual factors, then take their Kronecker product and divide by the number of summands. The scaling is, by convention, absorbed into the gradient-based Kronecker factor.
 
 Our discussion will heavily rely on regression settings with deep linear networks, \ie MLPs that consist of dense layers without any non-linearities.
-We think they are a great setup to understand the core approximations of KFAC, and verify them numerically through rigorous tests.
+We think they are a great setup to understand the core approximations of KFAC and verify them numerically through rigorous tests.
 
 We will start with the KFAC-expand approximation, which corresponds to the seminal KFAC approximation proposed by~\citet{martens2015optimizing}. It was introduced for standard MLP settings where the linear layers do not exhibit weight sharing (and therefore no reductions over weight-shared axes).
 We will then show how to extend KFAC-expand to the presence of weight sharing.
@@ -126,7 +126,7 @@ If we apply this approximation to the above, we obtain
     \right)
     }{N}
 \end{align*}
-Note that we absorbed the reduction factor of the loss into input-based factor.
+Note that we absorbed the reduction factor of the loss into the input-based factor.
 Also note that the order of Kronecker factors changes depending on the flattening scheme.
 The same equation holds if we treat weight and bias jointly, but we need to make the substitutions
 \begin{align*}
@@ -142,7 +142,7 @@ The same equation holds if we treat weight and bias jointly, but we need to make
 \switchcolumn[0]
 
 \subsection{Tests}
-A cental question for implementing KFAC is on how to actual test the code.
+A central question for implementing KFAC is on how to actually test the code.
 
 When does this approximation become exact?
 Generally speaking, it becomes exact whenever one or both of the Kronecker factors in ??
@@ -230,7 +230,7 @@ Comments on \Cref{def:kfac_reduce_linear,def:kfac_expand_linear}:
 
 \item The main difference between KFAC-expand and KFAC-reduce is how they treat the shared dimension.
   KFAC-expands treats the shared dimension independently and like a batch dimension.
-  KFAC-reduce first accumulates the layer inputs and output-gradients over their shared dimension.
+  KFAC-reduce first accumulates the layer inputs and output gradients over their shared dimension.
   In the absence of weight sharing, $S=1$, both approximations are equivalent.
 
 \item Depending on which vectors we choose for backpropagation, we obtain the type-II, MC and empirical KFAC-expand/reduce flavours $\kfac_{\text{red, exp}}^{\text{II}}$, $\kfac_{\text{red, exp}}^{\text{MC}}$, $\kfac_{\text{red, exp}}^{\text{E}}$ and $\kfac_{\text{red,exp}}^{\text{IO}}$.
@@ -313,7 +313,7 @@ We want to approximate this with a single Kronecker product.
 To do that, we need to agree on a convention to carry out the sum over $n$ before taking the Kronecker product. We will use:
 \begin{definition}[KFAC's expectation approximation]
   Consider two sets of $N$ vectors $\{\vx_{n}\}_{n=1}^N$ and $\{\vg_{n}\}_{n=1}^N$ where each $\vx_n$ is input-based and each $\vg_n$ is output-gradient-based.
-  KFAC approximates the summed Kronecker products of the self-outer products $\vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top}$ as a single Kronecker products using the following expectation approximation:
+  KFAC approximates the summed Kronecker products of the self-outer products $\vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top}$ as a single Kronecker product using the following expectation approximation:
   \begin{subequations}\label{eq:expectation_approximation}
     \begin{align}
       \begin{split}
@@ -359,7 +359,7 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       \vx_n \vx_n^{\top} \otimes \vg_n \vg_n^{\top}
   \end{align*}
   with $\vx_n \in \sR^{D_{\text{in}}}$ and $\vg_n \in \sR^{D_{\text{out}}}$ and our goal is to approximate $\mC$ through a single Kronecker product.
-  Let's first make this expression more compact by absorbing the summation over data points in to matrix multiplication,
+  Let's first make this expression more compact by absorbing the summation over data points into matrix multiplication,
   \begin{align*}
     \mC =
     R (\mX \otimes \mI_{D_{\text{out}}})
@@ -476,7 +476,7 @@ To do that, we need to agree on a convention to carry out the sum over $n$ befor
       \mB = \frac{1}{N} \sum_{n=1}^N \vg_n \vg_n^{\top}
       = \frac{1}{N} \mG \mG^{\top}\,.
   \end{align*}
-  Hence, if we `model' the gradient covariance as block-diagonal matrix with identical blocks $\mB$, the `best' choice is the average of gradient outer products, just like in KFAC,
+  Hence, if we `model' the gradient covariance as a block-diagonal matrix with identical blocks $\mB$, the `best' choice is the average of gradient outer products, just like in KFAC,
   \begin{align*}
     \mC
     \approx
@@ -525,7 +525,7 @@ One obvious case is whenever the summation over $n$ disappears, \ie our data set
   \end{itemize}
 \end{test}
 This test is useful for checking functionality related to the criterion function, \ie the backpropagated vectors $\blacktriangle_{n,c}$
-It can further be generalized: We can replace the activation functions with arbitrary layers (\eg\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers remain vector-shape.
+It can further be generalized: We can replace the activation functions with arbitrary layers (\eg\,reshape, convolution, pooling, normalization, \dots) as long as the inputs processed by the dense layers remain vector-shaped.
 These changes do not alter the structure of the GGN/Fisher/EF for the linear layers.
 
 \switchcolumn[1]*
@@ -535,10 +535,10 @@ These changes do not alter the structure of the GGN/Fisher/EF for the linear lay
 \subsubsection{Test Case: Regression with Deep Linear Networks}
 
 The more subtle and interesting testing scenario where the KFAC approximation becomes exact is for deep linear networks and square loss.
-In this case $\vg_{n,c}$ does not depend on $n$.
+In this case, $\vg_{n,c}$ does not depend on $n$.
 To see this, let's look at the definition of $\vg_{n,c}$ which depends on the backpropagated vector $\blacktriangle_{n,c}$ and the Jacobian of the prediction \wrt the layer's output $\jac_{\vz_n} \vf_n$.
 For square loss, $\blacktriangle_{n,c}$ often does not depend on $n$: For type-2, it is simply a column of the identity matrix, and for MC, it is simply a normally distributed random number.
-If we further restrict all layers of our neural network to be linear layers all prediction-intermediate Jacobians are constant and therefore independent of $n$.
+If we further restrict all layers of our neural network to be linear layers, all prediction-intermediate Jacobians are constant and therefore independent of $n$.
 This implies the following limit in which KFAC becomes exact (first proposed in \cite{bernacchia2018exact}).
 
 \begin{test}[KFAC-expand for regression with deep linear networks without weight sharing, \Cref{kfac_tests/expand_deep_linear_regression}]
@@ -662,7 +662,7 @@ Using this Kronecker approximation of the backpropagated vector's self-outer pro
   \\
   \otimes \left( \frac{\textcolor{VectorOrange}{\sum_n} \textcolor{VectorTeal}{\sum_s}\sum_c \vg_{n,s,c} \vg_{n,s,c}^{\top}}{\textcolor{VectorOrange}{N} \textcolor{VectorTeal}{S}} \right)
 \end{align*}
-From this equation we can see that the shared dimension (highlighted in teal) is treated exactly like a batch dimension (highlighted in orange) in KFAC's expectation approximation.
+From this equation, we can see that the shared dimension (highlighted in teal) is treated exactly like a batch dimension (highlighted in orange) in KFAC's expectation approximation.
 
 Some observations on the matrix $\cvec \mG_{n,c} (\cvec \mG_{n,c})^{\top}$ while writing this: If the shared dimension is processed independently, then this matrix is block diagonal.
 But each $S \times S$ block is different.
@@ -674,7 +674,7 @@ This is the next test case for KFAC.
 If each shared dimension is processed independently, we can treat it just like a batch dimension.
 This is the case if we use an MLP that consists of dense layers and element-wise activation functions.
 The test in \Cref{kfac_tests/expand_deep_linear_regression} includes such a scenario where $S > 1$.
-Note however that in practise we want to combine the features in a sequence (\eg\,as done in the attention layer).
+Note, however, that in practice we want to combine the features in a sequence (\eg\,as done in the attention layer).
 But for a simple MLP, the shared axis is just treated like a batch axis, which motivates treating it as such in the KFAC-expand approximation.
 
 \begin{test}[KFAC-expand for regression with deep linear networks with weight sharing, \Cref{kfac_tests/expand_deep_linear_regression}]
@@ -729,7 +729,7 @@ with linear layers $f^{(l)}$ with weights $\mW^{(l)}$ and bias $\vb^{(l)}$ that 
     \frac{1}{S} \mA \vone_S
   \end{cases}
 \end{align*}
-Note that this is different from the expand setting where the shared dimension persists until the end of the forward pass and is only reduced to a scalar inside the criterion function $c = - \log r$.
+Note that this is different from the expand setting, where the shared dimension persists until the end of the forward pass and is only reduced to a scalar inside the criterion function $c = - \log r$.
 
 The Jacobian of the reduction function has a Kronecker structure,
 $\jac_{\mA}^{\rvec}\rho(\mA) = \vone_S^{\top} \otimes \mI_D$ and $\jac_{\mA}^{\cvec}\rho(\mA) = \mI_D \otimes \vone_S^{\top}$.
@@ -791,9 +791,9 @@ In the presence of weight sharing and reduction, we have
     f = \rho \circ f^{(L)} \circ \ldots \circ f^{(1)}\,,
   \end{align*}
   followed by a final reduction layer $\rho$. For each datum $n$, the network processes a sequence of $S$ vectors $\vx_{n,1}, \dots, \vx_{n,S}$ arranged into a matrix-valued input $\mX^{(0)}_n = \begin{pmatrix} \vx_{n,1} & \ldots & \vx_{n,S} \end{pmatrix} \in \sR^{D_{\text{in}} \times S}$.
-  For $S=1$, each layer only processes a single vector and we say that there is \emph{no weight sharing}, because each layer weight is only applied once to a vector.
-  For $S>1$, each layer processes multiple vectors and we say that there is \emph{weight sharing}, because the same weight is applied to multiple vectors.
-  The output $\mX^{(L)}_n$of the last linear layer can be reduced over the shared dimension via summation or averaging, or left unchanged by the operation $\rho$:
+  For $S=1$, each layer only processes a single vector, and we say that there is \emph{no weight sharing}, because each layer's weight is only applied once to a vector.
+  For $S>1$, each layer processes multiple vectors, and we say that there is \emph{weight sharing}, because the same weight is applied to multiple vectors.
+  The output $\mX^{(L)}_n$ of the last linear layer can be reduced over the shared dimension via summation or averaging, or left unchanged by the operation $\rho$:
   \begin{align*}
     \rho(\mX_n^{(L)})
     &=

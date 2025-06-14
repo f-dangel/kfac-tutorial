@@ -5,10 +5,10 @@ These operations are called vector-Jacobian products (VJPs) and Jacobian-vector 
 
 Machine learning libraries like JAX and PyTorch offer routines for computing Jacobians, VJPs, and JVPs.
 However, their interface is functional.
-Here, we provide an alternative implementation which accepts nodes of a computation graph rather than functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
-We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, \ie  a linear layer.
+Here, we provide an alternative implementation that accepts nodes of a computation graph rather than functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
+We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, \ie a linear layer.
 These Jacobians exhibit Kronecker structure, which is the foundation for the `K' in KFAC.
-We verify this structure numerically, and observe how the flattening convention affects it.
+We verify this structure numerically and observe how the flattening convention affects it.
 
 \begin{setup}[Vector-to-vector function]\label{setup:vector_to_vector_function}
   Let function $f: \sR^A \to \sR^B, \va \mapsto \vb = f(\va)$ denote a vector-to-vector function.
@@ -21,7 +21,7 @@ We verify this structure numerically, and observe how the flattening convention 
   \end{align*}
 \end{definition}
 \Cref{def:vector_jacobian} is limited to vector-to-vector functions.
-The more general Jacobian of a tensor-to-tensor function can be indexed with combined indices from the input and output domain:
+The more general Jacobian of a tensor-to-tensor function can be indexed with combined indices from the input and output domains:
 
 \begin{setup}[Tensor-to-tensor function]\label{setup:jacobians}
   Consider a tensor-to-tensor function $f: \sR^{A_1 \times \dots \times A_N} \to \sR^{B_1 \times \dots \times B_M}, \tA \mapsto \tB = f(\tA)$ from a rank-$N$ tensor $\tA$ into a rank-$M$ tensor $\tB$.
@@ -41,10 +41,10 @@ For $M=N=1$, the general Jacobian reduces to the Jacobian of a vector-to-vector 
 \codeblock{basics/jacobian_products}
 \switchcolumn[0]
 
-\paragraph{Jacobian multiplication.} In practise, this general Jacobian can be prohibitively large and therefore one must almost always work with it in a matrix-free fashion, \ie  through VJPs and JVPs.
+\paragraph{Jacobian multiplication.} In practice, this general Jacobian can be prohibitively large and therefore one must almost always work with it in a matrix-free fashion, \ie through VJPs and JVPs.
 
 \begin{definition}[Vector-Jacobian products (VJPs), \Cref{basics/jacobian_products}]\label{def:vjp}
-  Given a tensor-to-tensor function $f$ from \Cref{setup:jacobians} and a tensor $\tV \in \sR^{B_1 \times \dots \times B_M}$ in the output domain, the vector-Jacobian product (VJP) $\tU$ of $\tV$ and $\tJ_{\tB}\tA$ lives in $f$'s input domain and follows by contracting the \colored{output indices},
+  Given a tensor-to-tensor function $f$ from \Cref{setup:jacobians} and a tensor $\tV \in \sR^{B_1 \times \dots \times B_M}$ in the output domain, the vector-Jacobian product (VJP) $\tU$ of $\tV$ and $\tJ_{\tA}\tB$ lives in $f$'s input domain and follows by contracting the \colored{output indices},
   \begin{align*}
     & [\tU]_{j_1, \dots, j_N}
     \\
@@ -62,7 +62,7 @@ Therefore, they are easy to implement with standard functionality (\eg \texttt{a
 The other relevant contraction is between the Jacobian and a vector from the input domain:
 
 \begin{definition}[Jacobian-vector products (JVPs), \Cref{basics/jacobian_products}]\label{def:jvp}
-  Given a tensor-to-tensor function $f$ from \Cref{setup:jacobians} and a tensor $\tV \in \sR^{A_1 \times \dots \times A_N}$ in the input domain, the Jacobian-vector product (JVP) $\tU$ between $\tV$ and $\tJ_{\tB}\tA$ lives in $f$'s output domain and follows by contracting the \colored[VectorPink]{input indices},
+  Given a tensor-to-tensor function $f$ from \Cref{setup:jacobians} and a tensor $\tV \in \sR^{A_1 \times \dots \times A_N}$ in the input domain, the Jacobian-vector product (JVP) $\tU$ between $\tV$ and $\tJ_{\tA}\tB$ lives in $f$'s output domain and follows by contracting the \colored[VectorPink]{input indices},
   \begin{align*}
     & [\tU]_{j_1, \dots, j_M}
     \\
@@ -73,7 +73,7 @@ The other relevant contraction is between the Jacobian and a vector from the inp
   \end{align*}
 \end{definition}
 For the vector case, $\tU, \tV, \tJ_{\tA}\tB \to \vu, \vv, \jac_{\va}\vb$, the JVP is $\vu = (\jac_{\va}\vb) \vv$, as suggested by its name.
-JVPs are common in forward mode automatic differentiation ($\tU$ is often called the \emph{pushforward} of $\tV$ through $f$).
+JVPs are common in forward-mode automatic differentiation ($\tU$ is often called the \emph{pushforward} of $\tV$ through $f$).
 Only recently has this mode garnered attention.
 The current JVP functionality in ML libraries usually follows a functional API.
 To obtain an implementation that accepts variables from a computation graph and is more compatible with the modular approach we chose in this tutorial, we can use a trick that implements a JVP using two VJPs \cite{townsend2017new}.
@@ -111,8 +111,8 @@ To obtain an implementation that accepts variables from a computation graph and 
 \switchcolumn[0]
 
 \paragraph{Matricization.}
-Jacobian products are efficient, but somewhat abstract to work with as we cannot `touch' the full tensor.
-Often, we also would like to think about this tensor as a matrix to be able to present derivations in linear algebra notation.
+Jacobian products are efficient, but somewhat abstract to work with, as we cannot `touch' the full tensor.
+Often, we would also like to think about this tensor as a matrix to be able to present derivations in linear algebra notation.
 
 We can reduce the general Jacobian tensor back to the Jacobian matrix in two different ways: We can either (i) directly matricize the tensor, or (ii) `flatten' the function $f \to f^{\vec}$ such that it consumes and produces vectors, then compute its Jacobian.
 Both ways and their resulting Jacobian matrices depend on the flattening convention we choose.
@@ -149,7 +149,7 @@ The $\rvec$-Jacobian is common in code.
 We highlight their differences on a linear layer, which will be useful later on when we discuss KFAC (\Cref{ex:linear_layer_jacobians}, numerically verified in \cref{basics/jacobians_linear_layer}).
 This example reveals two insights:
 \begin{itemize}
-\item There is a Kronecker structure in the linear layers's Jacobian \wrt its weight.
+\item There is a Kronecker structure in the linear layers' Jacobian \wrt its weight.
   This structure is the foundation for the `K' in KFAC.
 
 \item The order of Kronecker factors is reversed depending on the flattening scheme.
@@ -174,7 +174,7 @@ This example reveals two insights:
     \tilde{\mW}
     \tilde{\vx}\,.
   \end{align*}
-  To express this operation as matrix-vector multiplication, we combined weight and bias into a single matrix $\tilde{\mW}$ and augment the input with a one, yielding $\tilde{\vx}$, to account for the bias contribution.
+  To express this operation as matrix-vector multiplication, we combine weight and bias into a single matrix $\tilde{\mW}$ and augment the input with a one, yielding $\tilde{\vx}$, to account for the bias contribution.
 
   The linear layer's $\cvec$-Jacobian \wrt the combined weight is
   \begin{align*}

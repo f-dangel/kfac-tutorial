@@ -25,7 +25,7 @@
 \begin{caveat}[Flattening]
   In deep learning, we often work with matrices, or higher-dimensional tensors.
   We want to use matrix linear algebra expressions to avoid using heavy index notation.
-  This can be achieved by flattening all tensors back into vectors and re-using definitions of derivatives from the vector case.
+  This can be achieved by flattening all tensors back into vectors and reusing definitions of derivatives from the vector case.
   However, we must be careful when translating the results back to the tensor format, as the translation process depends on the flattening convention.
   Classically, the mathematical derivations prefer a \emph{different} flattening scheme than the one used in deep learning libraries.
   This can cause confusion and bugs.
@@ -39,14 +39,14 @@ There are many ways to flatten the entries of a tensor into a vector.
 The two by far most common conventions are (i) last-varies-fastest ($\rvec$) and (ii) first-varies-fastest ($\cvec$).
 Their names are easy to remember from their action on a matrix (see \Cref{ex:flattening}): $\cvec$-flattening concatenates columns into a vector (column flattening); $\rvec$-flattening concatenates rows into a vector (row flattening).
 
-Column-flattening is popular in mathematical presentations, while row-flattening is popular in deep learning libraries which lay out tensors in row-major format in memory.
+Column-flattening is popular in mathematical presentations, while row-flattening is popular in deep learning libraries, which lay out tensors in row-major format in memory.
 To see their differences, we will implement both (\Cref{basics/flattening}).
 For arbitrary tensors, we can generalize the matrix flattenings by ordering entries such that either their first index ($\cvec$, \Cref{def:cvec}) or last index ($\rvec$, \Cref{def:rvec}) varies fastest:
 
 
 \begin{setup}[Rank-$A$ tensor]\label{setup:flattening}
   Let $\tA \in \sR^{N_1 \times \dots \times N_A}$ be a tensor of rank $A$ whose entries are indexed through a tuple $(n_1, \dots, n_A)$ where $n_a \in \{1, \dots, N_a\}$ for $a \in \{1, \dots, A\}$.
-  Vectors are rank-1 tensors and matrices are rank-2 tensors.
+  Vectors are rank-1 tensors, and matrices are rank-2 tensors.
 \end{setup}
 \begin{definition}[$\cvec$, \Cref{basics/flattening}]\label{def:cvec}
   The first-varies-fastest flattening of tensor $\tA$ from \Cref{setup:flattening} is
@@ -86,7 +86,7 @@ For arbitrary tensors, we can generalize the matrix flattenings by ordering entr
   \end{align*}
 \end{definition}
 
-In code, we will sometimes require partial flattening of a sub-set of contiguous indices, instead of all indices (\eg to turn a tensor into a matrix by first flattening the row indices, followed by flattening the column indices).
+In code, we will sometimes require partial flattening of a subset of contiguous indices, instead of all indices (\eg to turn a tensor into a matrix by first flattening the row indices, followed by flattening the column indices).
 The definitions are analogous, but the flattened indices are surrounded by static ones.
 %%% Local Variables:
 %%% mode: latex

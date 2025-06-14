@@ -5,7 +5,7 @@
   \centering
   \includegraphics[width=\linewidth]{../kfs/plots/synthetic_rvec_diff_spec_norm.pdf}
   \caption{ \textbf{Convergence of the Monte Carlo-approximated type-I Fisher to the type-I Fisher.}
-    We visualize spectral norm of their residual as a function of MC samples.
+    We visualize the spectral norm of their residual as a function of MC samples.
     The Fishers were evaluated on synthetic data ($N=100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3) and square loss.
     In this setting, the exact type-I Fisher equals the GGN, and we used GGNVPs (\Cref{def:ggnvp}) to compute it.
     Plot produced with \repofile{plots/synthetic_fisher}.
@@ -81,7 +81,7 @@ This yields the type-II Fisher information matrix (because it is defined via sec
       & \jac_{\vtheta} \vf_n \,.
     \end{aligned}
 \end{align*}
-This form resembles a lot the GGN.
+This form resembles the GGN a lot.
 In fact, for square loss and softmax cross-entropy loss ($c = - \log$), we derived that the loss Hessian we average in the type-II Fisher does not depend on the labels modelled by the distribution (see \Cref{ex:hessian-crossentropyloss,ex:square_loss_hessian}).
 This means we can drop the expectation for such losses.
 We just showed that the (type-II) \emph{Fisher equals the GGN for regression with square loss and classification with softmax cross-entropy loss} (more details in \Cref{subsec:connection-ggn-fisher}).
@@ -125,7 +125,7 @@ Hence, we can write the Fisher as
   &\qquad \qquad\qquad
     (-\nabla_{\vtheta} \log r(\rvy \mid f(\rvx, \vtheta)))^{\top}]
 \end{align*}
-Let's apply the chain rule for the gradient, substitute the empirical distribution for $p_{\text{data}}(\rvx)$ and simplify.
+Let's apply the chain rule for the gradient, substitute the empirical distribution for $p_{\text{data}}(\rvx)$, and simplify.
 This gives the type-I Fisher
 \begin{align*}
   & \mF^{\text{I}}(\vtheta)
@@ -162,7 +162,7 @@ This gives the type-I Fisher
 This form highlights that the Fisher can be computed with first-order derivatives, specifically vector-Jacobian products.
 
 \paragraph{Monte Carlo-approximated type-I Fisher.} For computations with the type-I Fisher, we need to replace the expectation over $r(\rvy \mid \vf_n)$ with an estimator, \eg Monte Carlo approximation with $M$ sampled labels $\smash{\tilde{\vy}_{n,1}, \dots, \tilde{\vy}_{n, M} \stackrel{\text{i.i.d}}{\sim} r(\rvy \mid \vf_n)}$ for the prediction of datum $n$.
-Thankfully, we already developed the functionality to sample such labels in \Cref{subsec:probabilistic-interpretation} (specifically, \Cref{basics/label_sampling}).
+Thankfully, we have already developed the functionality to sample such labels in \Cref{subsec:probabilistic-interpretation} (specifically, \Cref{basics/label_sampling}).
 
 \begin{definition}[Monte Carlo-approximated type-I Fisher (\Cref{basics/mc_fishers})]\label{def:mc_fisher}%
   The Monte Carlo-approximated type-I Fisher of the likelihood $\log r(\rvy \mid f(\vx_n, \vtheta))$,
@@ -183,10 +183,10 @@ Thankfully, we already developed the functionality to sample such labels in \Cre
       \end{aligned}
   \end{align*}
 \end{definition}
-As we increase the number of Monte Carlo (MC) samples, the the MC-approximated type-I Fisher converges to the Fisher, as illustrated in \Cref{fig:mc-fisher-converges-to-fisher}.
+As we increase the number of Monte Carlo (MC) samples, the MC-approximated type-I Fisher converges to the Fisher, as illustrated in \Cref{fig:mc-fisher-converges-to-fisher}.
 
 \paragraph{Would-be gradients \& self-outer product form.}
-To compute with the type-I Fisher, we need to evaluate gradient of the loss using sampled labels, rather than the labels from the data set (see \Cref{basics/mc_fisher_product}, which implements multiplication with the MC Fisher).
+To compute with the type-I Fisher, we need to evaluate the gradient of the loss using sampled labels, rather than the labels from the data set (see \Cref{basics/mc_fisher_product}, which implements multiplication with the MC Fisher).
 As coined by \citet{papyan2020traces}, we call these gradients `would-be' gradients, because they depend on hypothetical labels.
 
 Let's denote the $m$-th negative would-be gradient for sample $n$ by $\tilde{\vg}_{n,m} \coloneq -\nabla_{\vf_n} \log r(\rvy = \tilde{\vy}_{n,m} \mid \vf_n)$
@@ -224,11 +224,11 @@ In fact, we can think of $\tilde{\mV}_n \in \sR^{D \times M}$ as a \emph{randomi
 The different self-outer product forms of curvature matrices will give rise to multiple flavours of KFAC in \Cref{sec:kfac-overview}.
 
 \paragraph{Reduction factor of the Fisher vs.\,empirical risk.}
-In the above derivation we arrived at an expression of the Fisher which uses a reduction factor $R = \nicefrac{1}{N}$.
-We will handle this factor flexibly in practise by using the reduction factor of our empirical risk.
+In the above derivation, we arrived at an expression of the Fisher which uses a reduction factor $R = \nicefrac{1}{N}$.
+We will handle this factor flexibly in practice by using the reduction factor of our empirical risk.
 
 \paragraph{(Optional) efficient would-be gradient computation.}
-One way to compute would-be gradients is to repeatedly sample a label, compute its loss, then use automatic differentiation to obtain the gradient.
+One way to compute would-be gradients is to repeatedly sample a label, compute its loss, and then use automatic differentiation to obtain the gradient.
 This incurs \texttt{for} loops, which may be sub-optimal for performance.
 In this tutorial, we follow the less efficient \texttt{for} loop approach as it is less complex.
 To improve efficiency, we could draw all labels in parallel, and compute their gradients manually instead of using autodiff, which is cheaper as demonstrated by \Cref{ex:square-loss-gradient,ex:cross-entropy-loss-gradient}.

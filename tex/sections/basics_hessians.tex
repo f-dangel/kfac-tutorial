@@ -15,7 +15,7 @@ Let's start with the definition of the Hessian of a vector-to-scalar function.
     \frac{\partial^2 b}{\partial [\va]_i \partial [\va]_j}\,.
   \end{align*}
 \end{definition}
-This definition is limited to functions with vector-valued arguments. The extension to tensor-to-scalar-functions is straightforward; however, it yields a tensor which is less convenient to work with in terms of notation:
+This definition is limited to functions with vector-valued arguments. The extension to tensor-to-scalar functions is straightforward; however, it yields a tensor that is less convenient to work with in terms of notation:
 
 \begin{setup}[Tensor-to-scalar function]\label{setup:hessians}
   Consider a tensor-to-scalar function $f: \sR^{A_1 \times \dots \times A_N} \to \sR, \tA \mapsto b = f(\tA)$ from a rank-$N$ tensor $\tA$ into a scalar $b$.
@@ -55,7 +55,7 @@ One way to multiply by the Hessian uses the so-called Pearlmutter trick~\cite{pe
 It relies on the fact that multiplication with higher-order derivatives can be done by nested first-order differentiation.
 Hence, multiplication with the Hessian can be done with two VJPs (\Cref{basics/hessian_product}).
 In fact, this snippet implements a slightly more general Hessian that can handle differentiating twice \wrt \emph{different}, in contrast to the same, arguments.
-It is not essential for understanding KFAC and we will only use it to visualize curvature matrices in \Cref{subsec:curvature-matrices}.
+It is not essential for understanding KFAC, and we will only use it to visualize curvature matrices in \Cref{subsec:curvature-matrices}.
 In the context of KFAC, we do not care about these mixed second-order derivatives.
 
 \switchcolumn[1]
@@ -115,7 +115,7 @@ The following definitions are consistent for both ways.
   \end{align*}
 \end{definition}
 
-Whenever we consider vector-to-scalar functions, both Hessians are identical and we thus suppress the flattening scheme and write $\hess_{\va}b$.
+Whenever we consider vector-to-scalar functions, both Hessians are identical, and we thus suppress the flattening scheme and write $\hess_{\va}b$.
 
 \paragraph{Examples.}
 Let's look at important Hessian examples we will return to later in the text.

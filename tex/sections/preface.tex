@@ -1,27 +1,27 @@
 \paragraph{Relevance.} Kronecker-factored approximate curvature (KFAC) is arguably one of the most prominent curvature approximations in deep learning.
 Its applications range from optimization~\cite{martens2015optimizing,grosse2016kroneckerfactored,eschenhagen2023kroneckerfactored,benzing2022gradient,petersen2023isaac} to Bayesian deep learning~\cite{daxberger2021laplace}, training data attribution with influence functions~\cite{grosse2023studying,bae2024training}, and model pruning~\cite{wang2019eigendamage} and merging~\cite{tam2024merging}.
-The intuition behind KFAC is easy to understand: it approximates curvature information in the form of Kronecker-factored matrices that are cheap to store and compute with.
+The intuition behind KFAC is easy to understand: it approximates curvature information in the form of Kronecker-factored matrices that are both cheap to store and compute with.
 There exist several packages that compute KFAC~\cite{botev2022kfac-jax,dangel2020backpack,osawa2023asdl}.
-However, the details of these implementations are often not well-documented, making them hard to extend, \eg\,adding support for new layers, or adding features like eigen-value correction~\cite{george2018fast}.
+However, the details of these implementations are often not well-documented, making them hard to extend, \eg\,adding support for new layers, or adding features like eigenvalue correction~\cite{george2018fast}.
 We claim that achieving a bug-free KFAC implementation is non-trivial, and our understanding is still evolving.
 
 \paragraph{Goals.}
 This is an attempt to bundle the scattered knowledge about KFAC into a single document, explain all the technicalities and pitfalls, and present tests to ensure bug-free implementations.
-Our goal with this tutorial is to explain, from scratch, how to obtain a KFAC implementation that is easy to build on, allowing newcomers to fully grasp the concept, and providing experienced practitioners a code base to build on.
+Our goal with this tutorial is to explain, from scratch, how to obtain a KFAC implementation that is easy to build on, allowing newcomers to fully grasp the concept and providing experienced practitioners a code base to build on.
 We use PyTorch~\cite{paszke2019pytorch} and rely on its modular interface (\texttt{torch.nn} modules), which is familiar to most deep learning practitioners.
 The tutorial's goals are the following:
 \begin{enumerate}
   % Explain the 'C' in KFAC
 \item \textbf{[Basics] Provide a self-contained introduction to curvature matrices (the `C' in KFAC).}
-  To understand KFAC, we first need to understand the objects it aims to approximate, namely curvature matrices of neural network loss functions.
+  To understand KFAC, we first need to understand the objects it aims to approximate, namely, curvature matrices of neural network loss functions.
   These curvature matrices are all based on the Hessian, which gives rise to the curvature if we Taylor-expand the loss up to quadratic order.
   We will introduce common approximations of the Hessian, like the generalized Gauss-Newton (GGN), Fisher, and empirical Fisher (EF), and how to work with them through autodiff (\cref{sec:basics}).
-  This establishes the basis of our tutorial, and serves as foundation to test our KFAC implementation.
+  This establishes the basis of our tutorial and serves as a foundation to test our KFAC implementation.
   See \cref{sec:cheatsheet-basics} for a compact summary.
 
   % Explain the 'KF' in KFAC
 \item \textbf{[Intuition] Show how Kronecker products naturally emerge in curvature matrices (the `KF' in KFAC).}
-  Doing so provides a motivation for using Kronecker-factorization as `natural' structure to approximate it, which is what KFAC does (\cref{sec:kfac-overview}).
+  Doing so provides a motivation for using Kronecker-factorization as a `natural' structure to approximate it, which is what KFAC does (\cref{sec:kfac-overview}).
 
   % Explain the 'A' in KFAC
 \item \textbf{[Code] Explain how to implement and test KFAC (the `A' in KFAC).}
@@ -148,7 +148,7 @@ However, to provide some additional value, this document aims to provide an intr
     \text{expand}
   \end{Bmatrix}\,.
 \end{align*}
-This allows us to (i) highlight challenges when translating math to code, (ii) point out various connections between curvature matrices and KFAC, and (iii) produce a working, tested, version of the original KFAC paper with slight generalizations.
+This allows us to (i) highlight challenges when translating math to code, (ii) point out various connections between curvature matrices and KFAC, and (iii) produce a working, tested version of the original KFAC paper with slight generalizations.
 A more fully-featured KFAC implementation is provided by the \texttt{curvlinops} library~\cite{dangel2025position}.
 %%% Local Variables:
 %%% mode: latex

@@ -2,7 +2,7 @@ Finally, we introduce the empirical Fisher.
 This matrix serves as an approximation to the type-I Fisher that does not require Monte Carlo samples.
 Several contemporary optimizers, \eg the Adam variants, gained inspiration from second-order optimization, in particular preconditioning with the empirical Fisher.
 For example, Adam \cite{kingma2015adam} stores the moving average of the mini-batch loss' squared gradients, which is motivated by (but is not equivalent to) preconditioning with the \emph{diagonal} of the empirical Fisher\footnote{See~\citet{lin2024can} for the exact preconditioner Adam approximates, which is a different approximation of the Fisher information matrix.}.
-We obtain the empirical Fisher by replacing the model's likelihood in the type-I Fisher with the empirical likelihood, and evaluating the expectation over it:
+We obtain the empirical Fisher by replacing the model's likelihood in the type-I Fisher with the empirical likelihood and evaluating the expectation over it:
 
 \begin{definition}[Empirical Fisher (\Cref{basics/emp_fishers})]\label{def:emp_fisher}%
   The empirical Fisher matrix of the likelihood $\log r(\rvy \mid \vf_n)$,
@@ -43,7 +43,7 @@ In particular,~\citet{kunstner2019limitations} show that preconditioning with th
 The empirical Fisher's success in some settings (\eg, through Adam) may be attributed to its ability to attenuate \emph{gradient noise}, not its properties as a curvature estimate.
 To some extent, this is still an open question.
 
-\paragraph{Visual comparison.} For our purposes, it suffices to acknowledge that the empirical Fisher is a popular curvature approximation is often used due to its computational advantages over the Fisher and GGN but differs from them, and can also be approximated using KFAC.
+\paragraph{Visual comparison.} For our purposes, it suffices to acknowledge that the empirical Fisher is a popular curvature approximation that is often used due to its computational advantages over the Fisher and GGN but differs from them, and can also be approximated using KFAC.
 The differences between GGN, MC type-I Fisher, and empirical Fisher, as well as their variation under different flattening conventions, are visualized in \Cref{fig:visual-comparison-mc-empirical-fisher}.
 
 \begin{figure}[!h]
@@ -97,7 +97,7 @@ The differences between GGN, MC type-I Fisher, and empirical Fisher, as well as 
     The Fisher blocks are visually highlighted with white lines.
     The left column uses $\cvec$-flattening, the right column $\rvec$-flattening.
     The penultimate row uses the exact Fisher.
-    The last row shows the empirical Fisher, highlighting its difference to the previous curvature estimates.
+    The last row shows the empirical Fisher, highlighting its difference from the previous curvature estimates.
     The Fishers were evaluated on synthetic data ($N=100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3) and square loss.
     Plots created with \repofile{plots/synthetic_fisher.py}.
   }\label{fig:visual-comparison-mc-empirical-fisher}

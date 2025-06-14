@@ -4,7 +4,7 @@ It is a useful tool whenever we encounter a composition of functions that we wou
 \paragraph{Convexification by partial linearization.}
 Consider \eg the function $f = g \circ h$ with $f,g,h: \sR \to \sR$ for simplicity.
 We know that convexity is preserved under function composition, so if both $g$ and $h$ are convex, then $f$ will be convex.
-But what if only one of the two composites is convex, lets say $g$, but $h$ is not?
+But what if only one of the two composites is convex, let's say $g$, but $h$ is not?
 Well, then we can replace $h$ with an approximation $h'$ that is convex and approximates the original function.
 One straightforward approximation is a linear approximation.
 
@@ -20,7 +20,7 @@ This involves a first-order Taylor approximation:
   \end{align*}
   with the Jacobian from \Cref{def:vector_jacobian}.
   Note that $\lin_{\va_0}(f)$ is linear in $\va$ and coincides with the original function at the anchor point, $(\lin_{\va_0}(f))(\va_0) = f(\va_0)$.
-  Its Jacobian also concides with that of the original function at the anchor point.
+  Its Jacobian also coincides with that of the original function at the anchor point.
 \end{definition}
 
 The generalization to the tensor case is straightforward.
@@ -47,13 +47,13 @@ We just need to replace the Jacobian-vector product with its generalization:
       \tA - \tA_0
       \right]_{j_1, \ldots, j_N}\,,
   \end{align*}
-  with the Jacobian from \Cref{def:general_jacobian}. Note that this is nothing else but the function evaluated at the anchor point plus the JVP (\Cref{def:jvp}) with the distance to the anchor.
+  with the Jacobian from \Cref{def:general_jacobian}. Note that this is nothing but the function evaluated at the anchor point plus the JVP (\Cref{def:jvp}) with the distance to the anchor.
 \end{definition}
 
 \paragraph{GGN \& relevance to deep learning.}
 In deep learning, we will often face the situation where $f = g \circ h, \tA \mapsto b = f(\tA)$ and $h$ is non-convex while $g$ is convex
 (\eg in the empirical risk, where the criterion is typically convex, while the neural net is typically non-convex).
-This means the Hessian of $f$ can be indefinite; but many algorithms require a positive definite approximation to the Hessian.
+This means the Hessian of $f$ can be indefinite, even though many algorithms require a positive definite approximation to the Hessian.
 We can obtain that by considering the partially linearized function $\bar{f} = g \circ \lin_{\tA_0}(h)$, whose Hessian is positive semi-definite.
 The Hessian of this partially linearized function is called the generalized Gauss-Newton (GGN) matrix.
 
@@ -80,7 +80,7 @@ Now, if we take the Hessian of the partially linearized function $\bar{f}(x) = (
   &\phantom{= }+
     \underbrace{\hess_x \bar{h}(x)}_{= 0} \cdot \jac_{\bar{h}(x)} g(\bar{h}(x))\,.
 \end{align*}
-Evaluating both equations at the anchor point (setting $x = x_0$) we see that their first terms coincide (remember from \Cref{def:vector_linearization} that the linearized function's value and Jacobian coincide with those of the original function when evaluated at the anchor point).
+Evaluating both equations at the anchor point (setting $x = x_0$), we see that their first terms coincide (remember from \Cref{def:vector_linearization} that the linearized function's value and Jacobian coincide with those of the original function when evaluated at the anchor point).
 
 \switchcolumn[1]*
 \begin{figure}[!h]
@@ -108,7 +108,7 @@ Evaluating both equations at the anchor point (setting $x = x_0$) we see that th
     \draw[-Stealth] (B.south) -- node[fill=white, align=center] {ignore second-order\\ effects of $h$} (D.north);
   \end{tikzpicture}
   \caption{\textbf{Taking the Hessian and partial linearization commute and lead to the same GGN.}
-    All operations also commute with flattening the function versus matrizicing the Hessian tensor, so we can apply any flattening scheme on top to obtain the $\rvec$- and $\cvec$-GGN matrices.}\label{fig:commutative-diagram-ggn}
+    All operations also commute with flattening the function versus matricizing the Hessian tensor, so we can apply any flattening scheme on top to obtain the $\rvec$- and $\cvec$-GGN matrices.}\label{fig:commutative-diagram-ggn}
 \end{figure}
 \switchcolumn[0]
 
@@ -120,7 +120,7 @@ Hence, our one-dimensional example's GGN is
 \end{align*}
 To summarize, we obtain the GGN either by (i) partially linearizing, then taking the Hessian, or (ii) taking the Hessian and discarding second-order derivatives of the non-convex composite (\ie partially linearizing).
 This commutative relationship is visualized in \Cref{fig:commutative-diagram-ggn}.
-Our next steps are to generalize the GGN to vector-valued functions that produce scalars, illustrate it on a toy problem, then develop the fully general formulation for tensor-valued functions along with the functionality to work with it in code.
+Our next steps are to generalize the GGN to vector-valued functions that produce scalars, illustrate it on a toy problem, and then develop the fully general formulation for tensor-valued functions along with the functionality to work with it in code.
 
 \switchcolumn[1]*
 \begin{figure}[H]
@@ -166,7 +166,7 @@ Let's define it for the vector case and apply it to an example.
   \ie the second composite's Hessian, pulled back with the first composite's Jacobian.
 \end{definition}
 
-One obtains this form by following through the same steps as above, but for a vector-to-vector-to-scalar instead of a purely scalar function composition. \Cref{ex:ggn-rosenbrock} presents fully-worked out expressions of Rosenbrock function's GGN.
+One obtains this form by following through the same steps as above, but for a vector-to-vector-to-scalar instead of a purely scalar function composition. \Cref{ex:ggn-rosenbrock} presents fully-worked-out expressions of the Rosenbrock function's GGN.
 
 \begin{example}[GGN for the Rosenbrock function, \Cref{basics/ggn_rosenbrock}]\label{ex:ggn-rosenbrock}
   Consider the 2d Rosenbrock function $f_{\alpha}: \sR^2 \to \sR$ with
@@ -189,7 +189,7 @@ One obtains this form by following through the same steps as above, but for a ve
                                    \shortintertext{and convex}
                                    g(\vh) &= \vh^\top \vh\,,
   \end{align*}
-  namely square loss.
+  namely, the square loss.
 
   \paragraph{Linearization.}
   The Rosenbrock function is non-convex (see \Cref{fig:2d-rosenbrock} for contour lines) because $h_{\alpha}$ is non-convex.
@@ -322,7 +322,7 @@ One obtains this form by following through the same steps as above, but for a ve
 \end{example}
 
 \paragraph{Generalization to tensor case.} The above example illustrated the GGN for a vector-to-vector-to-scalar function.
-We will spend the remaining part of this section to generalize the GGN to tensor-to-tensor-to-scalar functions.
+We will spend the remaining part of this section generalizing the GGN to tensor-to-tensor-to-scalar functions.
 Note that we already generalized all ingredients (linearization from \Cref{def:tensor_linearization}, the Jacobian tensor from \Cref{def:general_jacobian}, and the Hessian tensor from \Cref{def:general_hessian}) to that scenario.
 All we have to do is put them together.
 After that, we will see a tensor case example of the GGN that will be extremely relevant for our KFAC journey.

@@ -38,7 +38,7 @@ In this approximation, $\mA^{(i)}$ is computed from the inputs to layer $i$, and
 Similarly, $\mB^{(i)}$ is computed from gradients \wrt layer $i$'s output, and we call it the \emph{grad-output-based Kronecker factor}.
 
 \subsection{Why use a Kronecker structure?}
-Having a Kronecker approximation for $\mC(\vtheta^{(i)})$ has multiple advantages and motivations, that coincide well with the block diagonal structure.
+Having a Kronecker approximation for $\mC(\vtheta^{(i)})$ has multiple advantages and motivations that coincide well with the block diagonal structure.
 
 \subsubsection{Kronecker Products Are Computationally Efficient}
 \label{sec:mem_comp_eff_kron}
@@ -119,10 +119,48 @@ Substituting this back, the curvature matrix is
              & &&(\jac_{\vtheta^{(i)}} \vx^{(i)}_n).
 \end{align*}
 
+\switchcolumn[1]*
+\begin{example}[Curvature matrix of a linear layer as sum of Kronecker products]\label{ex:curvature-matrix-sum-of-kronecker-products}
+  Let's illustrate the statement that the curvature matrix becomes a sum of Kronecker products, where one factor stems from the layers Jacobian and one from a backpropagated vector, for a linear layer with weight matrix $\mW$, and using $\cvec$ flattening.
+  Let's define the shorthand $\vg_{n,c} \coloneqq (\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c}$.
+  Then, inserting the layer's Jacobian from \Cref{ex:linear_layer_jacobians}, we get
+  \begin{align*}
+      \mC^{(i)}(\cvec \mW)
+      &= 
+      R \sum_n \sum_c
+      \left(
+      {\vx_n^{(i)}}^{\top}\!\!\! \otimes \mI
+      \right)^\top
+      \!\!\!\vg_{n,c}
+      \vg_{n,c}^\top
+      \left(
+      {\vx_n^{(i)}}^{\top} \!\!\!\otimes \mI
+      \right)
+      \\
+      &=
+      R \sum_n \sum_c
+      \left(
+      \vx_n^{(i)} \otimes \vg_{n,c}
+      \right)
+      \left(
+      {\vx_n^{(i)}}^\top \otimes \vg_{n,c}^\top
+      \right)
+      \\
+      &=
+      R \sum_n \sum_c
+      \vx_n^{(i)} {\vx_n^{(i)}}^\top
+      \otimes
+      \vg_{n,c} \vg_{n,c}^\top\,
+  \end{align*}
+  simply by using the Kronecker product's properties from \Cref{sec:mem_comp_eff_kron}.
+  This illustrates that the exact curvature matrix indeed becomes a sum of Kronecker products.
+\end{example}
+\switchcolumn[0]
+
 \paragraph{Insert the layer's Jacobian.}
-The Kronecker structure emerges naturally in the output-parameter Jacobian $\jac_{\vtheta^{(i)}} \vx_n^{(i)}$ of a layer.
-We saw this in previous chapters for a linear layer (\Cref{ex:linear_layer_jacobians}), whose Jacobian is a Kronecker product of the layer input $\vx^{(i-1)}_n$ and an identity matrix.
-Without showing the explicit expression when inserting a Jacobian (this will be part of the next chapter), we note that this reduces the \emph{exact} form of $\mC^{(i)}$ to a sum of Kronecker products.
+The Kronecker structure emerges naturally in the output-parameter Jacobian $\smash{\jac_{\vtheta^{(i)}} \vx_n^{(i)}}$ of a layer.
+We saw this in previous chapters for a linear layer (\Cref{ex:linear_layer_jacobians}), whose Jacobian is a Kronecker product of the layer input $\smash{\vx^{(i-1)}_n}$ and an identity matrix.
+Inserting the Jacobian, this reduces the \emph{exact} form of $\mC^{(i)}$ to a sum of Kronecker products (fully worked out in \Cref{ex:curvature-matrix-sum-of-kronecker-products}),
 \begin{align*}
   \mC^{(i)} = R \sum_n \sum_c \va_n \va_n^{\top} \otimes \vb_{n,c} \vb_{n,c}^{\top}
 \end{align*}
@@ -158,12 +196,12 @@ We now know enough to discuss the scaffold from \Cref{kfac/scaffold}.
 \paragraph{Step 1:} Perform a forward pass to compute $\{\vf_n\}_n $, storing the layer inputs $\{\vx_n^{(i-1)} \}_n$ and outputs $\{\vx_n^{(i)}\}_n$ of all layers $i$ whose parameter curvature matrix we want to approximate with KFAC.
 
 \paragraph{Step 2:} Compute the input-based Kronecker factors $\mA^{(i)}$ using the layer inputs $\{\vx_n^{(i-1)}\}_n$.
-The details of that will depend on the layer type and we still have to specify them in later chapters.
+The details of that will depend on the layer type, and we still have to specify them in later chapters.
 
 \paragraph{Step 3:} Generate the vectors $\{\blacktriangle_{n,c}\}_{n,c}$ to be backpropagated, and backpropagate them to the layer outputs to get the pseudo-gradients $\{(\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c} \}_{n,c}$.
 This step depends on the loss function we are using, and the curvature matrix we want to approximate (\Cref{subsec:backpropagated-vectors}).
 Finally, compute the output-based Kronecker factors $\mB^{(i)}$.
-The details will again depend on the layer type and we will specify them in later chapters.
+The details will again depend on the layer type, and we will specify them in later chapters.
 
 \paragraph{Step 4:} Account for scaling caused by the loss function's reduction $R$.
 
@@ -174,7 +212,7 @@ The next section describes how to accomplish step (ii).
 After that, we can add new KFAC implementations simply by specifying (i) and (iii) for each new layer.
 
 \subsection{Backpropagated Vectors}\label{subsec:backpropagated-vectors}
-The computational scaffold can be flexibly adapted to various curvature matrices by modifying the choice of backpropageted vectors $\blacktriangle_{n,c}$ and the reduction factor $R$.
+The computational scaffold can be flexibly adapted to various curvature matrices by modifying the choice of backpropagated vectors $\blacktriangle_{n,c}$ and the reduction factor $R$.
 This can be done by pattern-matching each curvature matrix to the general form in \Cref{eq:common-structure}.
 Below, we recap the different curvature definitions; see \Cref{subsec:curvature-matrices} for a self-contained introduction.
 \Cref{kfac/backpropagated_vectors} implements the construction of backpropagated vectors.
@@ -241,7 +279,7 @@ We identify that we only need to backpropagate a single vector per datum,
   &= \nabla_{\vf_n}  c(\vf_n, \vy_n)\,.
 \end{align*}
 It is the same vector that is backpropagated to compute the gradient.
-This means that to approximate the empirical Fisher with KFAC, we can re-cycle the backward pass from the gradient computation.
+This means that to approximate the empirical Fisher with KFAC, we can recycle the backward pass from the gradient computation.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

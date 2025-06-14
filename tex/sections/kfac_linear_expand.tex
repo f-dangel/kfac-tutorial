@@ -48,7 +48,7 @@
   \end{minipage}
   \caption{\textbf{Full curvatures and their corresponding KFAC approximation using $\cvec$-flattening}.
     All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3) and square loss.
-    For the MC-sampled Fisher we consider $M = 100$ samples.
+    For the MC-sampled Fisher, we consider $M = 100$ samples.
     This follows the setup in \Cref{fig:hessian-block-structure}.
     KFAC concatenates the weight and bias of each layer.
     Produced with \repofile{plots/synthetic_kfac}.}
@@ -64,7 +64,7 @@ This setting provides an ideal framework for understanding the core approximatio
 In the broader KFAC nomenclature (\Cref{sec:preface}), we focus on the \emph{KFAC-expand approximation}, which corresponds to the seminal method proposed by~\citet{martens2015optimizing}.
 This formulation was originally introduced for standard MLP architectures, where linear layers do not exhibit weight sharing.
 
-Other layers like convolutions and linear layers inside the attention mechanism exhibit weight sharing.
+Other layers, like convolutions and linear layers inside the attention mechanism, exhibit weight sharing.
 We deliberately exclude these aspects here and focus on linear layers without weight sharing.
 Future versions of this tutorial may include them.
 
@@ -118,7 +118,7 @@ Future versions of this tutorial may include them.
   \end{minipage}
   \caption{\textbf{Full curvatures and their corresponding KFAC approximation using $\rvec$-flattening.}
     All curvatures were evaluated on synthetic data ($N = 100$) using an MLP with three fully-connected layers and ReLU activations (5-4-4-3) and square loss.
-    For the MC-sampled Fisher we consider $M = 100$ Monte Carlo samples.
+    For the MC-sampled Fisher, we consider $M = 100$ Monte Carlo samples.
     This follows the setup in \Cref{fig:hessian-block-structure}.
     KFAC concatenates the weight and bias of each layer.
     Produced with \repofile{plots/synthetic_kfac}.}
@@ -205,7 +205,7 @@ With that, and using the Kronecker product properties from \Cref{sec:mem_comp_ef
 \switchcolumn[1]*
 \begin{example}[Motivation for KFAC's expectation approximation]
   \label{ex:just_kfac_exp_approx}
-  KFAC's expectation approximation can be derived from an optimality condition under specific assumptions to presevere a Kronecker structure.
+  KFAC's expectation approximation can be derived from an optimality condition under specific assumptions to preserve a Kronecker structure.
 
   Consider the curvature matrix
   \begin{align*}
@@ -443,7 +443,7 @@ In summary, we have
   \begin{align*}
     \mZ_n = \left( \vz_{n, 1}, \dots, \vz_{n,s} \right),
   \end{align*}
-  and the backpropagated vectors, regardless of their specifc type, are stored in the matrix
+  and the backpropagated vectors, regardless of their specific type, are stored in the matrix
   \begin{align*}
     \mG_{n, c} = (\vg_{n, c, 1}, \dots, \vg_{n, c, s}).
   \end{align*}
@@ -503,7 +503,7 @@ In summary, we have
 To verify our KFAC implementation, we need tests.
 This raises an important question: When does the approximation in \Cref{eq:expectation_approximation} become exact?
 In general, KFAC's expectation approximation becomes exact whenever one of $\{\vx_n\}$ or $\{\vg_n\}$ is data-independent, \ie, does not depend on $n$.
-There are two notable cases where this happends, one of which is relatively obvious.
+There are two notable cases where this happens, one of which is relatively obvious.
 
 \switchcolumn[1]
 \codeblock{kfac_tests/expand_mlp_batch_size_1}
@@ -521,7 +521,7 @@ Hence, we have the following
   Each layer consists of a dense (linear) transformation $f^{(l)}$ (satisfying \Cref{setup:linear_layer}) followed by a pointwise activation $\phi^{(l)}$.
   Let $\mW^{(l)}$, $\vb^{(l)}$, and $\tilde{\mW}^{(l)} = \begin{pmatrix} \mW^{(l)} & \vb^{(l)} \end{pmatrix}$ denote the weight, bias, and concatenated parameters of the dense layer $l$.
 
-  Now assume that the dataset consists of only one data point, $\sD = \{ (\vx, \vy) \}$, and we have a criterion function $c = - \log r$ which can be interpreted as negative log-likelihood.
+  Now, assume that the dataset consists of only one data point, $\sD = \{ (\vx, \vy) \}$, and we have a criterion function $c = - \log r$, which can be interpreted as negative log-likelihood.
 
   Then, KFAC-expand becomes exact for all layers $l = 1, \dots, L$ and any flattening scheme $\vec$ in the following sense:
   \begin{itemize}[leftmargin=0.5cm]
@@ -594,7 +594,7 @@ Thus, in this setting, the KFAC approximation becomes exact in the limit, as ori
   as the backpropagated vector $\blacktriangle_{n,c}$ depends on $\vf_n$ and therefore remains dependent on $n$.
 \end{test}
 
-This test is useful to prevent scaling bugs in the Kronecker factor computations.
+This test is useful for preventing scaling bugs in the Kronecker factor computations.
 Additionally, it remains valid when incorporating an independent sequence dimension $S$, \ie in the presence of weight sharing, provided that the network treats sequence elements independently.
 Although weight sharing is not of our interest in this chapter, we have already included such a slightly more general test case in \Cref{kfac_tests/expand_deep_linear_regression}.
 

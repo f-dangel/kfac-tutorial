@@ -1,5 +1,5 @@
-We consider supervised learning with a neural network $f: \gX \times \Theta \to \gF$ that maps a given input $\vx \in \gX$ from a domain $\gX$ to a prediction $f(\vx, \vtheta) \in \gF$ in a prediction space $\gF$ using parameters $\vtheta \in \Theta$ from a parameter space $\Theta$.
-Predictions are scored with a criterion function $c: \gF \times \gY \to \sR$ that compares the prediction to the true target $\vy \in \gY$ from a label space $\gY$, producing a single number called the loss on datum $(\vx, \vy)$.
+We consider supervised learning with a neural network $f\colon \gX \times \Theta \to \gF$ that maps a given input $\vx \in \gX$ from a domain $\gX$ to a prediction $f(\vx, \vtheta) \in \gF$ in a prediction space $\gF$ using parameters $\vtheta \in \Theta$ from a parameter space $\Theta$.
+Predictions are scored with a criterion function $c\colon \gF \times \gY \to \sR$ that compares the prediction to the true target $\vy \in \gY$ from a label space $\gY$, producing a single number called the loss on datum $(\vx, \vy)$.
 
 For a data set $\sD = \{(\vx_n, \vy_n) \mid n=1, \dots, N\}$ of collected labelled examples, we evaluate the per-datum criteria and accumulate them into the total loss, using an accumulation factor $R \in \sR$,
 \begin{align}\label{eq:empirical_risk}
@@ -9,11 +9,11 @@ For a data set $\sD = \{(\vx_n, \vy_n) \mid n=1, \dots, N\}$ of collected labell
                        & = R \sum_{n=1}^N c(f(\vx_n, \vtheta), \vy_n)\,.
   \end{split}
 \end{align}
-Common choices for $R$ are $\nicefrac{1}{N}, 1, \nicefrac{1}{N \dim(\gY)}$; see \cref{basics/reduction_factors} for a function that computes $R$.
+Common choices for $R$ are $\nicefrac{1}{N}, 1, \nicefrac{1}{N \dim(\gY)}$; see \Cref{basics/reduction_factors} for a function that computes $R$.
 The goal of training is to find the parameters $\vtheta$ that reduce the empirical risk $\gL_{\sD}(\vtheta)$ without overfitting to the training data.
 
 \Cref{eq:empirical_risk} disentangles `the loss' into three components: the neural network $f$, the criterion function $c$, and the reduction factor $R$.
-The most common loss functions are square loss for regression and softmax cross-entropy loss for classification.
+The most common loss functions are the square loss for regression and the softmax cross-entropy loss for classification.
 We show their criterion and reduction factors in \cref{ex:square_loss,ex:cross_entropy_loss}).
 
 \switchcolumn[1]

@@ -4,13 +4,13 @@
 
 This tutorial is meant to be self-contained.
 Therefore, we will start with an extensive introduction to KFAC-relevant concepts.
-This allows us to build the code functionality we will later need to verify our implementation.
+This allows us to build the core functionality we will later need to verify our implementation.
 
 \paragraph{Roadmap.} First, we introduce the empirical risk (`the loss', \cref{subsec:empirical-risk-minimization}) whose curvature KFAC approximates, and neural networks (\cref{subsec:deep-neural-networks}).
 One recurring theme in our discussion will be that the loss and neural net have probabilistic interpretations in most deep learning settings: Minimizing the empirical risk corresponds to maximum likelihood estimation where the neural net models a likelihood (\cref{subsec:probabilistic-interpretation}).
-Next, since curvature information is based on the Hessian which contains second-order partial derivatives, we will talk about first- and second-order derivatives, and how to compute with them using PyTorch's automatic differentiation (\cref{subsec:derivatives}).
+Next, since curvature information is based on the Hessian, which contains second-order partial derivatives, we will talk about first- and second-order derivatives, and how to compute with them using PyTorch's automatic differentiation (\cref{subsec:derivatives}).
 We conclude with an introduction to all curvature matrices relevant to our discussion (\cref{subsec:curvature-matrices}).
-These include the Hessian, generalized Gauss-Newton (GGN) matrix and different flavours of the Fisher information matrix which follows from the probabilistic interpretation from \cref{subsec:probabilistic-interpretation}.
+These include the Hessian, generalized Gauss-Newton (GGN) matrix, and different flavours of the Fisher information matrix, which follows from the probabilistic interpretation from \cref{subsec:probabilistic-interpretation}.
 
 \subsection{Empirical Risk Minimization}\label{subsec:empirical-risk-minimization}
 \input{sections/basics_empirical_risk.tex}
@@ -26,8 +26,8 @@ These include the Hessian, generalized Gauss-Newton (GGN) matrix and different f
 
 \subsection{Derivatives \& Automatic Differentiation}\label{subsec:derivatives}
 Let's talk about derivatives, which play a fundamental role in our goal to understand curvature matrices.
-All of them are based on the Hessian, which emerges in a second-order Taylor expansion, and contains the second-order derivatives.
-Here, we will build up to the Hessian, and how to compute with it using PyTorch's automatic differentiation.
+All of them are based on the Hessian, which emerges in a second-order Taylor expansion and contains the second-order derivatives.
+Here, we will build up to the Hessian and how to compute with it using PyTorch's automatic differentiation.
 For simplicity, we will fully rely on PyTorch's backpropagation and neglect other modes like forward-mode automatic differentiation.
 
 \switchcolumn[0]
@@ -49,7 +49,7 @@ For simplicity, we will fully rely on PyTorch's backpropagation and neglect othe
 \switchcolumn[0]
 \subsection{Curvature Matrices in Deep Learning}\label{subsec:curvature-matrices}
 
-We introduced Jacobians, Hessians, partial linearizations and the resulting generalized Gauss-Newton (GGN) in the language of automatic differentiation for arbitrary functions.
+We introduced Jacobians, Hessians, partial linearizations, and the resulting generalized Gauss-Newton (GGN) in the language of automatic differentiation for arbitrary functions.
 Let's switch gears and apply these concepts to deep learning.
 
 \switchcolumn[1]*
@@ -87,7 +87,7 @@ Let's switch gears and apply these concepts to deep learning.
 \end{figure}
 \switchcolumn[0]
 
-\paragraph{Parameter list/tuple format.} One new aspect we have to deal with is that ML libraries like PyTorch represent parameters as lists/tuples of variables, each of which are associated to a different layer.
+\paragraph{Parameter list/tuple format.} One new aspect we have to deal with is that ML libraries like PyTorch represent parameters as lists/tuples of variables, each of which is associated with a different layer.
 This layer structure in the parameters gives rise to a block structure in the Jacobians, Hessians (see \Cref{fig:hessian-block-structure} for an example), and GGNs.
 In the context of KFAC, we will focus on specific blocks.
 
@@ -111,7 +111,7 @@ To be able to use matrix expressions, we will often consider the concatenation o
 \end{align*}
 with $\vec \in \{ \rvec, \cvec \}$ one of the previously described flattening operations (\Cref{def:cvec,def:rvec}).
 This convention generalizes $\vec$ to handle parameters in list/tuple format by applying the original definition to each element and concatenating the results.
-In code we will still work with the list/tuple format.
+In code, we will still work with the list/tuple format.
 
 \paragraph{Recap: Empirical risk and shorthands.}
 We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ independent and identically distributed (\iid) samples.
@@ -179,8 +179,8 @@ The GGN, type-I, and type-II Fisher are all weighted sums of matrices sandwiched
       & \jac_{\vtheta}\vf_n\,.
     \end{aligned}
 \end{align*}
-In previous sections, we showed that for square loss and softmax cross-entropy the criterion function's Hessian $\hess_\vf c(\vf, \vy) = -\hess_{\vf} \log( r(\rvy = \vy \mid \vf)$ does not depend on the value of the target random variable $\rvy$!
-Therefore, the expectation in the type-II Fisher effectively disappears and we are free to set $\rvy = \vy_n$ because this does not change the Hessian.
+In previous sections, we showed that for square loss and softmax cross-entropy, the criterion function's Hessian $\hess_\vf c(\vf, \vy) = -\hess_{\vf} \log( r(\rvy = \vy \mid \vf)$ does not depend on the value of the target random variable $\rvy$!
+Therefore, the expectation in the type-II Fisher effectively disappears, and we are free to set $\rvy = \vy_n$ because this does not change the Hessian.
 This means the type-II Fisher and GGN are equivalent for these losses.
 Note that we cannot drop the expectation in the type-I Fisher, though.\footnote{This is precisely why we needed a separate definition for the Monte Carlo-approximated type-I Fisher,
   as it yields different values from the type-II Fisher even for the square and softmax cross-entropy losses.}
