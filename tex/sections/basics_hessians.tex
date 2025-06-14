@@ -4,7 +4,7 @@ For our purposes, it will be sufficient to consider the Hessian of functions pro
 Let's start with the definition of the Hessian of a vector-to-scalar function.
 
 \begin{setup}[Vector-to-scalar function]\label{setup:vector_to_scalar_function}
-  Let $\vf: \sR^A \to \sR, \va \mapsto b = f(\va)$ be a vector-to-scalar function.
+  Let $\vf\colon \sR^A \to \sR, \va \mapsto b = f(\va)$ be a vector-to-scalar function.
 \end{setup}
 
 \begin{definition}[Hessian of a vector-to-scalar function]\label{def:vector_hessian}
@@ -18,7 +18,7 @@ Let's start with the definition of the Hessian of a vector-to-scalar function.
 This definition is limited to functions with vector-valued arguments. The extension to tensor-to-scalar functions is straightforward; however, it yields a tensor that is less convenient to work with in terms of notation:
 
 \begin{setup}[Tensor-to-scalar function]\label{setup:hessians}
-  Consider a tensor-to-scalar function $f: \sR^{A_1 \times \dots \times A_N} \to \sR, \tA \mapsto b = f(\tA)$ from a rank-$N$ tensor $\tA$ into a scalar $b$.
+  Consider a tensor-to-scalar function $f\colon \sR^{A_1 \times \dots \times A_N} \to \sR, \tA \mapsto b = f(\tA)$ from a rank-$N$ tensor $\tA$ into a scalar $b$.
 \end{setup}
 
 \begin{definition}[General Hessian of a tensor-to-scalar function, \Cref{basics/hessians}]\label{def:general_hessian}
@@ -49,7 +49,7 @@ Hence, one usually works with it implicitly through matrix-vector products, whic
     [\tH_{\tA}b]_{i_1, \dots, i_N, \colored{j_1, \dots, j_N}} [\tV]_{\colored{j_1, \dots, j_N}}\,.
   \end{align*}
 \end{definition}
-For the vector case $N=1$, we have $\tV, \tA, \tH_{\tA}b \to \vv, \va, \hess_{\va}b$ and $\tU \to \vu = \hess_{\va} b$ as suggested by the name`Hessian-vector product'.
+For the vector case $N=1$, we have $\tV, \tA, \tH_{\tA}b \to \vv, \va, \hess_{\va}b$ and $\tU \to \vu = \hess_{\va} b$ as suggested by the name `Hessian-vector product'.
 
 One way to multiply by the Hessian uses the so-called Pearlmutter trick~\cite{pearlmutter1994fast}.
 It relies on the fact that multiplication with higher-order derivatives can be done by nested first-order differentiation.
@@ -90,7 +90,7 @@ In the context of KFAC, we do not care about these mixed second-order derivative
 \end{figure}
 \switchcolumn[0]
 
-\paragraph{Matricization:} For notational convenience, we will also define matricized versions of the general Hessian from \Cref{def:general_hessian}; the $\cvec$-, and $\rvec$-Hessian. Just like for the Jacobians, it does not matter whether we first flatten the function's input space then compute the Hessian, or compute the general Hessian then matricize it (\Cref{fig:commutative-diagram-hessian}).
+\paragraph{Matricization.} For notational convenience, we will also define matricized versions of the general Hessian from \Cref{def:general_hessian}; the $\cvec$-, and $\rvec$-Hessian. Just like for the Jacobians, it does not matter whether we first flatten the function's input space then compute the Hessian, or compute the general Hessian then matricize it (\Cref{fig:commutative-diagram-hessian}).
 The following definitions are consistent for both ways.
 
 \switchcolumn[1]
@@ -118,8 +118,8 @@ The following definitions are consistent for both ways.
 Whenever we consider vector-to-scalar functions, both Hessians are identical, and we thus suppress the flattening scheme and write $\hess_{\va}b$.
 
 \paragraph{Examples.}
-Let's look at important Hessian examples we will return to later in the text.
-We can use them to verify our Hessian implementation.
+Let's look at important Hessian examples we will return to later.
+We also use them to verify our Hessian implementation.
 
 \switchcolumn[1]
 \codeblock{basics/hessian_ce_loss}
@@ -160,7 +160,7 @@ We can use them to verify our Hessian implementation.
   \end{align*}
   Its Hessian \wrt $\vf$ is the identity,
   \begin{align*}
-    \hess_{\vf} \ell(\vf, \vy)
+    \hess_{\vf} c(\vf, \vy)
     =
     \mI_C\,.
   \end{align*}

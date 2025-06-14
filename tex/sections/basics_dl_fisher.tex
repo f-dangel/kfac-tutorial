@@ -44,7 +44,7 @@ with the Fisher information matrix
                &\qquad\qquad\qquad-\hess_{\vtheta} \log r(\rvy \mid f(\rvx, \vtheta))]\,.
 \end{align*}
 The expectation over the data-generating distribution's marginal $p_{\text{data}}(\rvx)$ is intractable.
-Therefore, we will replace it with the empirical distribution over our data set in the following.
+Therefore, like before, we replace it with the empirical distribution over our data set in the following.
 Following \citet{soen2024tradeoffs}, we present two forms of the Fisher: While the \emph{type-II Fisher} allows to elegantly connect the Fisher and the GGN and highlights its connection to the Hessian (a curvature matrix), the \emph{type-I Fisher} highlights that the Fisher is a gradient covariance matrix, and can therefore be computed with first-order derivatives.
 
 \paragraph{Type-II Fisher.}
@@ -98,7 +98,7 @@ To derive it, we use the property that the negative log-likelihood's Hessian equ
   = & \E_{p(\rvx, \rvy \mid \vtheta)} [
       \begin{aligned}[t]
         & (-\nabla_{\vtheta} \log p(\rvx, \rvy \mid \vtheta)) \\
-        & (-\nabla_{\vtheta} \log p(\rvx, \rvy\mid  \vtheta))^{\top}]
+        & (-\nabla_{\vtheta} \log p(\rvx, \rvy\mid  \vtheta))^{\top}].
       \end{aligned}
 \end{align*}
 Hence, we can write the Fisher as
@@ -123,7 +123,7 @@ Hence, we can write the Fisher as
     (-\nabla_{\vtheta} \log r(\rvy \mid f(\rvx, \vtheta)))
   \\
   &\qquad \qquad\qquad
-    (-\nabla_{\vtheta} \log r(\rvy \mid f(\rvx, \vtheta)))^{\top}]
+    (-\nabla_{\vtheta} \log r(\rvy \mid f(\rvx, \vtheta)))^{\top}].
 \end{align*}
 Let's apply the chain rule for the gradient, substitute the empirical distribution for $p_{\text{data}}(\rvx)$, and simplify.
 This gives the type-I Fisher
@@ -220,7 +220,7 @@ where $\tilde{\mV}_n = (\jac_{\vtheta}\vf_n)^{\top} \tilde{\mS}_n \in \sR^{D \ti
 Did you notice what we just did here?
 By stacking the negative would-be gradients into columns of a matrix, we were able to express the Fisher as the self-outer product of a matrix $\tilde{\mV}_n$.
 This notation looks very similar to the GGN's self-outer product notation.
-In fact, we can think of $\tilde{\mV}_n \in \sR^{D \times M}$ as a \emph{randomization} of $\mV_n \in \sR^{D \times C}$ which can be much smaller (depending on $M$) and therefore cheaper to compute in exchange for inaccuracy.
+In fact, we can think of $\tilde{\mV}_n \in \sR^{D \times M}$ as a \emph{randomization} of $\mV_n \in \sR^{D \times C}$ which can be much smaller (depending on $M$ and $C$) and therefore cheaper to compute in exchange for inaccuracy.
 The different self-outer product forms of curvature matrices will give rise to multiple flavours of KFAC in \Cref{sec:kfac-overview}.
 
 \paragraph{Reduction factor of the Fisher vs.\,empirical risk.}

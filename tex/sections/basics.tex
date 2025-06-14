@@ -91,7 +91,7 @@ Let's switch gears and apply these concepts to deep learning.
 This layer structure in the parameters gives rise to a block structure in the Jacobians, Hessians (see \Cref{fig:hessian-block-structure} for an example), and GGNs.
 In the context of KFAC, we will focus on specific blocks.
 
-Typically, a neural net $f(\vtheta, \vx): \Theta \times \gX \to \gF$ has parameters in list/tuple-format,
+Typically, a neural net $f(\vtheta, \vx)\colon \Theta \times \gX \to \gF$ has parameters in list/tuple-format,
 \begin{align*}
   \vtheta = (\vtheta^{(1)}, \vtheta^{(2)}, \ldots, \vtheta^{(L)}),
 \end{align*}
@@ -115,17 +115,17 @@ In code, we will still work with the list/tuple format.
 
 \paragraph{Recap: Empirical risk and shorthands.}
 We consider a data set $\sD = \{(\vx_n, \vy_n) \in \gX \times \gY \mid n = 1, \dots, N \}$ containing $N$ independent and identically distributed (\iid) samples.
-The inputs are processed by a neural net $f: \Theta \times \gX \to \gF$ and their predictions are scored with a criterion function $c: \gF \times \gY \to \sR$, like square loss (\Cref{ex:square_loss}) or softmax cross-entropy loss (\Cref{ex:cross_entropy_loss}).
-For each datum $n$, we define its prediction function $\vf_n: \Theta \to \gF, \vtheta \mapsto \vf_n(\vtheta) = f(\vtheta, \vx_n)$ and its criterion function $c_n: \gF \to \sR, \vf \mapsto c(\vf, \vy_n)$.
+The inputs are processed by a neural net $f\colon \Theta \times \gX \to \gF$ and their predictions are scored with a criterion function $c\colon \gF \times \gY \to \sR$, like square loss (\Cref{ex:square_loss}) or softmax cross-entropy loss (\Cref{ex:cross_entropy_loss}).
+For each datum $n$, we define its prediction function $\vf_n\colon \Theta \to \gF, \vtheta \mapsto \vf_n(\vtheta) = f(\vtheta, \vx_n)$ and its criterion function $c_n\colon \gF \to \sR, \vf \mapsto c(\vf, \vy_n)$.
 Combining both, we obtain the per-datum loss function (\wrt the net's parameters),
 \begin{align*}
-  (\ell_n: \Theta \to \sR) = (c_n \circ \vf_n: \Theta \to \gF \to \sR)
+  (\ell_n\colon \Theta \to \sR) = (c_n \circ \vf_n\colon \Theta \to \gF \to \sR)
 \end{align*}
 We will often use the shorthands $c_n, \vf_n, \ell_n$ for the function values (rather than functions) of the per-datum criteria, predictions, and losses.
 
 We accumulate the per-datum losses $\{\ell_1, \dots, \ell_N\}$ into a single scalar, which yields the empirical risk
 \begin{align*}
-  \gL_{\sD}: \Theta \to \sR,
+  \gL_{\sD}\colon \Theta \to \sR,
   \qquad
   \vtheta \mapsto \gL_{\sD}(\vtheta) = R \sum_{n=1}^N \ell_n(\vtheta)\,,
 \end{align*}

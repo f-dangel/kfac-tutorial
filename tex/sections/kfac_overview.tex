@@ -237,7 +237,7 @@ For common loss functions, the Type-II Fisher from \Cref{sec:fisher} coincides w
 The type-I Fisher, approximated via Monte Carlo (MC) sampling, is
 \begin{align*}
   &\begin{aligned}
-    \mF^{\text{I}}(\vtheta) = \lim_{M \to \infty} \frac{R}{M} \sum_{n=1}^N
+    \mF^{\text{I}}(\vtheta) = \lim_{M \to \infty} \frac{R}{M} \sum_{n=1}^N\sum_{m=1}^M
     &\left( \jac_{\vtheta} \vf_n\right)^{\top} \\
     &
       \begin{aligned}
@@ -260,7 +260,7 @@ In words, to approximate the Type-I Fisher with KFAC, we backpropagate $M$ `woul
 The number of Monte Carlo samples controls the number of backpropagations:
 \begin{itemize}
 \item For \emph{computational efficiency}, $M<\dim(\gF)$ makes sense because this reduces the number of backpropagations from $\dim(\gF)$ (as in the type-II case) to $M$.
-\item For \emph{practical settings} $M$ is usually set to $1$.
+\item For \emph{practical settings}, $M$ is usually set to $1$.
 \item For \emph{verification}, a larger $M$ can be used to ensure convergence to the expected value.
 \end{itemize}
 
