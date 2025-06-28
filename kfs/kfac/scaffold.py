@@ -50,7 +50,7 @@ class KFAC:
         loss_func: Union[MSELoss, CrossEntropyLoss],
         data: Tuple[Tensor, Tensor],
         fisher_type: str,
-        kfac_approx: str,
+        kfac_approx: str = "expand",
     ) -> Dict[str, Tuple[Tensor, Tensor]]:
         """Compute KFAC for all supported layers.
 
@@ -59,7 +59,10 @@ class KFAC:
             loss_func: The loss function.
             data: A batch of inputs and labels.
             fisher_type: The type of Fisher approximation.
-            kfac_approx: The type of KFAC approximation.
+            kfac_approx: The type of KFAC approximation, i.e.
+                how weight-shared axes are handled. Defaults
+                to 'expand'. This argument can be ignored in
+                the absence of weight sharing.
 
         Returns:
             A dictionary whose keys are the layer names and

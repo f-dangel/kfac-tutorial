@@ -76,9 +76,7 @@ for idx, (L, phi, c, reduction) in enumerate(
     ]
 
     # compute KFAC-type-II and compare
-    kfac = KFAC.compute(
-        model, loss_func, (X, y), "type-2", "expand"
-    )
+    kfac = KFAC.compute(model, loss_func, (X, y), "type-2")
     assert len(kfac) == len(rvec_ggn) == len(cvec_ggn) == L
     for (A, B), G_cvec, G_rvec in zip(
         kfac.values(), cvec_ggn, rvec_ggn
@@ -88,7 +86,7 @@ for idx, (L, phi, c, reduction) in enumerate(
 
     # compute KFAC-MC with large number of samples and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "mc=25_000", "expand"
+        model, loss_func, (X, y), "mc=25_000"
     )
     assert len(kfac) == len(rvec_ggn) == len(cvec_ggn) == L
     tols = {"atol": 5e-4, "rtol": 5e-2}
@@ -114,7 +112,7 @@ for idx, (L, phi, c, reduction) in enumerate(
 
     # compute KFAC-empirical and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "empirical", "expand"
+        model, loss_func, (X, y), "empirical"
     )
     assert len(kfac) == len(rvec_ef) == len(cvec_ef) == L
     for (A, B), e_cvec, e_rvec in zip(

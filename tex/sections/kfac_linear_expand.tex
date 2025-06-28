@@ -61,8 +61,7 @@ See \Cref{fig:rvec-kfac-full-comparison,fig:cvec-kfac-full-comparison} for visua
 
 Our discussion will primarily center on regression settings with deep linear networks---MLPs composed of dense layers without nonlinearities.
 This setting provides an ideal framework for understanding the core approximations behind KFAC and verifying them numerically through rigorous testing.
-In the broader KFAC nomenclature (\Cref{sec:preface}), we focus on the \emph{KFAC-expand approximation}, which corresponds to the seminal method proposed by~\citet{martens2015optimizing}.
-This formulation was originally introduced for standard MLP architectures, where linear layers do not exhibit weight sharing.
+We focus on the formulation from \citet{martens2015optimizing}, which was originally introduced for standard MLP architectures, where linear layers do not exhibit weight sharing.
 
 Other layers, like convolutions and linear layers inside the attention mechanism, exhibit weight sharing.
 We deliberately exclude these aspects here and focus on linear layers without weight sharing.
@@ -162,9 +161,9 @@ Let's formalize the layer whose curvature we approximate with KFAC in this chapt
 % \end{caveat}
 
 
-\subsection{Derivation of KFAC-expand}
+\subsection{Derivation of KFAC}
 
-We now derive the KFAC-expand approximation for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW\vx$ (\Cref{setup:linear_layer}).
+We now derive the KFAC approximation for a linear layer with weights $\mW$, input vector $\vx$, and output vector $\vz = \mW\vx$ (\Cref{setup:linear_layer}).
 Following convention in the literature, we assume column-major ($\cvec$) flattening.
 
 \paragraph{Exact curvature matrix.}
@@ -373,7 +372,7 @@ To do that, we use the so-called KFAC's expectation approximation (see \Cref{ex:
   \ie `pull' the expectation into the Kronecker factors.
 \end{definition}
 
-Applying \Cref{def:kfac_exp_approx}, we obtain the curvature matrix's KFAC-expand approximation:
+Applying \Cref{def:kfac_exp_approx}, we obtain the curvature matrix's KFAC approximation:
 \begin{align*}
   \mC&(\cvec \mW) \\
   \approx&
@@ -381,7 +380,7 @@ Applying \Cref{def:kfac_exp_approx}, we obtain the curvature matrix's KFAC-expan
            \otimes
            \underbrace{\left( \frac{1}{N} \sum_n \sum_c \vg_{n,c} \vg_{n,c}^{\top} \right)}_{\text{grad-output-based}}
   \\
-  =& \kfac_{\text{ex}}(\mC(\cvec \mW))\,.
+  =& \kfac(\mC(\cvec \mW))\,.
 \end{align*}
 
 \paragraph{Changing flattening swaps the Kronecker factors.}
@@ -395,36 +394,36 @@ we would have found the order of Kronecker factors to reverse,
            \otimes
            \left( R \sum_n \vx_n \vx_n^{\top} \right)
   \\
-  =& \kfac_{\text{ex}}(\mC(\rvec \mW))\,.
+  =& \kfac(\mC(\rvec \mW))\,.
 \end{align*}
-This is important to keep in mind for implementations of KFAC, because libraries like PyTorch use $\rvec$-flattening.
+This is important to keep in mind for KFAC implementations, as libraries like PyTorch use $\rvec$-flattening.
 In summary, we have the following:
 
 \switchcolumn[1]
 \codeblock{kfac/expand_Linear}
 \switchcolumn[0]
 
-\begin{definition}[KFAC-expand for a linear layer, \Cref{kfac/expand_Linear}]\label{def:kfac_expand_linear}
+\begin{definition}[KFAC for a linear layer without weight sharing, \Cref{kfac/expand_Linear}]\label{def:kfac_expand_linear}
   Consider a linear layer inside a neural network from \Cref{setup:linear_layer}.
-  The \emph{KFAC-expand approximation} of a curvature matrix \wrt the layer's weights is given by
+  The \emph{KFAC approximation} of a curvature matrix \wrt the layer's weights is given by
   \begin{subequations}\label{eq:kfac_expand_linear}
     \begin{align}
       \begin{split}
-        &\kfac_{\text{ex}}(\vec \mW) \approx \mC(\vec \mW)
+        &\kfac(\vec \mW) \approx \mC(\vec \mW)
         \\
         &\quad=
           \begin{cases}
-            \mA_{\text{ex}} \otimes \mB_{\text{ex}} & \vec = \cvec
+            \mA \otimes \mB & \vec = \cvec
             \\
-            \mB_{\text{ex}} \otimes \mA_{\text{ex}} & \vec = \rvec
+            \mB \otimes \mA & \vec = \rvec
           \end{cases}\,,
       \end{split}
     \end{align}
     with the input-based factor
     \begin{align}
-      \mA_{\text{ex}} &= R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top}\in \sR^{D_{\text{in}} \times D_{\text{in}}}
+      \mA &= R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top}\in \sR^{D_{\text{in}} \times D_{\text{in}}}
                         \intertext{and the output-gradient-based factor}
-                        \mB_{\text{ex}} &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}\in \sR^{D_{\text{out}} \times D_{\text{out}}}
+                        \mB &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}\in \sR^{D_{\text{out}} \times D_{\text{out}}}
     \end{align}
   \end{subequations}
   and $\vg_{n,c}$ the backpropagated vector of a curvature matrix at layer output $\vz$ given by $$\vg_{n,c} = (\jac_{\vz_{n,s}}^{\vec}\vf_n)^{\top} \blacktriangle_{n,c}\,.$$
@@ -506,14 +505,14 @@ In general, KFAC's expectation approximation becomes exact whenever one of $\{\v
 There are two notable cases where this happens, one of which is relatively obvious.
 
 \switchcolumn[1]
-\codeblock{kfac_tests/expand_mlp_batch_size_1}
+\codeblock{kfac_tests/mlp_batch_size_1}
 \switchcolumn[0]
 
 \subsubsection{Data Set Size 1}
 A particularly straightforward case occurs when summation over $n$ disappears, \ie when the dataset is only a single data point or $N$ identical data points.
 Hence, we have the following
 
-\begin{test}[KFAC-expand for linear layers in an MLP with one data point, \Cref{kfac_tests/expand_mlp_batch_size_1}]\label{test:kfac_expand_linear_no_weight_sharing_batch_size_1}
+\begin{test}[KFAC for linear layers in an MLP with one data point, \Cref{kfac_tests/mlp_batch_size_1}]\label{test:kfac_expand_linear_no_weight_sharing_batch_size_1}
   Consider a multi-layer perceptron (MLP)
   \begin{align*}
     f = \phi^{(L)} \circ f^{(L)} \circ \ldots \circ \phi^{(1)} \circ f^{(1)}\,.
@@ -523,21 +522,21 @@ Hence, we have the following
 
   Now, assume that the dataset consists of only one data point, $\sD = \{ (\vx, \vy) \}$, and we have a criterion function $c = - \log r$, which can be interpreted as negative log-likelihood.
 
-  Then, KFAC-expand becomes exact for all layers $l = 1, \dots, L$ and any flattening scheme $\vec$ in the following sense:
+  Then, KFAC becomes exact for all layers $l = 1, \dots, L$ and any flattening scheme $\vec$ in the following sense:
   \begin{itemize}[leftmargin=0.5cm]
-  \item KFAC-expand-type-II equals the GGN
+  \item KFAC-type-II equals the GGN
     \begin{align*}
-      \kfac_{\text{ex}}(\mG(\vec \tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
+      \kfac(\mG(\vec \tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
     \end{align*}
-  \item KFAC-expand-MC converges to the GGN
+  \item KFAC-MC converges to the GGN
     \begin{align*}
-      \lim_{M \to \infty} &\kfac_{\text{ex}}(\mF^{\text{I}}(\vec\tilde{\mW}^{(l)}))
+      \lim_{M \to \infty} &\kfac(\mF^{\text{I}}(\vec\tilde{\mW}^{(l)}))
       \\
                           &= \mG(\vec \tilde{\mW}^{(l)})
     \end{align*}
-  \item KFAC-expand-empirical coincides with the empirical Fisher
+  \item KFAC-empirical coincides with the empirical Fisher
     \begin{align*}
-      \kfac_{\text{ex}}(\mE(\vec\tilde{\mW}^{(l)})) = \mE(\vec \tilde{\mW}^{(l)})
+      \kfac(\mE(\vec\tilde{\mW}^{(l)})) = \mE(\vec \tilde{\mW}^{(l)})
     \end{align*}
   \end{itemize}
 \end{test}
@@ -545,7 +544,7 @@ Hence, we have the following
 This test serves as a basic functionality check for KFAC, particularly regarding the criterion function and its backpropagated vectors $\blacktriangle_{n,c}$.
 
 \switchcolumn[1]
-\codeblock{kfac_tests/expand_deep_linear_regression}
+\codeblock{kfac_tests/deep_linear_regression}
 \switchcolumn[0]
 
 \subsubsection{Regression with Deep Linear Nets}
@@ -562,7 +561,7 @@ For a square loss function, $\blacktriangle_{n,c}$ is often independent of $n$:
 Further, if all layers in the net are linear, then all prediction-intermediate Jacobians remain constant and independent of $n$.
 Thus, in this setting, the KFAC approximation becomes exact in the limit, as originally found by \citet{bernacchia2018exact}.
 
-\begin{test}[KFAC-expand for regression with a deep linear net (no nonlinear layers), \Cref{kfac_tests/expand_deep_linear_regression}]
+\begin{test}[KFAC for regression with a deep linear net (no nonlinear layers), \Cref{kfac_tests/deep_linear_regression}]
   Consider a deep linear network consisting of $L$ fully-connected layers
   \begin{align*}
     f = f^{(L)} \circ f^{(L-1)} \circ \ldots \circ f^{(1)}
@@ -571,23 +570,23 @@ Thus, in this setting, the KFAC approximation becomes exact in the limit, as ori
   Assume the network processes a vector-valued input per datum and performs regression with square loss on an arbitrary dataset $\sD = \{ (\vx_n, \vy_n) \mid n = 1, \dots, N \}$.
   Then, for each layer $l=1,\dots,L$ and any chosen flattening scheme $\vec$, the following identities hold:
   \begin{itemize}[leftmargin=0.5cm]
-  \item KFAC-expand-type-II equals the GGN
+  \item KFAC-type-II equals the GGN
     \begin{align*}
-      \kfac_{\text{ex}}(\mG(\vec \tilde{\mW}^{(l)}))
+      \kfac(\mG(\vec \tilde{\mW}^{(l)}))
       =
       \mG(\vec\tilde{\mW}^{(l)})
     \end{align*}
-  \item KFAC-expand-MC converges to the GGN
+  \item KFAC-MC converges to the GGN
     \begin{align*}
-      \lim_{M \to \infty}& \kfac_{\text{ex}}(\mF^{\text{I}}(\vec \tilde{\mW}^{(l)}))
+      \lim_{M \to \infty}& \kfac(\mF^{\text{I}}(\vec \tilde{\mW}^{(l)}))
       \\&=
       \mG(\vec \tilde{\mW}^{(l)})
     \end{align*}
 
   \end{itemize}
-  However, KFAC-expand-empirical \emph{differs} from the empirical Fisher,
+  However, KFAC-empirical \emph{differs} from the empirical Fisher,
   \begin{align*}
-    \kfac_{\text{ex}}(\mE(\vec \tilde{\mW}^{(l)}))
+    \kfac(\mE(\vec \tilde{\mW}^{(l)}))
     \neq
     \mE(\vec \tilde{\mW}^{(l)})\,,
   \end{align*}
@@ -596,7 +595,7 @@ Thus, in this setting, the KFAC approximation becomes exact in the limit, as ori
 
 This test is useful for preventing scaling bugs in the Kronecker factor computations.
 Additionally, it remains valid when incorporating an independent sequence dimension $S$, \ie in the presence of weight sharing, provided that the network treats sequence elements independently.
-Although weight sharing is not of our interest in this chapter, we have already included such a slightly more general test case in \Cref{kfac_tests/expand_deep_linear_regression}.
+Although weight sharing is not of our interest in this chapter, we have already included such a slightly more general test case in \Cref{kfac_tests/deep_linear_regression}.
 
 %%% Local Variables:
 %%% mode: latex

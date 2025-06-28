@@ -81,7 +81,7 @@ def mcfisher(
             retain_graph=True,
         )
         # mcfishervp is defined in
-        # $\text{\Cref{def:mcfishervp}}$
+        # $\text{\Cref{basics/mc_fisher_product}}$
 
     return F
 

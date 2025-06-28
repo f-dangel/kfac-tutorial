@@ -17,7 +17,8 @@ depths = [3]
 reductions = ["mean", "sum"]
 sequence_lengths = [
     1,  # no weight sharing
-    5,  # weight sharing, $\text{\Cref{sec:expand_sharing}}$
+    5,  # Note: weight sharing is not discussed yet
+    # in the tutorial, but already tested here
 ]
 
 batch_size = 6
@@ -62,9 +63,7 @@ for idx, (L, S, reduction) in enumerate(
     ]
 
     # compute KFAC type-2 and compare
-    kfac = KFAC.compute(
-        model, loss_func, (X, y), "type-2", "expand"
-    )
+    kfac = KFAC.compute(model, loss_func, (X, y), "type-2")
     assert len(rvec_ggn) == len(cvec_ggn) == L
     for (A, B), G_cvec, G_rvec in zip(
         kfac.values(), cvec_ggn, rvec_ggn
@@ -74,7 +73,7 @@ for idx, (L, S, reduction) in enumerate(
 
     # compute KFAC-MC with large number of samples and compare
     kfac = KFAC.compute(
-        model, loss_func, (X, y), "mc=25_000", "expand"
+        model, loss_func, (X, y), "mc=25_000"
     )
     assert len(kfac) == len(rvec_ggn) == len(cvec_ggn) == L
     assert len(rvec_ggn) == len(cvec_ggn) == L
