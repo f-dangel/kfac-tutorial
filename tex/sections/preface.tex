@@ -25,7 +25,7 @@ The tutorial's goals are the following:
 
   % Explain the 'A' in KFAC
 \item \textbf{[Code] Explain how to implement and test KFAC (the `A' in KFAC).}
-  Present the different flavours of KFAC, and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-expand-linear}).
+  Present the different flavours of KFAC, and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-linear}).
 \end{enumerate}
 \paragraph{Scope \& limitations:} To make this tutorial pedagogically valuable while providing a different experience than just reading the original papers introducing KFAC, we had to make certain compromises.
 Understanding and implementing KFAC in all its different variations quickly becomes daunting.
@@ -91,13 +91,13 @@ Here is a rough breakdown of the degrees of freedom:
     \\
     & $\times$
     \\
-    How should we handle weight sharing?
+    Should we discuss flavours from the presence of weight sharing?
     &
       $
       \begin{Bmatrix}
-        \text{expand}
+        \text{yes (expand and reduce)}
         \\
-        \text{reduce}
+        \text{no}
       \end{Bmatrix}
       $
   \end{tabular}
@@ -117,7 +117,7 @@ We decided to center this tutorial around the original work from~\citet{martens2
   \end{Bmatrix}
   \times
   \begin{Bmatrix}
-    \text{expand}
+    \text{no weight sharing}
   \end{Bmatrix}\,.
 \end{align*}
 However, to provide some additional value, this document aims to provide an introduction to the following flavours:
@@ -131,11 +131,11 @@ However, to provide some additional value, this document aims to provide an intr
   \end{Bmatrix}
   \times
   \begin{Bmatrix}
-    \text{Hessian}
-    \\
     \text{GGN}
     \\
-    \text{Fisher (type-I/II, empirical)}
+    \text{type-I/II Fisher}
+    \\
+    \text{empirical Fisher}
   \end{Bmatrix}
   \times
   \begin{Bmatrix}
@@ -145,7 +145,7 @@ However, to provide some additional value, this document aims to provide an intr
   \end{Bmatrix}
   \times
   \begin{Bmatrix}
-    \text{expand}
+    \text{no weight sharing}
   \end{Bmatrix}\,.
 \end{align*}
 This allows us to (i) highlight challenges when translating math to code, (ii) point out various connections between curvature matrices and KFAC, and (iii) produce a working, tested version of the original KFAC paper with slight generalizations.

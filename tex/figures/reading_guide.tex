@@ -20,7 +20,7 @@
   \draw[-{LaTeX}] (read-cheatsheet) to [out=315, in=225] node [midway, answer] {I did not understand \\ some of the concepts \\ or notation} (read-basics);
 
   \node[box, below=of scaffold] (kfac-cheatsheet) {Read KFAC cheatsheet (\cref{sec:kfac-cheatsheet})};
-  \node[box, below right=of scaffold] (kfac-details) {KFAC details (\cref{sec:kfac-expand-linear})};
+  \node[box, below right=of scaffold] (kfac-details) {KFAC details (\cref{sec:kfac-linear})};
   \draw[-{LaTeX}] (scaffold) to[out=315, in=135] node [midway, answer] {Give me all \\ the details} (kfac-details);
   \draw[-{LaTeX}] (scaffold) to[out=270, in=90] node [midway, answer] {I just want the \\ one page summary} (kfac-cheatsheet);
   \draw[-{LaTeX}] (kfac-details) to[out=270, in=0] (kfac-cheatsheet);

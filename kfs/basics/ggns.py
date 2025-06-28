@@ -21,7 +21,7 @@ def ggn(
 ) -> Tensor:
     r"""Compute the GGN of f linearized at h w.r.t. x .
 
-    See $\text{\Cref{def:vector_ggn}}$.
+    See $\text{\Cref{def:general_ggn}}$.
 
     Args:
         f: The function whose GGN is multiplied with.
@@ -61,7 +61,7 @@ def vec_ggn(
 ) -> Tensor:
     r"""Compute the GGN matrix of f linearized at h w.r.t. x.
 
-    See $\text{\Cref{def:rvec_ggn,def:cvec_ggn}}$.
+    See $\text{\Cref{def:general_ggn}}$.
 
     Args:
         f: The function whose GGN is multiplied with.

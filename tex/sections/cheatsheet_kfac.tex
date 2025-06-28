@@ -38,51 +38,51 @@
       \item Softmax cross-entropy loss: $\blacktriangle_{n,1} = \softmax(\vf_n) - \onehot(y_n)$
       \end{itemize}
     \end{itemize}
-  \item KFAC-expand for a linear layer
+  \item KFAC for a linear layer without weight sharing
     \begin{align*}
-      &\kfac_{\text{ex}}(\mC(\vec \mW)) \approx \mC(\vec \mW)
+      &\kfac(\mC(\vec \mW)) \approx \mC(\vec \mW)
       =
         \begin{cases}
-          \mA_{\text{ex}} \otimes \mB_{\text{ex}} & \vec = \cvec\,,
+          \mA \otimes \mB & \vec = \cvec\,,
           \\
-          \mB_{\text{ex}} \otimes \mA_{\text{ex}} & \vec = \rvec\,,
+          \mB \otimes \mA & \vec = \rvec\,,
         \end{cases}\,
     \end{align*}
-    with input-based factor $\mA_{\text{ex}}$ and grad-output-based factor $\mB_{\text{ex}}$, and $\vg_{n,c} = (\jac_{\vz_{n,s}}^{\vec}\vf_n)^{\top} \blacktriangle_{n,c}\,$,
+    with input-based factor $\mA$ and grad-output-based factor $\mB$, and $\vg_{n,c} = (\jac_{\vz_{n,s}}^{\vec}\vf_n)^{\top} \blacktriangle_{n,c}\,$,
     \begin{align*}
-      \mA_{\text{ex}} = R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top} \in \sR^{D_{\text{in}} \times D_{\text{in}}}, \qquad
-      \mB_{\text{ex}} &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}  \in \sR^{D_{\text{out}} \times D_{\text{out}}}
+      \mA = R \sum_{n=1}^N \vx_{n} \vx_{n}^{\top} \in \sR^{D_{\text{in}} \times D_{\text{in}}}, \qquad
+      \mB &= \frac{1}{N}\sum_{n=1}^N \sum_c \vg_{n,c} \vg_{n,c}^{\top}  \in \sR^{D_{\text{out}} \times D_{\text{out}}}
     \end{align*}
   \item Test cases
     \begin{itemize}
-      \item KFAC-expand for linear layers in an MLP (no weight sharing) and a dataset with only one datum
+      \item KFAC for linear layers in an MLP (no weight sharing) and a dataset with only one datum
         \begin{itemize}
-          \item KFAC-expand-type-II coincides with the GGN/type-II Fisher, \ie,
+          \item KFAC-type-II coincides with the GGN/type-II Fisher, \ie,
             \begin{align*}
-              \kfac_{\text{ex}}(\mG(\vec\tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
+              \kfac(\mG(\vec\tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
             \end{align*}
-          \item KFAC-expand-MC converges to the GGN, \ie,
+          \item KFAC-MC converges to the GGN, \ie,
             \begin{align*}
-              \lim_{M \to \infty} \kfac_{\text{ex}}(\mF^{\text{I}}(\vec\tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
+              \lim_{M \to \infty} \kfac(\mF^{\text{I}}(\vec\tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
             \end{align*}
-          \item KFAC-expand-empirical coincides with the empirical Fisher, \ie,
+          \item KFAC-empirical coincides with the empirical Fisher, \ie,
             \begin{align*}
-              \kfac_{\text{ex}}(\mE(\vec\tilde{\mW}^{(l)})) = \mE(\vec \tilde{\mW}^{(l)})
+              \kfac(\mE(\vec\tilde{\mW}^{(l)})) = \mE(\vec \tilde{\mW}^{(l)})
             \end{align*}
         \end{itemize}
-      \item KFAC-expand for regression with a deep linear network (no weight sharing and no nonlinear layers)
+      \item KFAC for regression with a deep linear network (no weight sharing and no nonlinear layers)
         \begin{itemize}
-          \item KFAC-expand-type-II coincides with the GGN/type-II Fisher, \ie,
+          \item KFAC-type-II coincides with the GGN/type-II Fisher, \ie,
             \begin{align*}
-              \kfac_{\text{ex}}(\mG(\vec \tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
+              \kfac(\mG(\vec \tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})
             \end{align*}
-          \item KFAC-expand-MC converges to the GGN as $M\rightarrow\infty$, \ie,
+          \item KFAC-MC converges to the GGN as $M\rightarrow\infty$, \ie,
             \begin{align*}
-              \lim_{M \to \infty} \kfac_{\text{ex}}(\mF^{\text{I}}(\vec \tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})\,.
+              \lim_{M \to \infty} \kfac(\mF^{\text{I}}(\vec \tilde{\mW}^{(l)})) = \mG(\vec \tilde{\mW}^{(l)})\,.
             \end{align*}
-          \item KFAC-expand-empirical does \emph{not} equal the empirical Fisher, \ie,
+          \item KFAC-empirical does \emph{not} equal the empirical Fisher, \ie,
             \begin{align*}
-              \kfac_{\text{ex}}(\vec \tilde{\mW}^{(l)})
+              \kfac(\vec \tilde{\mW}^{(l)})
               \neq
               \mE(\vec \tilde{\mW}^{(l)})\,.
             \end{align*}

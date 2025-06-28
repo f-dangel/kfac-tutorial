@@ -10,7 +10,7 @@ Here, we discuss the components.
 In this section, we start from the general form of relevant curvature matrices, discuss how their structure enables a Kronecker-factored approximation, and introduce the core components of KFAC.
 This scaffold---accompanied by the code snippets on the right---serves as the foundation for a systematic implementation, offering intuition on how Kronecker factors are computed and why such a decomposition is beneficial.
 We keep the discussion general and highlight how to adapt the code to approximate any curvature matrix introduced in the previous section.
-The next section (\Cref{sec:kfac-expand-linear}) will focus on the specific case of KFAC for the generalized Gauss-Newton (GGN) of linear layers.
+The next section (\Cref{sec:kfac-linear}) will focus on the specific case of KFAC for the generalized Gauss-Newton (GGN) of linear layers.
 
 \paragraph{Curvature matrix structure.} Many relevant matrices---like the GGN, the type-I, type-II, and empirical Fisher---share a common structure
 \begin{align}\label{eq:common-structure}
@@ -126,7 +126,7 @@ Substituting this back, the curvature matrix is
   Then, inserting the layer's Jacobian from \Cref{ex:linear_layer_jacobians}, we get
   \begin{align*}
       \mC^{(i)}(\cvec \mW)
-      &= 
+      &=
       R \sum_n \sum_c
       \left(
       {\vx_n^{(i)}}^{\top}\!\!\! \otimes \mI
