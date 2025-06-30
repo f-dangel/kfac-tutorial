@@ -122,35 +122,35 @@ Substituting this back, the curvature matrix is
 \switchcolumn[1]*
 \begin{example}[Curvature matrix of a linear layer as sum of Kronecker products]\label{ex:curvature-matrix-sum-of-kronecker-products}
   Let's illustrate the statement that the curvature matrix becomes a sum of Kronecker products, where one factor stems from the layers Jacobian and one from a backpropagated vector, for a linear layer with weight matrix $\mW$, and using $\cvec$ flattening.
-  Let's define the shorthand $\vg_{n,c} \coloneqq (\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c}$.
+  Let's define the shorthand $\vg_{n,c}^{{(i)}} \coloneqq (\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c}$.
   Then, inserting the layer's Jacobian from \Cref{ex:linear_layer_jacobians}, we get
   \begin{align*}
       \mC^{(i)}(\cvec \mW)
       &=
-      R \sum_n \sum_c
+      R \sum_{n,c}
       \left(
-      {\vx_n^{(i)}}^{\top}\!\!\! \otimes \mI
+      {\vx_n^{(i-1)}}^{\top}\!\!\! \otimes \mI
       \right)^\top
-      \!\!\!\vg_{n,c}
-      \vg_{n,c}^\top
+      \!\!\!\vg_{n,c}^{(i)}
+      {\vg_{n,c}^{(i)}}^\top
       \left(
-      {\vx_n^{(i)}}^{\top} \!\!\!\otimes \mI
+      {\vx_n^{(i-1)}}^{\top} \!\!\!\otimes \mI
+      \right)\!\!
+      \\
+      &=
+      R \sum_{n,c}
+      \left(
+      \vx_n^{(i-1)} \otimes \vg_{n,c}^{(i)}
+      \right)
+      \left(
+      {\vx_n^{(i-1)}}^\top \otimes {\vg_{n,c}^{(i)}}^\top
       \right)
       \\
       &=
-      R \sum_n \sum_c
-      \left(
-      \vx_n^{(i)} \otimes \vg_{n,c}
-      \right)
-      \left(
-      {\vx_n^{(i)}}^\top \otimes \vg_{n,c}^\top
-      \right)
-      \\
-      &=
-      R \sum_n \sum_c
-      \vx_n^{(i)} {\vx_n^{(i)}}^\top
+      R \sum_{n,c}
+      \vx_n^{(i-1)} {\vx_n^{(i-1)}}^\top
       \otimes
-      \vg_{n,c} \vg_{n,c}^\top\,
+      \vg_{n,c}^{(i)} {\vg_{n,c}^{(i)}}^\top\,
   \end{align*}
   simply by using the Kronecker product's properties from \Cref{sec:mem_comp_eff_kron}.
   This illustrates that the exact curvature matrix indeed becomes a sum of Kronecker products.
@@ -158,13 +158,13 @@ Substituting this back, the curvature matrix is
 \switchcolumn[0]
 
 \paragraph{Insert the layer's Jacobian.}
-The Kronecker structure emerges naturally in the output-parameter Jacobian $\smash{\jac_{\vtheta^{(i)}} \vx_n^{(i)}}$ of a layer.
+The Kronecker structure emerges naturally in the output-parameter Jacobian $\smash{\jac_{\vtheta^{(i)}} \vx_n^{(i-1)}}$ of a layer.
 We saw this in previous chapters for a linear layer (\Cref{ex:linear_layer_jacobians}), whose Jacobian is a Kronecker product of the layer input $\smash{\vx^{(i-1)}_n}$ and an identity matrix.
 Inserting the Jacobian, this reduces the \emph{exact} form of $\mC^{(i)}$ to a sum of Kronecker products (fully worked out in \Cref{ex:curvature-matrix-sum-of-kronecker-products}),
 \begin{align*}
   \mC^{(i)} = R \sum_n \sum_c \va_n \va_n^{\top} \otimes \vb_{n,c} \vb_{n,c}^{\top}
 \end{align*}
-where $\va_n$ stems from the layer's Jacobian, \ie the layer's input, and $\vb_{n,c}$ stems from the vector $\blacktriangle_{n,c}$ that is backpropagated to the layer's output by applying the Jacobian $(\jac_{\vx_n^{(i)}} \vf_n)^{\top}$.
+where $\va_n$ stems from the layer's Jacobian, \ie the layer's input $\vx_n^{(i-1)}$, and $\vb_{n,c}$ stems from the vector $\blacktriangle_{n,c}$ that is backpropagated to the layer's output by applying the Jacobian $(\jac_{\vx_n^{(i)}} \vf_n)^{\top}$.
 
 Our remaining steps are (i) to specify what $\va_n$ and $\vb_{n,c}$ are, which will depend on the curvature matrix we want to approximate (\Cref{subsec:backpropagated-vectors}), and (ii) how to approximate the sum of Kronecker products as a single Kronecker product (KFAC's expectation approximation, \Cref{def:kfac_exp_approx}).
 
@@ -180,7 +180,7 @@ As we will see, we can interpret $(\jac_{\vtheta^{(i)}} \vx_n^{(i)})^{\top} \bla
 In fact, setting
 $$\blacktriangle_{n,c} \leftarrow \nabla_{\vf_n} c(\vf_n, \vy_n)\,$$
 we obtain
-$$(\jac_{\vtheta^{(i)}} \vx_n^{(i)})^{\top} \blacktriangle_{n,c} = \nabla_{\vx_n^{(i)}} c(\vf_n, \vy_n),$$
+$$(\jac_{\vx_n^{(i)}} \vf_n)^{\top} \blacktriangle_{n,c} = \nabla_{\vx_n^{(i)}} c(\vf_n, \vy_n),$$
 which is the per-datum loss gradient with respect to layer $i$'s output.
 In summary, we identify the following dependencies of the Kronecker factors $\mA^{(i)}$ and $\mB^{(i)}$, justifying their names:
 \begin{align*}
@@ -205,7 +205,7 @@ The details will again depend on the layer type, and we will specify them in lat
 
 \paragraph{Step 4:} Account for scaling caused by the loss function's reduction $R$.
 
-\paragraph{Step 5:} Return the KFAC approximation in the form $\mA^{(i)}, \mB^{(i)}$ for all supported $i$.
+\paragraph{Step 5:} Return the KFAC approximation in the form $\mA^{(i)}, \mB^{(i)}$ for all supported layers $i$.
 
 In summary, the scaffold disentangles the task of computing KFAC into three components: (i) computing the input-based Kronecker factors, (ii) generating and backpropagating the vectors $\blacktriangle_{n,c}$, and (iii) computing the grad-output-based Kronecker factors.
 The next section describes how to accomplish step (ii).
@@ -225,7 +225,7 @@ Below, we recap the different curvature definitions; see \Cref{subsec:curvature-
   \right]
   \left[\jac_{\vtheta} \vf_n\right]\,.
 \end{align*}
-Using the symmetric decomposition
+With the symmetric decomposition (\Cref{subsec:curvature-ggn})
 $$\mS_n \mS_n^{\top} = \hess_{\vf_n} c(\vf_n, \vy_n),$$ we identify for the backpropagated vector
 \begin{align*}
   \blacktriangle_{n,c} = [\mS_n]_{:,c}.

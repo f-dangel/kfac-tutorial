@@ -20,7 +20,7 @@ class KFAC:
 
     Note:
         This class defines a scaffold for computing KFAC.
-        We will register develop and register the
+        We will develop and register the
         functionality to support many different flavours
         in the following chapters. Import this class via
         `from kfs.kfac import KFAC` to use it with full
