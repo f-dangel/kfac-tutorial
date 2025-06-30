@@ -1,11 +1,11 @@
 Building up to curvature approximations that tackle the approximation of second-order partial derivatives, we start with first-order derivatives.
 These are collected into a matrix called the Jacobian, which depends on the flattening convention.
 We can multiply with the Jacobian and its transpose via automatic differentiation, without building up the matrix in memory.
-These operations are called vector-Jacobian products (VJPs) and Jacobian-vector products (JVPs), respectively.
+These operations are called Jacobian-vector products (JVPs) and vector-Jacobian products (VJPs), respectively.
 
 Machine learning libraries like JAX and PyTorch offer routines for computing Jacobians, VJPs, and JVPs.
 However, their interface is functional.
-Here, we provide an alternative implementation that accepts nodes of a computation graph rather than functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
+Here, we provide an alternative implementation that accepts nodes of an evaluated computation graph rather than un-evaluated functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
 We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, \ie a linear layer.
 These Jacobians exhibit a Kronecker structure, which is the foundation for the `K' in KFAC.
 We verify this structure numerically and observe how the flattening convention affects it.
@@ -73,7 +73,7 @@ The other relevant contraction is between the Jacobian and a vector from the inp
   \end{align*}
 \end{definition}
 For the vector case, $\tU, \tV, \tJ_{\tA}\tB \to \vu, \vv, \jac_{\va}\vb$, the JVP is $\vu = (\jac_{\va}\vb) \vv$, as suggested by its name.
-JVPs are common in forward-mode automatic differentiation ($\tU$ is often called the \emph{pushforward} of $\tV$ through $f$).
+JVPs are common in forward-mode automatic differentiation ($\tU$ is often called the \emph{push-forward} of $\tV$ through $f$).
 Only recently has this mode garnered attention.
 The current JVP functionality in ML libraries usually follows a functional API.
 To obtain an implementation that accepts variables from a computation graph and is more compatible with the modular approach we chose in this tutorial, we can use a trick that implements a JVP using two VJPs \cite{townsend2017new}.
@@ -114,9 +114,9 @@ To obtain an implementation that accepts variables from a computation graph and 
 Jacobian products are efficient, but somewhat abstract to work with, as we cannot `touch' the full tensor.
 Often, we would also like to think about this tensor as a matrix to be able to present derivations in linear algebra notation.
 
-We can reduce the general Jacobian tensor back to the Jacobian matrix in two different ways: We can either (i) directly matricize the tensor, or (ii) `flatten' the function $f \to f^{\vec}$ such that it consumes and produces vectors, then compute its Jacobian.
+We can reduce the general Jacobian tensor back to the Jacobian matrix in two different ways: We can either (i) directly matricize the tensor, or (ii) `flatten' the function $f \to f^{\vec}$ such that it consumes and produces vectors instead of tensors, then compute its Jacobian.
 Both ways and their resulting Jacobian matrices depend on the flattening convention we choose.
-The following definitions are consistent in the sense that both of the aforementioned approaches yield the same result, illustrated by this commutative diagram in \cref{fig:commutative-diagram-jacobian}.
+The following definitions are consistent in the sense that both of the aforementioned approaches yield the same result, illustrated by the commutative diagram in \cref{fig:commutative-diagram-jacobian}.
 
 
 \switchcolumn[1]
@@ -128,7 +128,7 @@ The $\cvec$-Jacobian is used in mathematical derivations in the literature.
 The $\rvec$-Jacobian is common in code.
 
 \begin{definition}[$\cvec$-Jacobian, \Cref{basics/jacobians}]\label{def:cvec_jacobian}
-  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{A_N \cdots A_1 \times B_M \cdots B_1}$ is attained by flattening the input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
+  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\cvec$-Jacobian $\jac^{\cvec}_{\tA}\tB \in \sR^{(B_1 \cdots B_M) \times (A_1 \cdots A_N)}$ is attained by flattening the input and output tensors with $\cvec$ and applying the Jacobian definition for vectors,
   \begin{align*}
     [\jac^{\cvec}_{\tA}\tB]_{i,j}
     =
@@ -137,7 +137,7 @@ The $\rvec$-Jacobian is common in code.
 \end{definition}
 
 \begin{definition}[$\rvec$-Jacobian, \Cref{basics/jacobians}]\label{def:rvec_jacobian}
-  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\rvec$-Jacobian $\jac^{\rvec}_{\tA}\tB \in \sR^{A_1 \cdots A_N \times B_1 \cdots B_M}$ is attained by flattening the input and output tensors with $\rvec$ and applying the Jacobian definition for vectors,
+  For a tensor-to-tensor function $f$ from \Cref{setup:jacobians}, its $\rvec$-Jacobian $\jac^{\rvec}_{\tA}\tB \in \sR^{(B_M \cdots B_1) \times (A_N \cdots A_1)}$ is attained by flattening the input and output tensors with $\rvec$ and applying the Jacobian definition for vectors,
   \begin{align*}
     [\jac^{\rvec}_{\tA}\tB]_{i,j}
     =
@@ -146,14 +146,14 @@ The $\rvec$-Jacobian is common in code.
 \end{definition}
 
 \paragraph{Example.} The two Jacobians usually differ from each other, albeit in subtle ways.
-We highlight their differences on a linear layer, which will be useful later on when we discuss KFAC (\Cref{ex:linear_layer_jacobians}, numerically verified in \cref{basics/jacobians_linear_layer}).
+We highlight their differences on a linear layer, which will be useful later on when we discuss KFAC (\Cref{ex:linear_layer_jacobians}, numerically verified in \Cref{basics/jacobians_linear_layer}).
 This example reveals two insights:
 \begin{itemize}
-\item There is a Kronecker structure in the linear layers' Jacobian \wrt its weight.
+\item There is a Kronecker structure in the linear layer's Jacobian \wrt its weight.
   This structure is the foundation for the `K' in KFAC.
 
 \item The order of Kronecker factors is reversed depending on the flattening scheme.
-  Therefore, we need to be careful when translating results from one convention to the other.
+  Therefore, we need to be careful when translating results from one flattening convention to the other.
 \end{itemize}
 
 \switchcolumn[1]

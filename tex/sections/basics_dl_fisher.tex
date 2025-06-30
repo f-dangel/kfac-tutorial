@@ -35,7 +35,7 @@ The curvature matrix in that Taylor series is the Fisher,
 with the Fisher information matrix
 \begin{align*}
   \mF(\vtheta) &\coloneqq \E_{p(\rvx, \rvy \mid \vtheta)} [-\hess_{\vtheta} \log p(\rvx, \rvy \mid \vtheta)]\,.
-                 \shortintertext{Let's rewrite this expression in terms of the likelihood $p(\rvy \mid \vx, \vtheta)$, and its reparameterized likelihood $r(\rvy \mid f(\rvx, \vtheta))$ with the neural net prediction,}
+                 \intertext{Let's rewrite this expression in terms of the likelihood $p(\rvy \mid \vx, \vtheta)$, and its reparameterized likelihood $r(\rvy \mid f(\rvx, \vtheta))$ with the neural net prediction,}
   &= \E_{p_{\text{data}}(\rvx)}\E_{p(\rvy \mid \rvx, \vtheta)} [-\hess_{\vtheta} \log p(\rvy \mid \rvx, \vtheta)]
   \\
                &=
@@ -69,7 +69,7 @@ This yields the type-II Fisher information matrix (because it is defined via sec
       & \left( -\hess_{\vf_n} \log r(\rvy \mid \vf_n)  \right) \\
       & \jac_{\vtheta} \vf_n ]\,
     \end{aligned}
-    \shortintertext{and, as Jacobians do not depend on $\rvy$,}
+    \shortintertext{and, as the Jacobians do not depend on $\rvy$,}
   & = \frac{1}{N} \sum_n
     \begin{aligned}[t]
       & {\jac_{\vtheta} \vf_n}^{\top} \\

@@ -4,7 +4,7 @@ For our purposes, it will be sufficient to consider the Hessian of functions pro
 Let's start with the definition of the Hessian of a vector-to-scalar function.
 
 \begin{setup}[Vector-to-scalar function]\label{setup:vector_to_scalar_function}
-  Let $\vf\colon \sR^A \to \sR, \va \mapsto b = f(\va)$ be a vector-to-scalar function.
+  Let $f\colon \sR^A \to \sR, \va \mapsto b = f(\va)$ be a vector-to-scalar function.
 \end{setup}
 
 \begin{definition}[Hessian of a vector-to-scalar function]\label{def:vector_hessian}
@@ -56,7 +56,7 @@ It relies on the fact that multiplication with higher-order derivatives can be d
 Hence, multiplication with the Hessian can be done with two VJPs (\Cref{basics/hessian_product}).
 In fact, this snippet implements a slightly more general Hessian that can handle differentiating twice \wrt \emph{different}, in contrast to the same, arguments.
 It is not essential for understanding KFAC, and we will only use it to visualize curvature matrices in \Cref{subsec:curvature-matrices}.
-In the context of KFAC, we do not care about these mixed second-order derivatives.
+In the context of KFAC, we do not care about these mixed-layer derivatives.
 
 \switchcolumn[1]
 \begin{figure}[!h]
@@ -98,7 +98,7 @@ The following definitions are consistent for both ways.
 \switchcolumn[0]
 
 \begin{definition}[$\cvec$-Hessian, \Cref{basics/hessians}]\label{def:cvec_hessian}
-  For a tensor-to-scalar function $f$ from \Cref{setup:hessians}, the $\cvec$-Hessian $\hess_{\tA}^{\cvec}b \in \sR^{A_N \cdots A_1 \times A_N \cdots A_1}$ results from flattening the input tensor with $\cvec$ and applying the Hessian from \Cref{def:vector_hessian},
+  For a tensor-to-scalar function $f$ from \Cref{setup:hessians}, the $\cvec$-Hessian $\hess_{\tA}^{\cvec}b \in \sR^{(A_N \cdots A_1) \times (A_N \cdots A_1)}$ results from flattening the input tensor with $\cvec$ and applying the Hessian from \Cref{def:vector_hessian},
   \begin{align*}
     [\hess^{\cvec}_{\tA}b]_{i, j}
      & =
@@ -107,7 +107,7 @@ The following definitions are consistent for both ways.
 \end{definition}
 
 \begin{definition}[$\rvec$-Hessian, \Cref{basics/hessians}]\label{def:rvec_hessian}
-  For a tensor-to-scalar function $f$ from \Cref{setup:hessians}, the $\rvec$-Hessian $\hess_{\tA}^{\rvec}b \in \sR^{A_1 \cdots A_N \times A_1 \cdots A_N}$ results from flattening the input tensor with $\rvec$ and applying the Hessian from \Cref{def:vector_hessian},
+  For a tensor-to-scalar function $f$ from \Cref{setup:hessians}, the $\rvec$-Hessian $\hess_{\tA}^{\rvec}b \in \sR^{(A_1 \cdots A_N) \times (A_1 \cdots A_N)}$ results from flattening the input tensor with $\rvec$ and applying the Hessian from \Cref{def:vector_hessian},
   \begin{align*}
     [\hess^{\rvec}_{\tA}b]_{i, j}
      & =
@@ -119,7 +119,7 @@ Whenever we consider vector-to-scalar functions, both Hessians are identical, an
 
 \paragraph{Examples.}
 Let's look at important Hessian examples we will return to later.
-We also use them to verify our Hessian implementation.
+We also use them to verify our Hessian and HVP implementations.
 
 \switchcolumn[1]
 \codeblock{basics/hessian_ce_loss}
@@ -156,7 +156,7 @@ We also use them to verify our Hessian implementation.
     \right\rVert^2
     \\
      & =
-    \frac{1}{2}(\vf - \vy)^{\top} \mI (\vf - \vy)\,.
+    \frac{1}{2}(\vf - \vy)^{\top} \mI_C (\vf - \vy)\,.
   \end{align*}
   Its Hessian \wrt $\vf$ is the identity,
   \begin{align*}

@@ -1,8 +1,8 @@
 \paragraph{Relevance.} Kronecker-factored approximate curvature (KFAC) is arguably one of the most prominent curvature approximations in deep learning.
 Its applications range from optimization~\cite{martens2015optimizing,grosse2016kroneckerfactored,eschenhagen2023kroneckerfactored,benzing2022gradient,petersen2023isaac} to Bayesian deep learning~\cite{daxberger2021laplace}, training data attribution with influence functions~\cite{grosse2023studying,bae2024training}, and model pruning~\cite{wang2019eigendamage} and merging~\cite{tam2024merging}.
 The intuition behind KFAC is easy to understand: it approximates curvature information in the form of Kronecker-factored matrices that are both cheap to store and compute with.
-There exist several packages that compute KFAC~\cite{botev2022kfac-jax,dangel2020backpack,osawa2023asdl}.
-However, the details of these implementations are often not well-documented, making them hard to extend, \eg\,adding support for new layers, or adding features like eigenvalue correction~\cite{george2018fast}.
+There exist several packages that compute KFAC~\cite{botev2022kfac-jax,dangel2020backpack,osawa2023asdl,grosse2023studying}.
+However, their details are often undocumented, making them hard to extend, \eg adding support for new layers, or adding features like eigenvalue correction~\cite{george2018fast}.
 We claim that achieving a bug-free KFAC implementation is non-trivial, and our understanding is still evolving.
 
 \paragraph{Goals.}
@@ -13,22 +13,20 @@ The tutorial's goals are the following:
 \begin{enumerate}
   % Explain the 'C' in KFAC
 \item \textbf{[Basics] Provide a self-contained introduction to curvature matrices (the `C' in KFAC).}
-  To understand KFAC, we first need to understand the objects it aims to approximate, namely, curvature matrices of neural network loss functions.
+  To understand KFAC, we first need to understand the objects it aims to approximate, namely curvature matrices of neural network loss functions.
   These curvature matrices are all based on the Hessian, which gives rise to the curvature if we Taylor-expand the loss up to quadratic order.
   We will introduce common approximations of the Hessian, like the generalized Gauss-Newton (GGN), Fisher, and empirical Fisher (EF), and how to work with them through autodiff (\cref{sec:basics}).
-  This establishes the basis of our tutorial and serves as a foundation to test our KFAC implementation.
-  See \cref{sec:cheatsheet-basics} for a compact summary.
+  This establishes the basis of our tutorial and serves as foundation to test our KFAC implementation (\cref{sec:cheatsheet-basics} shows a compact summary).
 
   % Explain the 'KF' in KFAC
 \item \textbf{[Intuition] Show how Kronecker products naturally emerge in curvature matrices (the `KF' in KFAC).}
-  Doing so provides a motivation for using Kronecker-factorization as a `natural' structure to approximate it, which is what KFAC does (\cref{sec:kfac-overview}).
+  Doing so motivates Kronecker products as a `natural' structure to approximate curvature, which is what KFAC does (\cref{sec:kfac-overview}).
 
   % Explain the 'A' in KFAC
 \item \textbf{[Code] Explain how to implement and test KFAC (the `A' in KFAC).}
-  Present the different flavours of KFAC, and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-linear}).
+  Present the different flavours of KFAC and show how they are related to the curvature matrices, which allows them to be tested (\cref{sec:kfac-linear}).
 \end{enumerate}
-\paragraph{Scope \& limitations:} To make this tutorial pedagogically valuable while providing a different experience than just reading the original papers introducing KFAC, we had to make certain compromises.
-Understanding and implementing KFAC in all its different variations quickly becomes daunting.
+\paragraph{Scope \& limitations.} To make this tutorial pedagogically valuable while providing a different experience than just reading the original papers introducing KFAC, we had to make compromises, as understanding and implementing KFAC in all its different variations quickly becomes daunting.
 Here is a rough breakdown of the degrees of freedom:
 \begin{center}
 

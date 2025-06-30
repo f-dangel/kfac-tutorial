@@ -43,9 +43,9 @@ This turns risk minimization into a tractable task:
 \end{align*}
 We have thus shown that empirical risk minimization is minimizing a (scaled) expectation of the criterion $c$ over an empirical density $p_{\sD}(\rvx, \rvy)$.
 
-\paragraph{The neural net parameterizes a likelihood.}
+\paragraph{Neural nets parameterize likelihoods.}
 Let's approach this from a probabilistic perspective now.
-Assume we want to learn $p_{\text{data}}(\rvx, \rvy) = p_{\text{data}}(\rvy \mid \rvx) p_{\text{data}}(\vx)$ using a parameterized density of the form $p(\rvx, \rvy \mid \vtheta) = p(\rvy \mid \rvx, \vtheta) p_{\text{data}}(\rvx)$ where $p_{\text{data}}(\rvx) = \int p_{\text{data}}(\rvx, \rvy)\ \mathrm{d}\rvy$ is the marginal density of the input data.
+Assume we want to learn $p_{\text{data}}(\rvx, \rvy) = p_{\text{data}}(\rvy \mid \rvx) p_{\text{data}}(\rvx)$ using a parameterized density of the form $p(\rvx, \rvy \mid \vtheta) = p(\rvy \mid \rvx, \vtheta) p_{\text{data}}(\rvx)$ where $p_{\text{data}}(\rvx) = \int p_{\text{data}}(\rvx, \rvy)\ \mathrm{d}\rvy$ is the marginal density of the input data.
 Note that we only model the likelihood of the labels with parameters $\vtheta$.
 
 One plausible approach to make $p$ resemble $p_{\text{data}}$ is to minimize their KL divergence,
@@ -105,8 +105,8 @@ This will be useful when we define the Fisher information matrix (\cref{sec:fish
   \end{align*}
 \end{example}
 
-\begin{example}[Probabilistic interpretation of cross-entropy loss]\label{ex:cross_entropy_loss_probabilistic}
-  For cross-entropy loss from \Cref{ex:cross_entropy_loss}, we have that $c(\vf, y) = - \log( \gC(\ry \mid \vsigma = \softmax(\vf) ))$ where $\gC(\bullet \mid \vsigma)$ is a categorical distribution over $\{1, \dots, C\}$ with probabilities $\vsigma \in \sR^C_{\ge 0}$ and $\vsigma^\top \vone = 1$,
+\begin{example}[Probabilistic interpretation of softmax cross-entropy loss]\label{ex:cross_entropy_loss_probabilistic}
+  For softmax cross-entropy loss from \Cref{ex:cross_entropy_loss}, we have that $c(\vf, y) = - \log( \gC(\ry \mid \vsigma = \softmax(\vf) ))$ where $\gC(\bullet \mid \vsigma)$ is a categorical distribution over $\{1, \dots, C\}$ with probabilities $\vsigma \in \sR^C_{\ge 0}$ and $\vsigma^\top \vone = 1$,
   \begin{align*}
     \gC(\ry \mid \vsigma)
     =
