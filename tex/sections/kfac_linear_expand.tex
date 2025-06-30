@@ -238,7 +238,7 @@ With that, and using the Kronecker product properties from \Cref{sec:mem_comp_ef
   \begin{align*}
     \mC = R (\mX \otimes \mI_{D_{\text{out}}}) \cvec(\mG) \cvec(\mG)^{\top}(\mX^{\top} \otimes \mI_{D_{\text{out}}}).
   \end{align*}
-  Looking at this expression, we realize that an easy way to achieve a single Kronecker product is if approximated $\cvec(\mG) \cvec(\mG)^{\top} \approx \mI_{D_{\text{in}}} \otimes \mB$ with $\mB \in \sR^{D_{\text{out}}\times D_{\text{out}}}$.
+  Looking at this expression, we realize that an easy way to achieve a single Kronecker product is to approximate $\cvec(\mG) \cvec(\mG)^{\top} \approx \mI_{D_{\text{in}}} \otimes \mB$ with $\mB \in \sR^{D_{\text{out}}\times D_{\text{out}}}$.
   Then we would have
   \begin{align*}
     \mC
@@ -384,7 +384,7 @@ Applying \Cref{def:kfac_exp_approx}, we obtain the curvature matrix's KFAC appro
 \end{align*}
 
 \paragraph{Changing flattening swaps the Kronecker factors.}
-Had we done the same derivation using $\rvec$-flattening scheme where the output-parameter Jacobian takes the form (\Cref{ex:linear_layer_jacobians})
+Had we done the same derivation using the $\rvec$-flattening scheme where the output-parameter Jacobian takes the form (\Cref{ex:linear_layer_jacobians})
 $$ \jac^{\rvec}_{\mW}\vz_n = \mI_{D_{\text{out}}} \otimes \vx_n^{\top}\,,$$
 we would have found the order of Kronecker factors to reverse,
 \begin{align*}
@@ -501,7 +501,7 @@ In summary, we have the following:
 
 To verify our KFAC implementation, we need tests.
 This raises an important question: When does the approximation in \Cref{eq:expectation_approximation} become exact?
-In general, KFAC's expectation approximation becomes exact whenever one of $\{\vx_n\}$ or $\{\vg_n\}$ is data-independent, \ie, does not depend on $n$.
+In general, KFAC's expectation approximation becomes exact whenever one of $\{\vx_n\}_n$ or $\{\vg_{n,c}\}_{n,c}$ is data-independent, \ie, does not depend on $n$.
 There are two notable cases where this happens, one of which is relatively obvious.
 
 \switchcolumn[1]

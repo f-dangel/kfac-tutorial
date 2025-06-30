@@ -13,7 +13,7 @@
     (\jac_{\vtheta^{(i)}} \vf_n)^{\top}
     \left[ \bullet(\vf_n, \vy_n) \right]
     (\jac_{\vtheta^{(i)}} \vf_n)$
-    \item $\bullet(\vf_n, \vy_n) = \sum_{c=1}^{\dim(\gF)} \blacktriangle_c(\vf_n, \vy_n) (\blacktriangle_c(\vf_n, \vy_n))^{\top}$ \quad (which together with $R$ depends on $\mC$)
+    \item $\bullet(\vf_n, \vy_n) = \sum_{c=1}^{\dim(\gF)} \blacktriangle_c(\vf_n, \vy_n) (\blacktriangle_c(\vf_n, \vy_n))^{\top}$ \quad (depends on curvature type $\mC$)
     \item $\mA^{(i)} = \mA^{(i)}( \{\vx_{n}^{(i-1)}\}_n )$ \quad (input-based factor)
     \item $\mB^{(i)} = \mB^{(i)}( \{ (\jac_{\vx_n^{(i)}}\vf_{n})^{\top} \blacktriangle_{n,c}\}_{n,c})$ \quad (grad-output-based factor)
   \end{itemize}
@@ -38,7 +38,7 @@
       \item Softmax cross-entropy loss: $\blacktriangle_{n,1} = \softmax(\vf_n) - \onehot(y_n)$
       \end{itemize}
     \end{itemize}
-  \item KFAC for a linear layer without weight sharing
+  \item KFAC for a linear layer $\vz = \mW \vx + \vb$ without weight sharing (also holds for $(\mW, \vx) \leftrightarrow (\tilde{\mW}, \tilde{\vx})$)
     \begin{align*}
       &\kfac(\mC(\vec \mW)) \approx \mC(\vec \mW)
       =
@@ -55,7 +55,7 @@
     \end{align*}
   \item Test cases
     \begin{itemize}
-      \item KFAC for linear layers in an MLP (no weight sharing) and a dataset with only one datum
+      \item KFAC for linear layers in an MLP (no weight sharing) and a dataset with only one datum ($|\sD| = 1$). For all $l$:
         \begin{itemize}
           \item KFAC-type-II coincides with the GGN/type-II Fisher, \ie,
             \begin{align*}
@@ -70,7 +70,7 @@
               \kfac(\mE(\vec\tilde{\mW}^{(l)})) = \mE(\vec \tilde{\mW}^{(l)})
             \end{align*}
         \end{itemize}
-      \item KFAC for regression with a deep linear network (no weight sharing and no nonlinear layers)
+      \item KFAC for regression with a deep linear network (no weight sharing and no nonlinear layers). For all $l$:
         \begin{itemize}
           \item KFAC-type-II coincides with the GGN/type-II Fisher, \ie,
             \begin{align*}
