@@ -231,7 +231,7 @@ We will handle this factor flexibly in practice by using the reduction factor of
 One way to compute would-be gradients is to repeatedly sample a label, compute its loss, and then use automatic differentiation to obtain the gradient.
 This incurs \texttt{for} loops, which may be sub-optimal for performance.
 In this tutorial, we follow the less efficient \texttt{for} loop approach as it is less complex.
-To improve efficiency, we could draw all labels in parallel, and compute their gradients manually instead of using autodiff, which is cheaper as demonstrated by \Cref{ex:square-loss-gradient,ex:cross-entropy-loss-gradient}.
+To improve efficiency, we could draw all labels in parallel and compute their gradients manually instead of using autodiff, which is cheaper, as demonstrated by \Cref{ex:square-loss-gradient,ex:cross-entropy-loss-gradient}.
 They provide the gradients of square loss and softmax cross-entropy loss, which are straightforward to evaluate manually.
 However, we will not apply this optimization in our tutorial.
 

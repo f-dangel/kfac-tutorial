@@ -5,7 +5,7 @@ These operations are called Jacobian-vector products (JVPs) and vector-Jacobian 
 
 Machine learning libraries like JAX and PyTorch offer routines for computing Jacobians, VJPs, and JVPs.
 However, their interface is functional.
-Here, we provide an alternative implementation that accepts nodes of an evaluated computation graph rather than un-evaluated functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
+Here, we provide an alternative implementation that accepts nodes of an evaluated computation graph rather than unevaluated functions as input and will be beneficial for modular implementations of neural networks, as we consider later.
 We also provide examples for important Jacobians, namely the output-parameter Jacobian of an affine map, \ie a linear layer.
 These Jacobians exhibit a Kronecker structure, which is the foundation for the `K' in KFAC.
 We verify this structure numerically and observe how the flattening convention affects it.
