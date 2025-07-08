@@ -1,4 +1,4 @@
-# KFAC From Scratch – A Tutorial
+# <img alt="KFAC" src="./tex/figures/logo.pdf" height="90"> KFAC From Scratch – A Tutorial
 
 This repository contains a self-contained introduction to Kronecker-factored approximate curvature (KFAC) in math and code ([arXiv paper](https://arxiv.org/abs/2507.05127)).
 
