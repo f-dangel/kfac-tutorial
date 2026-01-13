@@ -3,9 +3,9 @@ It is a useful tool whenever we encounter a composition of functions that we wou
 
 \paragraph{Convexification by partial linearization.}
 Consider \eg the function $f = g \circ h$ with $f,g,h\colon \sR \to \sR$ for simplicity.
-We know that convexity is preserved under function composition, so if both $g$ and $h$ are convex, then $f$ will be convex.
-But what if only one of the two composites is convex, let's say $g$, but $h$ is not?
-Well, then we can replace $h$ with an approximation $\bar{h}$ that is convex and approximates the original function.
+We know that convexity is preserved under composition with linear function, so if  $g$ is convex and $h$ is linear, then $f$ will be convex.
+But what if $g$ is convex, but $h$ is not linear?
+Well, then we can replace $h$ with an approximation $\bar{h}$ that is linear and approximates the original function.
 One straightforward approximation is a linear approximation.
 
 \paragraph{Linearization.} Let's say we are interested in only a neighbourhood around $x_0$.
