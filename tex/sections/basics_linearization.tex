@@ -58,7 +58,7 @@ We can obtain that by considering the partially linearized function $\bar{f} = g
 The Hessian of this partially linearized function is called the generalized Gauss-Newton (GGN) matrix.
 
 Let's stick to our one-dimensional example for a moment, \ie let $f(x) = (g \circ h)(x) \in \sR$.
-If we use the chain rule twice, we obtain $f'' = g' h'' g' + h' g''$ for the second derivative. Using our Jacobian and Hessian notation, this translates into
+If we use the chain rule twice, we obtain $f'' = h' \times g'' \circ h \times  h' + h'' \times g' \circ h$. Using our Jacobian and Hessian notation, this translates into
 \begin{align*}
   &\hess_x f(x)
   \\
